@@ -15,16 +15,17 @@
 .PHONY: fix vet fmt license license-check lint test build buildall tidy
 
 GOBIN := $(shell go env GOPATH)/bin
+PKG := github.com/GoogleCloudPlatform/marketplace-tools/mpdev
 
 build:
-	go build -o $(GOBIN)/mpdev -v ./mpdev
+	go build -o $(GOBIN)/mpdev $(PKG)
 
 all: fix vet fmt license license-check lint test build buildall tidy
 
 buildall:
-	GOOS=windows go build -o /dev/null
-	GOOS=linux go build -o /dev/null
-	GOOS=darwin go build -o /dev/null
+	GOOS=windows go build -o /dev/null $(PKG)
+	GOOS=linux go build -o /dev/null $(PKG)
+	GOOS=darwin go build -o /dev/null $(PKG)
 
 fix:
 	go fix ./...
@@ -45,7 +46,7 @@ license:
 
 license-check:
 	(which go-licenses || go get github.com/google/go-licenses)
-	$(GOBIN)/go-licenses check github.com/GoogleCloudPlatform/marketplace-tools
+	$(GOBIN)/go-licenses check $(PKG)
 
 test:
 	go test -cover ./...
