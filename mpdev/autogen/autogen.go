@@ -22,9 +22,9 @@ import (
 	"os"
 
 	autogen "github.com/GoogleCloudPlatform/marketplace-tools/autogen/generated"
+	yaml2json "github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	yaml2json "github.com/ghodss/yaml"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
