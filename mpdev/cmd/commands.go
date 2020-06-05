@@ -14,8 +14,10 @@
 
 package cmd
 
-import "github.com/spf13/cobra"
-import "github.com/GoogleContainerTools/kpt/commands"
+import (
+	"github.com/GoogleContainerTools/kpt/commands"
+	"github.com/spf13/cobra"
+)
 
 func GetMpdevCommands(name string) []*cobra.Command {
 	var c []*cobra.Command

@@ -1,0 +1,3 @@
+[submodule "mpdev/autogen/deploymentmanager-autogen"]
+	path = mpdev/autogen/deploymentmanager-autogen
+	url = https://github.com/GoogleCloudPlatform/deploymentmanager-autogen
