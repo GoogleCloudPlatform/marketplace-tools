@@ -17,3 +17,7 @@ package docs
 const ReferenceShort = `placeholder`
 const ReferenceLong = `placeholder`
 const ReferenceExamples = `placeholder`
+
+const ApplyShort = `placeholder`
+const ApplyLong = `placeholder`
+const ApplyExamples = `placeholder`
