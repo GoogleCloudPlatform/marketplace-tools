@@ -19,6 +19,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// GetMpdevCommands returns all commands.
 func GetMpdevCommands(name string) []*cobra.Command {
 	var c []*cobra.Command
 	pkgCmd := commands.GetPkgCommand(name)

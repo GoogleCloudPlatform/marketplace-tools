@@ -12,5 +12,6 @@ require (
 	golang.org/x/sys v0.0.0-20200331124033-c3d80250170d // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200121175148-a6ecf24a6d71
+	google.golang.org/protobuf v1.25.0 // indirect
 	sigs.k8s.io/kustomize/cmd/config v0.1.7
 )

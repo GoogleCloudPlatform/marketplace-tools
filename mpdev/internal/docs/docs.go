@@ -14,8 +14,13 @@
 
 package docs
 
+// ReferenceShort contains short help text.
 const ReferenceShort = `placeholder`
+
+// ReferenceLong contains expanded help text.
 const ReferenceLong = `placeholder`
+
+// ReferenceExamples contains examples.
 const ReferenceExamples = `placeholder`
 
 const ApplyShort = `placeholder`
