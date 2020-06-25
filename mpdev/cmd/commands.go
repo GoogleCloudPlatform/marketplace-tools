@@ -20,8 +20,7 @@ import (
 )
 
 // GetMpdevCommands returns all command.
-func GetMpdevCommands(name string) []*cobra.Command {
-	var c []*cobra.Command
+func GetMpdevCommands(name string) (c []*cobra.Command) {
 	pkgCmd := commands.GetPkgCommand(name)
 	cfgCmd := commands.GetConfigCommand(name)
 	applyCmd := GetApplyCommand()

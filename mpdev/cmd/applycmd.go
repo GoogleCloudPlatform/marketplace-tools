@@ -46,7 +46,7 @@ type command struct {
 	Filenames []string
 }
 
-// Executes the `apply` command
+// RunE Executes the `apply` command
 func (c *command) RunE(_ *cobra.Command, _ []string) error {
 	var allObjs []apply.Unstructured
 	for _, file := range c.Filenames {
