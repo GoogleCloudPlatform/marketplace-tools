@@ -56,6 +56,7 @@ func (c *Command) RunE(_ *cobra.Command, _ []string) error {
 		allObjs = append(allObjs, objs...)
 	}
 
+	var typedObjs []apply.Resource
 	for _, obj := range allObjs {
 		typeMeta := obj.GetTypeMeta()
 		fn := apply.TypeMapper[typeMeta]
@@ -73,7 +74,17 @@ func (c *Command) RunE(_ *cobra.Command, _ []string) error {
 			return err
 		}
 
-		err = typedObj.Apply()
+		typedObjs = append(typedObjs, typedObj)
+	}
+
+	var refMap = map[apply.Reference]apply.Resource{}
+	for _, typedObj := range typedObjs {
+		refMap[typedObj.GetReference()] = typedObj
+		typedObj.SetReferenceMap(refMap)
+	}
+
+	for _, typedObj := range typedObjs {
+		err := typedObj.Apply()
 		if err != nil {
 			return err
 		}

@@ -11,11 +11,12 @@ import (
 )
 
 type DeploymentManagerAutogenTemplate struct {
-	TypeMeta
-	Metadata Metadata
+	ResourceShared
 	AutogenFile string
 	PartnerId string
 	SolutionId string
+
+	OutDir string
 }
 
 type ContainerProcess struct {
@@ -77,6 +78,7 @@ func (dm *DeploymentManagerAutogenTemplate) Apply() error {
 	}
 
 	fmt.Printf("Wrote autogen output to directory: %s\n", dir)
+	dm.OutDir = dir
 
 	return nil
 }
@@ -89,4 +91,40 @@ func getCommand(process ContainerProcess) *exec.Cmd {
 	args = append(args, process.containerImage)
 	args = append(args, process.processArgs...)
 	return exec.Command(args[0], args[1:]...)
+}
+
+type DeploymentManagerTemplateOnGCS struct {
+	ResourceShared
+	AutogenRef Reference
+	GCS struct {
+		Bucket string
+		Object string
+	}
+}
+
+func (dm *DeploymentManagerTemplateOnGCS) Apply() error {
+	autogenRef := dm.referenceMap[dm.AutogenRef]
+	if autogenRef == nil {
+		return fmt.Errorf("autogen template not found %+v", dm.AutogenRef)
+	}
+
+	autogenTemplate, ok := autogenRef.(*DeploymentManagerAutogenTemplate)
+	if !ok {
+		return fmt.Errorf("referenced autogen template is not correct type %+v", dm.AutogenRef)
+	}
+
+	gcsPath := fmt.Sprintf("gs://%s/%s", dm.GCS.Bucket, dm.GCS.Object)
+
+	cmd := exec.Command("gsutil", "cp", autogenTemplate.OutDir, gcsPath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return errors.Wrap(err, "failed to copy autogen template to GCS")
+	}
+
+	fmt.Printf("Uploaded autogen template to GCS path: %s\n", gcsPath)
+
+	return nil
 }

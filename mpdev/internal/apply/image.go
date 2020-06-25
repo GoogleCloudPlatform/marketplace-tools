@@ -1,8 +1,7 @@
 package apply
 
 type PackerGceImageBuilder struct {
-	TypeMeta
-	Metadata Metadata
+	ResourceShared
 	Builder struct {
 		Script struct {
 			File string
@@ -22,8 +21,7 @@ func (p *PackerGceImageBuilder) Apply() error {
 }
 
 type GceImage struct {
-	TypeMeta
-	Metadata   Metadata
+	ResourceShared
 	ImageRef   Reference
 	BuilderRef Reference
 	Image      Image
