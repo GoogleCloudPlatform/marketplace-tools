@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -27,8 +26,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// GetApplyCommand returns `apply` command used to create mpdev resources.
 func GetApplyCommand() *cobra.Command {
-	var c Command
+	var c command
 	cmd := &cobra.Command{
 		Use:     "apply",
 		Short:   docs.ApplyShort,
@@ -42,11 +42,12 @@ func GetApplyCommand() *cobra.Command {
 	return cmd
 }
 
-type Command struct {
+type command struct {
 	Filenames []string
 }
 
-func (c *Command) RunE(_ *cobra.Command, _ []string) error {
+// Executes the `apply` command
+func (c *command) RunE(_ *cobra.Command, _ []string) error {
 	var allObjs []apply.Unstructured
 	for _, file := range c.Filenames {
 		objs, err := decodeFile(file)
@@ -57,36 +58,25 @@ func (c *Command) RunE(_ *cobra.Command, _ []string) error {
 	}
 
 	for _, obj := range allObjs {
-		typeMeta := obj.GetTypeMeta()
-		fn := apply.TypeMapper[typeMeta]
-		if fn == nil {
-			return fmt.Errorf("unknown Kind: %s. ApiVersion: %s", typeMeta.Kind, typeMeta.ApiVersion)
-		}
-		typedObj := fn()
-		b, err := json.Marshal(obj)
+		resource, err := apply.UnstructuredToResource(obj)
 		if err != nil {
 			return err
 		}
 
-		err = json.Unmarshal(b, &typedObj)
-		if err != nil {
-			return err
-		}
-
-		switch typedObj.(type) {
+		switch resource.(type) {
 		case *apply.PackerGceImageBuilder:
-			fmt.Printf("Packer: %+v\n", typedObj)
+			fmt.Printf("Packer: %+v\n", resource)
 		case *apply.GceImage:
-			fmt.Printf("GCEImage: %+v\n", typedObj)
+			fmt.Printf("GCEImage: %+v\n", resource)
 		default:
-			return fmt.Errorf("unrecognized type %T", typedObj)
+			return fmt.Errorf("unrecognized type %T", resource)
 		}
 	}
 
 	return nil
 }
 
-func decodeFile(file string) ([]apply.Unstructured,error) {
+func decodeFile(file string) ([]apply.Unstructured, error) {
 	var objs []apply.Unstructured
 	f, err := os.Open(file)
 	if err != nil {
@@ -104,7 +94,7 @@ func decodeFile(file string) ([]apply.Unstructured,error) {
 	}
 
 	if err != io.EOF {
-		return objs, errors.Wrap(err,"failed to parse yaml")
+		return objs, errors.Wrap(err, "failed to parse yaml")
 	}
 
 	return objs, nil
