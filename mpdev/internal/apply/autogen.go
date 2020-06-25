@@ -115,16 +115,18 @@ func (dm *DeploymentManagerTemplateOnGCS) Apply() error {
 
 	gcsPath := fmt.Sprintf("gs://%s/%s", dm.GCS.Bucket, dm.GCS.Object)
 
-	cmd := exec.Command("gsutil", "cp", autogenTemplate.OutDir, gcsPath)
+	cmd := exec.Command("gsutil", "cp", "-r", autogenTemplate.OutDir, gcsPath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
+	fmt.Printf("Uploading DM template to GCS. Running command: %v\n", cmd)
 
 	err := cmd.Run()
 	if err != nil {
 		return errors.Wrap(err, "failed to copy autogen template to GCS")
 	}
 
-	fmt.Printf("Uploaded autogen template to GCS path: %s\n", gcsPath)
+	fmt.Printf("Uploaded DM template to GCS path: %s\n", gcsPath)
 
 	return nil
 }
