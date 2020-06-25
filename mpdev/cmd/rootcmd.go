@@ -24,6 +24,7 @@ import (
 
 const kptFileName = "Kptfile"
 
+// GetMain returns the top level command, corresponding to `mpdev` itself.
 func GetMain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "mpdev",
