@@ -29,7 +29,7 @@ import (
 )
 
 func main() {
-	var c Command
+	var c command
 	cmd := &cobra.Command{
 		Use:  "autogen",
 		RunE: c.autogenConvert,
@@ -45,12 +45,12 @@ func main() {
 	}
 }
 
-type Command struct {
+type command struct {
 	PartnerId string
 	SolutionId string
 }
 
-func (c *Command) autogenConvert(_ *cobra.Command, _ [] string) error {
+func (c *command) autogenConvert(_ *cobra.Command, _ [] string) error {
 	buff, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse yaml from stdin")

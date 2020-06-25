@@ -20,7 +20,7 @@ PKG := github.com/GoogleCloudPlatform/marketplace-tools/mpdev
 build:
 	go build -o $(GOBIN)/mpdev $(PKG)
 
-all: fix vet fmt license license-check lint test build buildall tidy
+all: fix vet fmt license license-check lint tidy test build buildall
 
 buildall:
 	GOOS=windows go build -o /dev/null $(PKG)
@@ -37,15 +37,15 @@ tidy:
 	go mod tidy
 
 lint:
-	(which golangci-lint || go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.22.2)
+	( [ -f $(GOBIN)/golangci-lint ] || go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.27.0)
 	$(GOBIN)/golangci-lint run ./...
 
 license:
-	(which addlicense || go get github.com/google/addlicense)
+	( [ -f $(GOBIN)/addlicense ] || go get github.com/google/addlicense)
 	$(GOBIN)/addlicense -y 2020 -l apache *
 
 license-check:
-	(which go-licenses || go get github.com/google/go-licenses)
+	( [ -f $(GOBIN)/go-licenses ] || go get github.com/google/go-licenses)
 	$(GOBIN)/go-licenses check $(PKG)
 
 test:
