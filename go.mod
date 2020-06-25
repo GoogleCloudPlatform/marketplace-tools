@@ -10,5 +10,6 @@ require (
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/sys v0.0.0-20200331124033-c3d80250170d // indirect
 	google.golang.org/appengine v1.6.5 // indirect
+	google.golang.org/protobuf v1.25.0 // indirect
 	sigs.k8s.io/kustomize/cmd/config v0.1.7
 )
