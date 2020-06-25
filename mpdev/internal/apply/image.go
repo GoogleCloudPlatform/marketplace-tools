@@ -2,7 +2,7 @@ package apply
 
 type PackerGceImageBuilder struct {
 	TypeMeta
-	ObjectMeta
+	Metadata Metadata
 	Builder struct {
 		Script struct {
 			File string
@@ -17,20 +17,20 @@ type PackerGceImageBuilder struct {
 	}
 }
 
-func (p *PackerGceImageBuilder) Apply() {
-
+func (p *PackerGceImageBuilder) Apply() error {
+	return nil
 }
 
 type GceImage struct {
 	TypeMeta
-	ObjectMeta `json:"metadata"`
+	Metadata   Metadata
 	ImageRef   Reference
 	BuilderRef Reference
 	Image      Image
 }
 
-func (g *GceImage) Apply() {
-
+func (g *GceImage) Apply() error {
+	return nil
 }
 
 type Image struct {

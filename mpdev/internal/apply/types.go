@@ -5,14 +5,15 @@ const API_VERSION = "dev.marketplace.cloud.google.com/v1alpha1"
 var TypeMapper = map[TypeMeta]func() Resource{
 	{ ApiVersion: API_VERSION, Kind: "GceImage" } :             func() Resource { return &GceImage{} },
 	{ ApiVersion: API_VERSION, Kind: "PackerGceImageBuilder"} : func() Resource { return &PackerGceImageBuilder{} },
+	{ ApiVersion: API_VERSION, Kind: "DeploymentManagerAutogenTemplate"} : func() Resource { return &DeploymentManagerAutogenTemplate{}},
 }
 
 type TypeMeta struct {
 	Kind       string
-	ApiVersion string `yaml:"apiVersion,omitempty"`
+	ApiVersion string
 }
 
-type ObjectMeta struct {
+type Metadata struct {
 	Name        string
 	Annotations map[string]string
 }
@@ -37,7 +38,7 @@ func (u *Unstructured) GetTypeMeta() TypeMeta {
 
 
 type Resource interface {
-	Apply()
+	Apply() error
 }
 
 type Reference struct {

@@ -73,13 +73,9 @@ func (c *Command) RunE(_ *cobra.Command, _ []string) error {
 			return err
 		}
 
-		switch typedObj.(type) {
-		case *apply.PackerGceImageBuilder:
-			fmt.Printf("Packer: %+v\n", typedObj)
-		case *apply.GceImage:
-			fmt.Printf("GCEImage: %+v\n", typedObj)
-		default:
-			return fmt.Errorf("unrecognized type %T", typedObj)
+		err = typedObj.Apply()
+		if err != nil {
+			return err
 		}
 	}
 

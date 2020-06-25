@@ -29,4 +29,4 @@ RUN go build -v -o /usr/local/bin/autogen
 
 FROM alpine:latest
 COPY --from=0 /usr/local/bin/autogen /usr/local/bin/autogen
-CMD ["autogen"]
+ENTRYPOINT ["autogen"]
