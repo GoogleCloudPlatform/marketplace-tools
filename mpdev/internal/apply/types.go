@@ -14,7 +14,6 @@
 
 package apply
 
-
 import (
 	"encoding/json"
 	"fmt"
@@ -64,7 +63,6 @@ type Metadata struct {
 	Name        string
 	Annotations map[string]string
 }
-
 
 // Unstructured is used to unmarshal json/yaml KRM resources and extract
 // the TypeMeta, such that the KRM resource can be unmarshalled to a
