@@ -17,16 +17,17 @@ package apply
 import (
 	"encoding/json"
 	"fmt"
+	"os/exec"
 	"strings"
 )
 
 const apiVersion = "dev.marketplace.cloud.google.com/v1alpha1"
 
 var typeMapper = map[TypeMeta]func() Resource{
-	{APIVersion: apiVersion, Kind: "GceImage"}:              func() Resource { return &GceImage{} },
-	{APIVersion: apiVersion, Kind: "PackerGceImageBuilder"}: func() Resource { return &PackerGceImageBuilder{} },
-	{ APIVersion: apiVersion, Kind: "DeploymentManagerAutogenTemplate"} : func() Resource { return &DeploymentManagerAutogenTemplate{}},
-	{ APIVersion: apiVersion, Kind: "DeploymentManagerTemplateOnGCS"} : func() Resource { return &DeploymentManagerTemplateOnGCS{}},
+	{APIVersion: apiVersion, Kind: "GceImage"}:                         func() Resource { return &GceImage{} },
+	{APIVersion: apiVersion, Kind: "PackerGceImageBuilder"}:            func() Resource { return &PackerGceImageBuilder{} },
+	{APIVersion: apiVersion, Kind: "DeploymentManagerAutogenTemplate"}: func() Resource { return &DeploymentManagerAutogenTemplate{} },
+	{APIVersion: apiVersion, Kind: "DeploymentManagerTemplateOnGCS"}:   func() Resource { return &DeploymentManagerTemplateOnGCS{} },
 }
 
 // UnstructuredToResource converts Unstructured to a specific type implementing the
@@ -58,7 +59,7 @@ type TypeMeta struct {
 	APIVersion string `yaml:"apiVersion,omitempty"`
 }
 
-// ObjectMeta is metadata that all KRM resources must have
+// Metadata is metadata that all KRM resources must have
 type Metadata struct {
 	Name        string
 	Annotations map[string]string
@@ -92,6 +93,8 @@ type Resource interface {
 	SetReferenceMap(ReferenceMap)
 }
 
+// ResourceShared contains fields should be present in all Resources. This
+// struct should be embedded in types implementing the resource interface.
 type ResourceShared struct {
 	TypeMeta
 	Metadata Metadata
@@ -99,15 +102,17 @@ type ResourceShared struct {
 	referenceMap ReferenceMap
 }
 
+// GetReference computes the reference to the Resource.
 func (rs *ResourceShared) GetReference() Reference {
 	groupAndVersion := strings.Split(rs.APIVersion, "/")
 	return Reference{
-		Group:   groupAndVersion[0],
-		Kind:    rs.Kind,
-		Name:    rs.Metadata.Name,
+		Group: groupAndVersion[0],
+		Kind:  rs.Kind,
+		Name:  rs.Metadata.Name,
 	}
 }
 
+// SetReferenceMap sets a reference to resource map.
 func (rs *ResourceShared) SetReferenceMap(referenceMap ReferenceMap) {
 	rs.referenceMap = referenceMap
 }
@@ -121,4 +126,22 @@ type Reference struct {
 	Name  string
 }
 
+// ReferenceMap is a mapping between KRM references and the resource object.
 type ReferenceMap map[Reference]Resource
+
+// ContainerProcess construct a command to execute the container process
+type ContainerProcess struct {
+	containerImage string
+	processArgs    []string
+	mounts         []string
+}
+
+func (cp *ContainerProcess) getCommand() *exec.Cmd {
+	args := []string{"docker", "run", "--rm", "-i"}
+	for _, mount := range cp.mounts {
+		args = append(args, "--mount", mount)
+	}
+	args = append(args, cp.containerImage)
+	args = append(args, cp.processArgs...)
+	return exec.Command(args[0], args[1:]...)
+}

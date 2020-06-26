@@ -35,9 +35,9 @@ func main() {
 		RunE: c.autogenConvert,
 	}
 
-	cmd.Flags().StringVar(&c.PartnerId, "partnerId", "", "partner id for autogen template")
+	cmd.Flags().StringVar(&c.PartnerID, "partnerId", "", "partner id for autogen template")
 	cmd.MarkFlagRequired("partnerId")
-	cmd.Flags().StringVar(&c.SolutionId, "solutionId", "", "solution id for autogen template")
+	cmd.Flags().StringVar(&c.SolutionID, "solutionId", "", "solution id for autogen template")
 	cmd.MarkFlagRequired("solutionId")
 
 	if err := cmd.Execute(); err != nil {
@@ -46,8 +46,8 @@ func main() {
 }
 
 type command struct {
-	PartnerId string
-	SolutionId string
+	PartnerID  string
+	SolutionID string
 }
 
 func (c *command) autogenConvert(_ *cobra.Command, _ [] string) error {
@@ -71,8 +71,8 @@ func (c *command) autogenConvert(_ *cobra.Command, _ [] string) error {
 
 	deploymentPackageInput := autogen.DeploymentPackageInput{
 		Spec:       &autogenSpec,
-		PartnerId:  c.PartnerId,
-		SolutionId: c.SolutionId,
+		PartnerId:  c.PartnerID,
+		SolutionId: c.SolutionID,
 	}
 
 	out, err := protojson.Marshal(&deploymentPackageInput)

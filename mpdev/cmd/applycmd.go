@@ -56,24 +56,23 @@ func (c *command) RunE(_ *cobra.Command, _ []string) error {
 		allObjs = append(allObjs, objs...)
 	}
 
-	var typedObjs []apply.Resource
+	var resources []apply.Resource
+	var refMap = map[apply.Reference]apply.Resource{}
 	for _, obj := range allObjs {
 		resource, err := apply.UnstructuredToResource(obj)
 		if err != nil {
 			return err
 		}
+		refMap[resource.GetReference()] = resource
+		resource.SetReferenceMap(refMap)
 
-		typedObjs = append(typedObjs, resource)
+		resources = append(resources, resource)
 	}
 
-	var refMap = map[apply.Reference]apply.Resource{}
-	for _, typedObj := range typedObjs {
-		refMap[typedObj.GetReference()] = typedObj
-		typedObj.SetReferenceMap(refMap)
-	}
-
-	for _, typedObj := range typedObjs {
-		err := typedObj.Apply()
+	// TODO: Setup execution order for apply command
+	// Some resources cannot be applied prior to others
+	for _, resource := range resources {
+		err := resource.Apply()
 		if err != nil {
 			return err
 		}
