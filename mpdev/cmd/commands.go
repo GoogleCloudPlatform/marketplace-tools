@@ -19,15 +19,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// GetMpdevCommands returns all commands.
-func GetMpdevCommands(name string) []*cobra.Command {
-	var c []*cobra.Command
+// GetMpdevCommands returns all command.
+func GetMpdevCommands(name string) (c []*cobra.Command) {
 	pkgCmd := commands.GetPkgCommand(name)
 	cfgCmd := commands.GetConfigCommand(name)
+	applyCmd := GetApplyCommand()
 
-	c = append(c, pkgCmd, cfgCmd)
+	c = append(c, pkgCmd, cfgCmd, applyCmd)
 
-	// apply cross-cutting issues to commands
+	// apply cross-cutting issues to command
 	commands.NormalizeCommand(c...)
 	return c
 }

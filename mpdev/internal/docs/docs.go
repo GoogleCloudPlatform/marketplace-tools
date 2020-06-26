@@ -22,3 +22,12 @@ const ReferenceLong = `placeholder`
 
 // ReferenceExamples contains examples.
 const ReferenceExamples = `placeholder`
+
+// ApplyShort contains short help text for apply command.
+const ApplyShort = `placeholder`
+
+// ApplyLong contains expanded help text for apply command
+const ApplyLong = `placeholder`
+
+// ApplyExamples contains examples for apply command.
+const ApplyExamples = `placeholder`

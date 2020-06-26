@@ -37,10 +37,8 @@ tidy:
 	go mod tidy
 
 lint:
-	( [ -f $(GOBIN)/golangci-lint ] || go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.22.2)
-	( [ -f $(GOBIN)/golint ] || go get golang.org/x/lint/golint)
+	( [ -f $(GOBIN)/golangci-lint ] || go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.27.0)
 	$(GOBIN)/golangci-lint run ./...
-	$(GOBIN)/golint -set_exit_status ./...
 
 license:
 	( [ -f $(GOBIN)/addlicense ] || go get github.com/google/addlicense)
