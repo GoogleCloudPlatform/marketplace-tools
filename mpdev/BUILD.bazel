@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev",
+    visibility = ["//visibility:private"],
+    deps = ["//mpdev/cmd:go_default_library"],
+)
+
+go_binary(
+    name = "mpdev",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)

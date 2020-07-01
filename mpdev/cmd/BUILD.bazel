@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "applycmd.go",
+        "commands.go",
+        "rootcmd.go",
+    ],
+    importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/cmd",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//mpdev/internal/apply:go_default_library",
+        "//mpdev/internal/docs:go_default_library",
+        "@com_github_googlecontainertools_kpt//commands:go_default_library",
+        "@com_github_pkg_errors//:go_default_library",
+        "@com_github_spf13_cobra//:go_default_library",
+        "@in_gopkg_yaml_v3//:go_default_library",
+        "@io_k8s_sigs_kustomize_cmd_config//ext:go_default_library",
+    ],
+)

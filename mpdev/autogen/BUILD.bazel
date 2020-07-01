@@ -1,0 +1,39 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
+
+go_proto_library(
+    name = "autogen_proto",
+    importpath = "github.com/GoogleCloudPlatform/marketplace-tools/autogen/generated",
+    protos = [
+        "@deploymentmanager-autogen//java/com/google/cloud/deploymentmanager/autogen:autogen_proto",
+        "@deploymentmanager-autogen//java/com/google/cloud/deploymentmanager/autogen:deployment_package_autogen_spec_proto",
+        "@deploymentmanager-autogen//java/com/google/cloud/deploymentmanager/autogen:marketing_info_proto",
+    ],
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = ["autogen.go"],
+    importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/autogen",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":autogen_proto",
+        "@com_github_ghodss_yaml//:go_default_library",
+        "@com_github_pkg_errors//:go_default_library",
+        "@com_github_spf13_cobra//:go_default_library",
+        "@org_golang_google_protobuf//encoding/protojson:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "autogen",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
+
+load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+
+go_image(
+    name = "docker_image",
+    binary = ":autogen",
+)

@@ -12,20 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.PHONY: fix vet fmt license license-check lint test build buildall tidy
+.PHONY: fix vet fmt license license-check lint update-deps tidy build test
 
 GOBIN := $(shell go env GOPATH)/bin
 PKG := github.com/GoogleCloudPlatform/marketplace-tools/mpdev
 
 build:
-	go build -o $(GOBIN)/mpdev $(PKG)
+	bazel build //...:all
 
-all: fix vet fmt license license-check lint tidy test build buildall
-
-buildall:
-	GOOS=windows go build -o /dev/null $(PKG)
-	GOOS=linux go build -o /dev/null $(PKG)
-	GOOS=darwin go build -o /dev/null $(PKG)
+all: fix vet fmt license license-check lint update-deps tidy build test
 
 fix:
 	go fix ./...
@@ -49,7 +44,11 @@ license-check:
 	$(GOBIN)/go-licenses check $(PKG)
 
 test:
-	go test -cover ./...
+	bazel test /...
+
+update-deps:
+	( sed -i '/gazelle_dependencies()/q' WORKSPACE ) # Remove dependencies from WORKSPACE
+	bazel run :gazelle -- update-repos -from_file=go.mod -build_file_proto_mode disable
 
 vet:
 	go vet ./...
