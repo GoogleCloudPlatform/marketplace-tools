@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
 go_proto_library(
@@ -36,4 +36,11 @@ load("@io_bazel_rules_docker//go:image.bzl", "go_image")
 go_image(
     name = "docker_image",
     binary = ":autogen",
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["autogen_test.go"],
+    embed = [":go_default_library"],
+    deps = ["@com_github_stretchr_testify//assert:go_default_library"],
 )
