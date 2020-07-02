@@ -17,7 +17,6 @@ package apply
 import (
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"strings"
 )
 
@@ -93,9 +92,9 @@ type Resource interface {
 	SetReferenceMap(ReferenceMap)
 }
 
-// ResourceShared contains fields should be present in all Resources. This
+// BaseResource contains fields should be present in all Resources. This
 // struct should be embedded in types implementing the resource interface.
-type ResourceShared struct {
+type BaseResource struct {
 	TypeMeta
 	Metadata Metadata
 
@@ -103,7 +102,7 @@ type ResourceShared struct {
 }
 
 // GetReference computes the reference to the Resource.
-func (rs *ResourceShared) GetReference() Reference {
+func (rs *BaseResource) GetReference() Reference {
 	groupAndVersion := strings.Split(rs.APIVersion, "/")
 	return Reference{
 		Group: groupAndVersion[0],
@@ -113,7 +112,7 @@ func (rs *ResourceShared) GetReference() Reference {
 }
 
 // SetReferenceMap sets a reference to resource map.
-func (rs *ResourceShared) SetReferenceMap(referenceMap ReferenceMap) {
+func (rs *BaseResource) SetReferenceMap(referenceMap ReferenceMap) {
 	rs.referenceMap = referenceMap
 }
 
@@ -128,20 +127,3 @@ type Reference struct {
 
 // ReferenceMap is a mapping between KRM references and the resource object.
 type ReferenceMap map[Reference]Resource
-
-// ContainerProcess construct a command to execute the container process
-type ContainerProcess struct {
-	containerImage string
-	processArgs    []string
-	mounts         []string
-}
-
-func (cp *ContainerProcess) getCommand() *exec.Cmd {
-	args := []string{"docker", "run", "--rm", "-i"}
-	for _, mount := range cp.mounts {
-		args = append(args, "--mount", mount)
-	}
-	args = append(args, cp.containerImage)
-	args = append(args, cp.processArgs...)
-	return exec.Command(args[0], args[1:]...)
-}

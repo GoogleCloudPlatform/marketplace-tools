@@ -21,13 +21,14 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/util"
 	"github.com/pkg/errors"
 )
 
 // DeploymentManagerAutogenTemplate generates a deployment manager template
 // given an autogen.yaml file.
 type DeploymentManagerAutogenTemplate struct {
-	ResourceShared
+	BaseResource
 	AutogenFile string
 	PartnerID   string `json:"partnerId"`
 	SolutionID  string `json:"solutionId"`
@@ -43,7 +44,7 @@ func (dm *DeploymentManagerAutogenTemplate) Apply() error {
 	}
 	dm.outDir = dir
 
-	fmt.Printf("Generating deployment manager template from autogen\n")
+	fmt.Printf("Generating deployment manager template from autogen...\n")
 	err = dm.convertAutogenSchema()
 	if err != nil {
 		return err
@@ -53,10 +54,10 @@ func (dm *DeploymentManagerAutogenTemplate) Apply() error {
 	args := []string{"--input_type", "YAML", "--single_input", "/autogen/autogen.yaml",
 		"--output_type", "PACKAGE", "--output", "/autogen"}
 
-	cp := &ContainerProcess{
+	cp := &containerProcess{
 		containerImage: autogenImg,
 		processArgs:    args,
-		mounts:         []string{fmt.Sprintf("type=bind,src=%s,dst=/autogen", dm.outDir)},
+		mounts:         []mount{&bindMount{src: dm.outDir, dst: "/autogen"}},
 	}
 	cmd := cp.getCommand()
 	cmd.Stderr = os.Stderr
@@ -87,7 +88,7 @@ func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema() error {
 
 	// Image name from running `docker build mpdev/autogen -f mpdev/autogen/Dockerfile -t autogen_converter
 	autogenConverterImg := "autogen_converter"
-	cp := &ContainerProcess{
+	cp := &containerProcess{
 		containerImage: autogenConverterImg,
 		processArgs:    []string{"--partnerId", dm.PartnerID, "--solutionId", dm.SolutionID},
 		mounts:         nil,
@@ -109,7 +110,7 @@ func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema() error {
 // DeploymentManagerTemplateOnGCS uploads a referenced Deployment Manager
 // template to GCS.
 type DeploymentManagerTemplateOnGCS struct {
-	ResourceShared
+	BaseResource
 	DeploymentManagerRef Reference
 	GCS                  struct {
 		Bucket string
@@ -129,15 +130,21 @@ func (dm *DeploymentManagerTemplateOnGCS) Apply() error {
 		return fmt.Errorf("referenced autogen template is not correct type %+v", dm.DeploymentManagerRef)
 	}
 
+	zipFileName := "dm_template.zip"
+	zipFilePath, err := util.ZipDirectory(zipFileName, dmTemplate.outDir)
+	if err != nil {
+		return errors.Wrap(err, "failed to zip autogen template before uploading to GCS")
+	}
+
 	gcsPath := fmt.Sprintf("gs://%s/%s", dm.GCS.Bucket, dm.GCS.Object)
 
-	cmd := exec.Command("gsutil", "cp", "-r", dmTemplate.outDir, gcsPath)
+	cmd := exec.Command("gsutil", "cp", zipFilePath, gcsPath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	fmt.Printf("Uploading DM template to GCS. Running command: %v\n", cmd)
 
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
 		return errors.Wrap(err, "failed to copy autogen template to GCS")
 	}

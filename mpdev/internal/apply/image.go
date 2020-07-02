@@ -16,7 +16,7 @@ package apply
 
 // PackerGceImageBuilder uses Packer to create a GCEImage when applied
 type PackerGceImageBuilder struct {
-	ResourceShared
+	BaseResource
 	Builder struct {
 		Script struct {
 			File string
@@ -39,7 +39,7 @@ func (p *PackerGceImageBuilder) Apply() error {
 // GceImage represents a Google Compute Engine image. One of BuilderRef or
 // ImageRef must be specified
 type GceImage struct {
-	ResourceShared
+	BaseResource
 
 	// References another GCE Image resource
 	ImageRef Reference

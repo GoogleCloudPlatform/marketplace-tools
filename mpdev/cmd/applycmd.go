@@ -69,7 +69,7 @@ func (c *command) RunE(_ *cobra.Command, _ []string) error {
 		resources = append(resources, resource)
 	}
 
-	// TODO: Setup execution order for apply command
+	// TODO(https://github.com/GoogleCloudPlatform/marketplace-tools/issues/8): Setup execution order for apply command
 	// Some resources cannot be applied prior to others
 	for _, resource := range resources {
 		err := resource.Apply()

@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/GoogleContainerTools/kpt v0.25.0
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
-	github.com/golangci/golangci-lint v1.27.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/ginkgo v1.12.0 // indirect

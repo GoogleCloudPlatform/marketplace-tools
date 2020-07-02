@@ -12,22 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package util
 
 import (
-	"github.com/GoogleContainerTools/kpt/commands"
-	"github.com/spf13/cobra"
+	"fmt"
+	"os"
+	"os/exec"
 )
 
-// GetMpdevCommands returns all command.
-func GetMpdevCommands(name string) (c []*cobra.Command) {
-	pkgCmd := commands.GetPkgCommand(name)
-	cfgCmd := commands.GetConfigCommand(name)
-	applyCmd := GetApplyCommand()
+// ZipDirectory zips the given directory to the given zipFile and returns
+// the path of the zipFile which is directory/zipFile
+func ZipDirectory(zipFile string, directory string) (string, error) {
+	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("cd %s && zip -r %s .", directory, zipFile))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	c = append(c, pkgCmd, cfgCmd, applyCmd)
-
-	// apply cross-cutting issues to command
-	commands.NormalizeCommand(c...)
-	return c
+	err := cmd.Run()
+	return fmt.Sprintf("%s/%s", directory, zipFile), err
 }
