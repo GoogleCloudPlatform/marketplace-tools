@@ -17,7 +17,7 @@
 GOBIN := $(shell go env GOPATH)/bin
 PKG := github.com/GoogleCloudPlatform/marketplace-tools/mpdev
 
-build: update-bazel
+build:
 	bazel build //...:all
 
 all: fix vet fmt license license-check lint update-bazel tidy build test
@@ -43,12 +43,11 @@ license-check:
 	( [ -f $(GOBIN)/go-licenses ] || go get github.com/google/go-licenses)
 	$(GOBIN)/go-licenses check $(PKG)
 
-test: update-bazel
+test:
 	bazel test //...
 
 update-bazel:
-	( sed -i '/gazelle_dependencies()/q' WORKSPACE ) # Remove dependencies from WORKSPACE
-	bazel run :gazelle -- update-repos -from_file=go.mod -build_file_proto_mode disable
+	bazel run :gazelle -- update-repos -from_file=go.mod -build_file_proto_mode disable --to_macro=repos.bzl%go_repositories --prune
 	bazel run :gazelle
 
 vet:
