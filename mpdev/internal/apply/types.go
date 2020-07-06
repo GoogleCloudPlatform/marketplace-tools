@@ -17,7 +17,6 @@ package apply
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 )
 
 const apiVersion = "dev.marketplace.cloud.google.com/v1alpha1"
@@ -43,7 +42,7 @@ func UnstructuredToResource(obj Unstructured) (Resource, error) {
 		return nil, err
 	}
 
-	err = json.Unmarshal(b, &resource)
+	err = json.Unmarshal(b, resource)
 	if err != nil {
 		return nil, err
 	}
@@ -51,21 +50,8 @@ func UnstructuredToResource(obj Unstructured) (Resource, error) {
 	return resource, nil
 }
 
-// TypeMeta describes an individual KRM resource with strings representing the
-// type of the object and its API schema version.
-type TypeMeta struct {
-	Kind       string
-	APIVersion string `yaml:"apiVersion,omitempty"`
-}
-
-// Metadata is metadata that all KRM resources must have
-type Metadata struct {
-	Name        string
-	Annotations map[string]string
-}
-
-// Unstructured is used to unmarshal json/yaml KRM resources and extract
-// the TypeMeta, such that the KRM resource can be unmarshalled to a
+// Unstructured is used to unmarshal json/yaml KRM Resources and extract
+// the TypeMeta, such that the KRM Resource can be unmarshalled to a
 // specific type implementing the Resource interface.
 type Unstructured map[string]interface{}
 
@@ -84,46 +70,3 @@ func (u *Unstructured) getTypeMeta() TypeMeta {
 		APIVersion: apiVersion,
 	}
 }
-
-// Resource represents a KRM resource that can be applied
-type Resource interface {
-	Apply() error
-	GetReference() Reference
-	SetReferenceMap(ReferenceMap)
-}
-
-// BaseResource contains fields should be present in all Resources. This
-// struct should be embedded in types implementing the resource interface.
-type BaseResource struct {
-	TypeMeta
-	Metadata Metadata
-
-	referenceMap ReferenceMap
-}
-
-// GetReference computes the reference to the Resource.
-func (rs *BaseResource) GetReference() Reference {
-	groupAndVersion := strings.Split(rs.APIVersion, "/")
-	return Reference{
-		Group: groupAndVersion[0],
-		Kind:  rs.Kind,
-		Name:  rs.Metadata.Name,
-	}
-}
-
-// SetReferenceMap sets a reference to resource map.
-func (rs *BaseResource) SetReferenceMap(referenceMap ReferenceMap) {
-	rs.referenceMap = referenceMap
-}
-
-// Reference allows a Resource to reference another Resource as part of its
-// specification. The combination of Group, Kind, Name MUST be unique for all
-// applied resources.
-type Reference struct {
-	Group string
-	Kind  string
-	Name  string
-}
-
-// ReferenceMap is a mapping between KRM references and the resource object.
-type ReferenceMap map[Reference]Resource

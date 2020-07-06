@@ -37,7 +37,7 @@ type DeploymentManagerAutogenTemplate struct {
 }
 
 // Apply generates a deployment manager template from an autogen file.
-func (dm *DeploymentManagerAutogenTemplate) Apply() error {
+func (dm *DeploymentManagerAutogenTemplate) Apply(registry *registry) error {
 	dir, err := ioutil.TempDir("", "autogen")
 	if err != nil {
 		return err
@@ -118,9 +118,15 @@ type DeploymentManagerTemplateOnGCS struct {
 	}
 }
 
+// GetDependencies returns dependencies for DeploymentManagerTemplateOnGCS
+func (dm *DeploymentManagerTemplateOnGCS) GetDependencies() (r []Reference) {
+	r = append(r, dm.DeploymentManagerRef)
+	return r
+}
+
 // Apply uploads a Deployment Manager template to GCS.
-func (dm *DeploymentManagerTemplateOnGCS) Apply() error {
-	dmRef := dm.referenceMap[dm.DeploymentManagerRef]
+func (dm *DeploymentManagerTemplateOnGCS) Apply(registry *registry) error {
+	dmRef := registry.getReference(dm.DeploymentManagerRef)
 	if dmRef == nil {
 		return fmt.Errorf("autogen template not found %+v", dm.DeploymentManagerRef)
 	}

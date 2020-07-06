@@ -6,6 +6,8 @@ go_library(
         "container_process.go",
         "deployment_manager.go",
         "image.go",
+        "registry.go",
+        "resource.go",
         "types.go",
     ],
     importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/apply",
@@ -13,5 +15,7 @@ go_library(
     deps = [
         "//mpdev/internal/util:go_default_library",
         "@com_github_pkg_errors//:go_default_library",
+        "@org_gonum_v1_gonum//graph/simple:go_default_library",
+        "@org_gonum_v1_gonum//graph/topo:go_default_library",
     ],
 )

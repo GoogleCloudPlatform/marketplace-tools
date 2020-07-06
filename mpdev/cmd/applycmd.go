@@ -56,29 +56,18 @@ func (c *command) RunE(_ *cobra.Command, _ []string) error {
 		allObjs = append(allObjs, objs...)
 	}
 
-	var resources []apply.Resource
-	var refMap = map[apply.Reference]apply.Resource{}
+	registry := apply.NewRegistry()
 	for _, obj := range allObjs {
 		resource, err := apply.UnstructuredToResource(obj)
 		if err != nil {
 			return err
 		}
-		refMap[resource.GetReference()] = resource
-		resource.SetReferenceMap(refMap)
-
-		resources = append(resources, resource)
+		registry.RegisterResource(resource)
 	}
 
-	// TODO(https://github.com/GoogleCloudPlatform/marketplace-tools/issues/8): Setup execution order for apply command
-	// Some resources cannot be applied prior to others
-	for _, resource := range resources {
-		err := resource.Apply()
-		if err != nil {
-			return err
-		}
-	}
+	err := registry.Apply()
 
-	return nil
+	return err
 }
 
 func decodeFile(file string) ([]apply.Unstructured, error) {
