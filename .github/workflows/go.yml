@@ -22,11 +22,5 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Install Bazel
-      run: |
-        set -ex
-        go get github.com/bazelbuild/bazelisk
-        ln -s $(go env GOPATH)/bin/bazelisk /usr/local/bin/bazel
-
     - name: Lint, Build, and Test
       run: make lint vet license-check build test
