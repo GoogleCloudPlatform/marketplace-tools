@@ -16,8 +16,7 @@ package apply
 
 // PackerGceImageBuilder uses Packer to create a GCEImage when applied
 type PackerGceImageBuilder struct {
-	TypeMeta
-	ObjectMeta
+	BaseResource
 	Builder struct {
 		Script struct {
 			File string
@@ -33,15 +32,14 @@ type PackerGceImageBuilder struct {
 }
 
 // Apply build a GCE image using Packer
-func (p *PackerGceImageBuilder) Apply() {
-
+func (p *PackerGceImageBuilder) Apply() error {
+	return nil
 }
 
 // GceImage represents a Google Compute Engine image. One of BuilderRef or
 // ImageRef must be specified
 type GceImage struct {
-	TypeMeta
-	ObjectMeta `json:"metadata"`
+	BaseResource
 
 	// References another GCE Image resource
 	ImageRef Reference
@@ -54,8 +52,8 @@ type GceImage struct {
 
 // Apply publishes an image to with the project and name specified in
 // the GceImage
-func (g *GceImage) Apply() {
-
+func (g *GceImage) Apply() error {
+	return nil
 }
 
 // Image defines the location of the GCE Image when published

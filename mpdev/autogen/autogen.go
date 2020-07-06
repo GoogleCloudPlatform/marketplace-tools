@@ -29,17 +29,28 @@ import (
 )
 
 func main() {
+	var c command
 	cmd := &cobra.Command{
 		Use:  "autogen",
-		RunE: autogenConvert,
+		RunE: c.autogenConvert,
 	}
+
+	cmd.Flags().StringVar(&c.PartnerID, "partnerId", "", "partner id for autogen template")
+	cmd.MarkFlagRequired("partnerId")
+	cmd.Flags().StringVar(&c.SolutionID, "solutionId", "", "solution id for autogen template")
+	cmd.MarkFlagRequired("solutionId")
 
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
 
-func autogenConvert(_ *cobra.Command, _ []string) error {
+type command struct {
+	PartnerID  string
+	SolutionID string
+}
+
+func (c *command) autogenConvert(_ *cobra.Command, _ [] string) error {
 	buff, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse yaml from stdin")
@@ -58,12 +69,10 @@ func autogenConvert(_ *cobra.Command, _ []string) error {
 		return errors.Wrap(err, "failed to convert yaml/json to DeploymentPackageAutogenSpec")
 	}
 
-	partnerID := "placeholder"
-	solutionID := "placeholder"
 	deploymentPackageInput := autogen.DeploymentPackageInput{
 		Spec:       &autogenSpec,
-		PartnerId:  partnerID,
-		SolutionId: solutionID,
+		PartnerId:  c.PartnerID,
+		SolutionId: c.SolutionID,
 	}
 
 	out, err := protojson.Marshal(&deploymentPackageInput)

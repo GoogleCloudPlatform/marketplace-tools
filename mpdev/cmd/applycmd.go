@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"fmt"
 	"io"
 	"os"
 
@@ -57,19 +56,25 @@ func (c *command) RunE(_ *cobra.Command, _ []string) error {
 		allObjs = append(allObjs, objs...)
 	}
 
+	var resources []apply.Resource
+	var refMap = map[apply.Reference]apply.Resource{}
 	for _, obj := range allObjs {
 		resource, err := apply.UnstructuredToResource(obj)
 		if err != nil {
 			return err
 		}
+		refMap[resource.GetReference()] = resource
+		resource.SetReferenceMap(refMap)
 
-		switch resource.(type) {
-		case *apply.PackerGceImageBuilder:
-			fmt.Printf("Packer: %+v\n", resource)
-		case *apply.GceImage:
-			fmt.Printf("GCEImage: %+v\n", resource)
-		default:
-			return fmt.Errorf("unrecognized type %T", resource)
+		resources = append(resources, resource)
+	}
+
+	// TODO(https://github.com/GoogleCloudPlatform/marketplace-tools/issues/8): Setup execution order for apply command
+	// Some resources cannot be applied prior to others
+	for _, resource := range resources {
+		err := resource.Apply()
+		if err != nil {
+			return err
 		}
 	}
 

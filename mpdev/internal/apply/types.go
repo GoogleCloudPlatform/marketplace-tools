@@ -17,13 +17,16 @@ package apply
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 const apiVersion = "dev.marketplace.cloud.google.com/v1alpha1"
 
 var typeMapper = map[TypeMeta]func() Resource{
-	{APIVersion: apiVersion, Kind: "GceImage"}:              func() Resource { return &GceImage{} },
-	{APIVersion: apiVersion, Kind: "PackerGceImageBuilder"}: func() Resource { return &PackerGceImageBuilder{} },
+	{APIVersion: apiVersion, Kind: "GceImage"}:                         func() Resource { return &GceImage{} },
+	{APIVersion: apiVersion, Kind: "PackerGceImageBuilder"}:            func() Resource { return &PackerGceImageBuilder{} },
+	{APIVersion: apiVersion, Kind: "DeploymentManagerAutogenTemplate"}: func() Resource { return &DeploymentManagerAutogenTemplate{} },
+	{APIVersion: apiVersion, Kind: "DeploymentManagerTemplateOnGCS"}:   func() Resource { return &DeploymentManagerTemplateOnGCS{} },
 }
 
 // UnstructuredToResource converts Unstructured to a specific type implementing the
@@ -55,8 +58,8 @@ type TypeMeta struct {
 	APIVersion string `yaml:"apiVersion,omitempty"`
 }
 
-// ObjectMeta is metadata that all KRM resources must have
-type ObjectMeta struct {
+// Metadata is metadata that all KRM resources must have
+type Metadata struct {
 	Name        string
 	Annotations map[string]string
 }
@@ -84,7 +87,33 @@ func (u *Unstructured) getTypeMeta() TypeMeta {
 
 // Resource represents a KRM resource that can be applied
 type Resource interface {
-	Apply()
+	Apply() error
+	GetReference() Reference
+	SetReferenceMap(ReferenceMap)
+}
+
+// BaseResource contains fields should be present in all Resources. This
+// struct should be embedded in types implementing the resource interface.
+type BaseResource struct {
+	TypeMeta
+	Metadata Metadata
+
+	referenceMap ReferenceMap
+}
+
+// GetReference computes the reference to the Resource.
+func (rs *BaseResource) GetReference() Reference {
+	groupAndVersion := strings.Split(rs.APIVersion, "/")
+	return Reference{
+		Group: groupAndVersion[0],
+		Kind:  rs.Kind,
+		Name:  rs.Metadata.Name,
+	}
+}
+
+// SetReferenceMap sets a reference to resource map.
+func (rs *BaseResource) SetReferenceMap(referenceMap ReferenceMap) {
+	rs.referenceMap = referenceMap
 }
 
 // Reference allows a Resource to reference another Resource as part of its
@@ -95,3 +124,6 @@ type Reference struct {
 	Kind  string
 	Name  string
 }
+
+// ReferenceMap is a mapping between KRM references and the resource object.
+type ReferenceMap map[Reference]Resource
