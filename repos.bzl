@@ -523,8 +523,8 @@ def go_repositories():
         name = "com_github_golang_groupcache",
         build_file_proto_mode = "disable",
         importpath = "github.com/golang/groupcache",
-        sum = "h1:1r7pUrabqp18hOBcwBwiTsbnFeTZHV9eER/QT5JVZxY=",
-        version = "v0.0.0-20200121045136-8c9f03a8e57e",
+        sum = "h1:veQD95Isof8w9/WXiA+pa3tz3fJXkt5B7QaRBrM62gk=",
+        version = "v0.0.0-20190129154638-5b532d6fd5ef",
     )
     go_repository(
         name = "com_github_golang_mock",

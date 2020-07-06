@@ -12,7 +12,7 @@ http_archive(
 
 git_repository(
     name = "deploymentmanager-autogen",
-    branch = "master",
+    tag = "0.1.0",
     remote = "https://github.com/GoogleCloudPlatform/deploymentmanager-autogen",
 )
 
