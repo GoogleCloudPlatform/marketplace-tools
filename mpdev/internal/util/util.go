@@ -23,6 +23,10 @@ import (
 // ZipDirectory zips the given directory to the given zipFile and returns
 // the path of the zipFile which is directory/zipFile
 func ZipDirectory(zipFile string, directory string) (string, error) {
+	if directory == "" || zipFile == "" {
+		return "", fmt.Errorf("directory: %s or zipFile: %s cannot be empty string", directory, zipFile)
+	}
+
 	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("cd %s && zip -r %s .", directory, zipFile))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

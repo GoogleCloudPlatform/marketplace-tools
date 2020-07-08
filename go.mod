@@ -6,6 +6,7 @@ require (
 	github.com/GoogleContainerTools/kpt v0.25.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v0.0.5
+	gonum.org/v1/gonum v0.7.0
 	gopkg.in/yaml.v3 v3.0.0-20200121175148-a6ecf24a6d71
 	sigs.k8s.io/kustomize/cmd/config v0.1.7
 )

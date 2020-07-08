@@ -1643,8 +1643,8 @@ def go_repositories():
         name = "org_gonum_v1_gonum",
         build_file_proto_mode = "disable",
         importpath = "gonum.org/v1/gonum",
-        sum = "h1:OB/uP/Puiu5vS5QMRPrXCDWUPb+kt8f1KW8oQzFejQw=",
-        version = "v0.0.0-20190331200053-3d26580ed485",
+        sum = "h1:Hdks0L0hgznZLG9nzXb8vZ0rRvqNvAcgAp84y7Mwkgw=",
+        version = "v0.7.0",
     )
     go_repository(
         name = "org_gonum_v1_netlib",
@@ -1729,4 +1729,46 @@ def go_repositories():
         importpath = "gomodules.xyz/jsonpatch/v2",
         sum = "h1:xyiBuvkD2g5n7cYzx6u2sxQvsAy4QJsZFCzGVdzOXZ0=",
         version = "v2.0.1",
+    )
+    go_repository(
+        name = "com_github_ajstarks_svgo",
+        build_file_proto_mode = "disable",
+        importpath = "github.com/ajstarks/svgo",
+        sum = "h1:wVe6/Ea46ZMeNkQjjBW6xcqyQA/j5e0D6GytH95g0gQ=",
+        version = "v0.0.0-20180226025133-644b8db467af",
+    )
+    go_repository(
+        name = "com_github_fogleman_gg",
+        build_file_proto_mode = "disable",
+        importpath = "github.com/fogleman/gg",
+        sum = "h1:WXb3TSNmHp2vHoCroCIB1foO/yQ36swABL8aOVeDpgg=",
+        version = "v1.2.1-0.20190220221249-0403632d5b90",
+    )
+    go_repository(
+        name = "com_github_golang_freetype",
+        build_file_proto_mode = "disable",
+        importpath = "github.com/golang/freetype",
+        sum = "h1:DACJavvAHhabrF08vX0COfcOBJRhZ8lUbR+ZWIs0Y5g=",
+        version = "v0.0.0-20170609003504-e2365dfdc4a0",
+    )
+    go_repository(
+        name = "com_github_jung_kurt_gofpdf",
+        build_file_proto_mode = "disable",
+        importpath = "github.com/jung-kurt/gofpdf",
+        sum = "h1:PJr+ZMXIecYc1Ey2zucXdR73SMBtgjPgwa31099IMv0=",
+        version = "v1.0.3-0.20190309125859-24315acbbda5",
+    )
+    go_repository(
+        name = "io_rsc_pdf",
+        build_file_proto_mode = "disable",
+        importpath = "rsc.io/pdf",
+        sum = "h1:k1MczvYDUvJBe93bYd7wrZLLUEcLZAuF824/I4e5Xr4=",
+        version = "v0.1.1",
+    )
+    go_repository(
+        name = "org_gonum_v1_plot",
+        build_file_proto_mode = "disable",
+        importpath = "gonum.org/v1/plot",
+        sum = "h1:Qh4dB5D/WpoUUp3lSod7qgoyEHbDGPUWjIbnqdqqe1k=",
+        version = "v0.0.0-20190515093506-e2840ee46a6b",
     )
