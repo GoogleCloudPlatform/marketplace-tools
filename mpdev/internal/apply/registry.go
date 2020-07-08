@@ -27,21 +27,21 @@ type Registry interface {
 }
 
 type registry struct {
-	referenceMap ReferenceMap
+	refMap refMap
 }
 
 // NewRegistry creates a registry that stores references to all resources
 func NewRegistry() Registry {
-	return &registry{referenceMap: map[Reference]Resource{}}
+	return &registry{refMap: map[Reference]Resource{}}
 }
 
 func (r *registry) getReference(reference Reference) Resource {
-	return r.referenceMap[reference]
+	return r.refMap[reference]
 }
 
 // RegisterResource adds a resource to the registry
 func (r *registry) RegisterResource(rs Resource) {
-	r.referenceMap[rs.GetReference()] = rs
+	r.refMap[rs.GetReference()] = rs
 }
 
 // Apply invokes `Apply` on all resources in the registry.
@@ -69,7 +69,7 @@ func (r *registry) topologicalSort() ([]Resource, error) {
 	// Add resource references as nodes to graph
 	var refToID = map[Reference]int64{}
 	var idToRef = map[int64]Reference{}
-	for ref := range r.referenceMap {
+	for ref := range r.refMap {
 		n := dag.NewNode()
 		refToID[ref] = n.ID()
 		idToRef[n.ID()] = ref
@@ -77,7 +77,7 @@ func (r *registry) topologicalSort() ([]Resource, error) {
 	}
 
 	// Add dependencies as edges to graph
-	for ref, resource := range r.referenceMap {
+	for ref, resource := range r.refMap {
 		to := dag.Node(refToID[ref])
 		for _, depRef := range resource.GetDependencies() {
 			from := dag.Node(refToID[depRef])
@@ -87,16 +87,16 @@ func (r *registry) topologicalSort() ([]Resource, error) {
 	}
 
 	// Execute topological sort
-	var resources []Resource
 	nodes, err := topo.Sort(dag)
 	if err != nil {
-		return resources, err
+		return nil, err
 	}
 
 	// Convert node id to resource
+	resources := make([]Resource, 0, len(nodes))
 	for _, node := range nodes {
 		ref := idToRef[node.ID()]
-		resources = append(resources, r.referenceMap[ref])
+		resources = append(resources, r.refMap[ref])
 	}
 
 	return resources, err

@@ -34,8 +34,8 @@ type Reference struct {
 	Name  string
 }
 
-// ReferenceMap is a mapping between KRM references and the resource object.
-type ReferenceMap map[Reference]Resource
+// refMap is a mapping between KRM references and the resource object.
+type refMap map[Reference]Resource
 
 // BaseResource contains fields should be present in all Resources. This
 // struct should be embedded in types implementing the resource interface.

@@ -29,6 +29,8 @@ import (
 // given an autogen.yaml file.
 type DeploymentManagerAutogenTemplate struct {
 	BaseResource
+	// TODO(#10) resolve file paths such that file paths are relative to
+	// where mpdev.yaml file was read.
 	AutogenFile string
 	PartnerID   string `json:"partnerId"`
 	SolutionID  string `json:"solutionId"`
