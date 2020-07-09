@@ -87,6 +87,7 @@ func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema(autogenFile str
 	}
 	defer outFile.Close()
 
+	// TODO(#12) Publish docker image and allow image to be parameterized
 	// Image name from running `bazel run //mpdev/autogen:docker_image -- --norun`
 	autogenConverterImg := "bazel/mpdev/autogen:docker_image"
 	cp := &containerProcess{

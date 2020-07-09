@@ -27,7 +27,8 @@ func TestResolveFilePath(t *testing.T) {
 		// Absolute path
 		"/tmp/foo/2.txt": "/tmp/foo/2.txt",
 		// Relative path
-		"foo/2.txt": "dir/foo/2.txt",
+		"foo/2.txt":    "dir/foo/2.txt",
+		"../foo/2.txt": "foo/2.txt",
 	}
 
 	for path, expected := range testCases {
