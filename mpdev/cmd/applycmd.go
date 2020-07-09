@@ -17,6 +17,7 @@ package cmd
 import (
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/apply"
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/docs"
@@ -47,23 +48,24 @@ type command struct {
 
 // RunE Executes the `apply` command
 func (c *command) RunE(_ *cobra.Command, _ []string) error {
-	var allObjs []apply.Unstructured
+	registry := apply.NewRegistry()
 	for _, file := range c.Filenames {
 		objs, err := decodeFile(file)
 		if err != nil {
 			return err
 		}
-		allObjs = append(allObjs, objs...)
+
+		dir := filepath.Dir(file)
+
+		for _, obj := range objs {
+			resource, err := apply.UnstructuredToResource(obj)
+			if err != nil {
+				return err
+			}
+			registry.RegisterResource(resource, dir)
+		}
 	}
 
-	registry := apply.NewRegistry()
-	for _, obj := range allObjs {
-		resource, err := apply.UnstructuredToResource(obj)
-		if err != nil {
-			return err
-		}
-		registry.RegisterResource(resource)
-	}
 
 	err := registry.Apply()
 

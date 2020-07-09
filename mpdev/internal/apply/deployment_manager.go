@@ -29,8 +29,6 @@ import (
 // given an autogen.yaml file.
 type DeploymentManagerAutogenTemplate struct {
 	BaseResource
-	// TODO(#10) resolve file paths such that file paths are relative to
-	// where mpdev.yaml file was read.
 	AutogenFile string
 	PartnerID   string `json:"partnerId"`
 	SolutionID  string `json:"solutionId"`
@@ -39,15 +37,16 @@ type DeploymentManagerAutogenTemplate struct {
 }
 
 // Apply generates a deployment manager template from an autogen file.
-func (dm *DeploymentManagerAutogenTemplate) Apply(registry *registry) error {
+func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
 	dir, err := ioutil.TempDir("", "autogen")
 	if err != nil {
 		return err
 	}
 	dm.outDir = dir
 
-	fmt.Printf("Generating deployment manager template from autogen...\n")
-	err = dm.convertAutogenSchema()
+	autogenFile := registry.ResolveFilePath(dm, dm.AutogenFile)
+	fmt.Printf("Generating deployment manager template from autogen file:%s ...\n", autogenFile)
+	err = dm.convertAutogenSchema(autogenFile)
 	if err != nil {
 		return err
 	}
@@ -75,8 +74,8 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry *registry) error {
 	return nil
 }
 
-func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema() error {
-	inputFile, err := os.Open(dm.AutogenFile)
+func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema(autogenFile string) error {
+	inputFile, err := os.Open(autogenFile)
 	if err != nil {
 		return err
 	}
@@ -88,8 +87,8 @@ func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema() error {
 	}
 	defer outFile.Close()
 
-	// Image name from running `docker build mpdev/autogen -f mpdev/autogen/Dockerfile -t autogen_converter
-	autogenConverterImg := "autogen_converter"
+	// Image name from running `bazel run //mpdev/autogen:docker_image -- --norun`
+	autogenConverterImg := "bazel/mpdev/autogen:docker_image"
 	cp := &containerProcess{
 		containerImage: autogenConverterImg,
 		processArgs:    []string{"--partnerId", dm.PartnerID, "--solutionId", dm.SolutionID},
@@ -127,8 +126,8 @@ func (dm *DeploymentManagerTemplateOnGCS) GetDependencies() (r []Reference) {
 }
 
 // Apply uploads a Deployment Manager template to GCS.
-func (dm *DeploymentManagerTemplateOnGCS) Apply(registry *registry) error {
-	dmRef := registry.getReference(dm.DeploymentManagerRef)
+func (dm *DeploymentManagerTemplateOnGCS) Apply(registry Registry) error {
+	dmRef := registry.GetResource(dm.DeploymentManagerRef)
 	if dmRef == nil {
 		return fmt.Errorf("autogen template not found %+v", dm.DeploymentManagerRef)
 	}

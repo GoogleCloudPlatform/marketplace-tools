@@ -15,6 +15,8 @@
 package apply
 
 import (
+	"path/filepath"
+
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
 )
@@ -22,26 +24,34 @@ import (
 // Registry stores references to all resources and can apply
 // all resources in the registry
 type Registry interface {
-	RegisterResource(resource Resource)
+	RegisterResource(resource Resource, workingDirectory string)
+	GetResource(reference Reference) Resource
+	ResolveFilePath(rs Resource, path string) string
 	Apply() error
 }
 
 type registry struct {
-	refMap refMap
+	refMap map[Reference]Resource
+	dirMap map[Reference]string
 }
 
 // NewRegistry creates a registry that stores references to all resources
 func NewRegistry() Registry {
-	return &registry{refMap: map[Reference]Resource{}}
+	return &registry{
+		refMap: map[Reference]Resource{},
+		dirMap: map[Reference]string{},
+	}
 }
 
-func (r *registry) getReference(reference Reference) Resource {
+func (r *registry) GetResource(reference Reference) Resource {
 	return r.refMap[reference]
 }
 
 // RegisterResource adds a resource to the registry
-func (r *registry) RegisterResource(rs Resource) {
-	r.refMap[rs.GetReference()] = rs
+func (r *registry) RegisterResource(rs Resource, workingDirectory string) {
+	ref := rs.GetReference()
+	r.refMap[ref] = rs
+	r.dirMap[ref] = workingDirectory
 }
 
 // Apply invokes `Apply` on all resources in the registry.
@@ -59,6 +69,14 @@ func (r *registry) Apply() error {
 	}
 
 	return nil
+}
+
+func (r *registry) ResolveFilePath(rs Resource, path string) string {
+	if !filepath.IsAbs(path) {
+		return filepath.Join(r.dirMap[rs.GetReference()], path)
+	}
+
+	return path
 }
 
 // topologicalSort returns a list of resources such that each
