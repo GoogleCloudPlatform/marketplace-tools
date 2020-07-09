@@ -1,3 +1,17 @@
+// Copyright 2020 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package apply
 
 import (
@@ -7,7 +21,7 @@ import (
 )
 
 func TestResolveFilePath(t *testing.T) {
-	r := NewTestResource("testResource")
+	r := newTestResource("testResource")
 
 	testCases := map[string]string{
 		// Absolute path
@@ -43,10 +57,10 @@ func TestApplyOrder(t *testing.T) {
 		}
 	}
 
-	r1 := NewTestResourceFunc("r1", applyFunc(1), nil)
-	r2 := NewTestResourceFunc("r2", applyFunc(2), depFunc(r1))
-	r3 := NewTestResourceFunc("r3", applyFunc(3), depFunc(r1, r2))
-	r4 := NewTestResourceFunc("r4", applyFunc(4), depFunc(r3))
+	r1 := newTestResourceFunc("r1", applyFunc(1), nil)
+	r2 := newTestResourceFunc("r2", applyFunc(2), depFunc(r1))
+	r3 := newTestResourceFunc("r3", applyFunc(3), depFunc(r1, r2))
+	r4 := newTestResourceFunc("r4", applyFunc(4), depFunc(r3))
 
 	dir := "dirpath"
 	registry := NewRegistry()

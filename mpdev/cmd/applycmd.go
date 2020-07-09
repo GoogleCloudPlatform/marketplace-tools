@@ -66,7 +66,6 @@ func (c *command) RunE(_ *cobra.Command, _ []string) error {
 		}
 	}
 
-
 	err := registry.Apply()
 
 	return err
