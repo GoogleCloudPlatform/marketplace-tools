@@ -16,14 +16,24 @@ package apply
 
 import (
 	"fmt"
-	"os/exec"
+	"k8s.io/utils/exec"
 )
 
-// containerProcess constructs a command to execute the container process
 type containerProcess struct {
+	executor       exec.Interface
 	containerImage string
 	processArgs    []string
 	mounts         []mount
+}
+
+// newContainerProcess constructs a command to execute the container process
+func newContainerProcess(executor exec.Interface, containerImage string, processArgs []string, mounts []mount) *containerProcess {
+	return &containerProcess{
+		executor:       executor,
+		containerImage: containerImage,
+		processArgs:    processArgs,
+		mounts:         mounts,
+	}
 }
 
 type mount interface {
@@ -39,12 +49,12 @@ func (bm *bindMount) getMount() string {
 	return fmt.Sprintf("type=bind,src=%s,dst=%s", bm.src, bm.dst)
 }
 
-func (cp *containerProcess) getCommand() *exec.Cmd {
+func (cp *containerProcess) getCommand() exec.Cmd {
 	args := []string{"docker", "run", "--rm", "-i"}
 	for _, mount := range cp.mounts {
 		args = append(args, "--mount", mount.getMount())
 	}
 	args = append(args, cp.containerImage)
 	args = append(args, cp.processArgs...)
-	return exec.Command(args[0], args[1:]...)
+	return cp.executor.Command(args[0], args[1:]...)
 }

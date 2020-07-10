@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -51,7 +50,7 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
 	}
 
 	fmt.Printf("Generating deployment manager template from autogen file:%s ...\n", autogenFile)
-	err = dm.convertAutogenSchema(autogenFile)
+	err = dm.convertAutogenSchema(registry, autogenFile)
 	if err != nil {
 		return err
 	}
@@ -60,14 +59,15 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
 	args := []string{"--input_type", "YAML", "--single_input", "/autogen/autogen.yaml",
 		"--output_type", "PACKAGE", "--output", "/autogen"}
 
-	cp := &containerProcess{
-		containerImage: autogenImg,
-		processArgs:    args,
-		mounts:         []mount{&bindMount{src: dm.outDir, dst: "/autogen"}},
-	}
+	cp := newContainerProcess(
+		registry.GetExecutor(),
+		autogenImg,
+		args,
+		[]mount{&bindMount{src: dm.outDir, dst: "/autogen"}},
+	)
 	cmd := cp.getCommand()
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+	cmd.SetStderr(os.Stderr)
+	cmd.SetStdout(os.Stdout)
 
 	err = cmd.Run()
 	if err != nil {
@@ -79,7 +79,7 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
 	return nil
 }
 
-func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema(autogenFile string) error {
+func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema(registry Registry, autogenFile string) error {
 	inputFile, err := os.Open(autogenFile)
 	if err != nil {
 		return err
@@ -95,16 +95,17 @@ func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema(autogenFile str
 	// TODO(#12) Publish docker image and allow image to be parameterized
 	// Image name from running `bazel run //mpdev/autogen:docker_image -- --norun`
 	autogenConverterImg := "bazel/mpdev/autogen:docker_image"
-	cp := &containerProcess{
-		containerImage: autogenConverterImg,
-		processArgs:    []string{"--partnerId", dm.PartnerID, "--solutionId", dm.SolutionID},
-		mounts:         nil,
-	}
+	cp := newContainerProcess(
+		registry.GetExecutor(),
+		autogenConverterImg,
+		[]string{"--partnerId", dm.PartnerID, "--solutionId", dm.SolutionID},
+		nil,
+	)
 	cmd := cp.getCommand()
 
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = inputFile
-	cmd.Stdout = outFile
+	cmd.SetStderr(os.Stderr)
+	cmd.SetStdin(inputFile)
+	cmd.SetStdout(outFile)
 
 	err = cmd.Run()
 	if err != nil {
@@ -119,6 +120,8 @@ func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema(autogenFile str
 type DeploymentManagerTemplate struct {
 	BaseResource
 	DeploymentManagerRef Reference
+	// Uploads to gcs if file path prefixed with "gs://". Otherwise will
+	// zip to given local file path.
 	ZipFilePath          string
 }
 
@@ -152,16 +155,17 @@ func (dm *DeploymentManagerTemplate) Apply(registry Registry) error {
 		}
 	}
 
-	err := util.ZipDirectory(localZipPath, dmTemplate.outDir)
+	executor := registry.GetExecutor()
+	err := util.ZipDirectory(executor, localZipPath, dmTemplate.outDir)
 	if err != nil {
 		return errors.Wrapf(err, "failed to zip DM template to %s", localZipPath)
 	}
 	fmt.Printf("DM template zipped to %s", localZipPath)
 
 	if isGCSUpload {
-		cmd := exec.Command("gsutil", "cp", localZipPath, dm.ZipFilePath)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		cmd := executor.Command("gsutil", "cp", localZipPath, dm.ZipFilePath)
+		cmd.SetStdout(os.Stdout)
+		cmd.SetStderr(os.Stderr)
 
 		fmt.Printf("Uploading DM template to GCS. Running command: %v\n", cmd)
 
