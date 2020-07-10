@@ -122,7 +122,7 @@ type DeploymentManagerTemplate struct {
 	DeploymentManagerRef Reference
 	// Uploads to gcs if file path prefixed with "gs://". Otherwise will
 	// zip to given local file path.
-	ZipFilePath          string
+	ZipFilePath string
 }
 
 // GetDependencies returns dependencies for DeploymentManagerTemplate
