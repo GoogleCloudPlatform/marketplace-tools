@@ -20,7 +20,7 @@ import (
 
 // Resource represents a KRM resource that can be applied
 type Resource interface {
-	Apply(registry *registry) error
+	Apply(registry Registry) error
 	GetReference() Reference
 	GetDependencies() []Reference
 }
@@ -33,9 +33,6 @@ type Reference struct {
 	Kind  string
 	Name  string
 }
-
-// refMap is a mapping between KRM references and the resource object.
-type refMap map[Reference]Resource
 
 // BaseResource contains fields should be present in all Resources. This
 // struct should be embedded in types implementing the resource interface.
