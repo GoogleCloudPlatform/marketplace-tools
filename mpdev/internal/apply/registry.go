@@ -19,32 +19,40 @@ import (
 
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
+	"k8s.io/utils/exec"
 )
 
 // Registry stores references to all resources and can apply
 // all resources in the registry
 type Registry interface {
 	RegisterResource(resource Resource, workingDirectory string)
+	GetExecutor() exec.Interface
 	GetResource(reference Reference) Resource
 	ResolveFilePath(rs Resource, path string) (string, error)
 	Apply() error
 }
 
 type registry struct {
-	refMap map[Reference]Resource
-	dirMap map[Reference]string
+	refMap   map[Reference]Resource
+	dirMap   map[Reference]string
+	executor exec.Interface
 }
 
 // NewRegistry creates a registry that stores references to all resources
-func NewRegistry() Registry {
+func NewRegistry(executor exec.Interface) Registry {
 	return &registry{
-		refMap: map[Reference]Resource{},
-		dirMap: map[Reference]string{},
+		refMap:   map[Reference]Resource{},
+		dirMap:   map[Reference]string{},
+		executor: executor,
 	}
 }
 
 func (r *registry) GetResource(reference Reference) Resource {
 	return r.refMap[reference]
+}
+
+func (r *registry) GetExecutor() exec.Interface {
+	return r.executor
 }
 
 // RegisterResource adds a resource to the registry

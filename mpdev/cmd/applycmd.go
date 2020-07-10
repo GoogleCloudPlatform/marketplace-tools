@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
+	"k8s.io/utils/exec"
 )
 
 // GetApplyCommand returns `apply` command used to create mpdev resources.
@@ -48,7 +49,7 @@ type command struct {
 
 // RunE Executes the `apply` command
 func (c *command) RunE(_ *cobra.Command, _ []string) error {
-	registry := apply.NewRegistry()
+	registry := apply.NewRegistry(exec.New())
 	for _, file := range c.Filenames {
 		objs, err := decodeFile(file)
 		if err != nil {

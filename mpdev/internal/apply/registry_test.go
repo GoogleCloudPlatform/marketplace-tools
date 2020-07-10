@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"k8s.io/utils/exec"
 )
 
 func TestResolveFilePath(t *testing.T) {
@@ -37,7 +38,7 @@ func TestResolveFilePath(t *testing.T) {
 	}
 
 	for path, expected := range testCases {
-		registry := NewRegistry()
+		registry := NewRegistry(exec.New())
 		registry.RegisterResource(r, "dir")
 		resolvedPath, err := registry.ResolveFilePath(r, path)
 		assert.NoError(t, err)
@@ -70,7 +71,7 @@ func TestApplyOrder(t *testing.T) {
 	r4 := newTestResourceFunc("r4", applyFunc(4), depFunc(r3))
 
 	dir := "dirpath"
-	registry := NewRegistry()
+	registry := NewRegistry(exec.New())
 	registry.RegisterResource(r4, dir)
 	registry.RegisterResource(r3, dir)
 	registry.RegisterResource(r2, dir)
