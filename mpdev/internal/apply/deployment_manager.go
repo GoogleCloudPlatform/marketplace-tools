@@ -20,6 +20,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/util"
 	"github.com/pkg/errors"
@@ -44,7 +45,11 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
 	}
 	dm.outDir = dir
 
-	autogenFile := registry.ResolveFilePath(dm, dm.AutogenFile)
+	autogenFile, err := registry.ResolveFilePath(dm, dm.AutogenFile)
+	if err != nil {
+		return errors.Wrapf(err, "failed to resolve path to: %s", autogenFile)
+	}
+
 	fmt.Printf("Generating deployment manager template from autogen file:%s ...\n", autogenFile)
 	err = dm.convertAutogenSchema(autogenFile)
 	if err != nil {
@@ -109,25 +114,22 @@ func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema(autogenFile str
 	return nil
 }
 
-// DeploymentManagerTemplateOnGCS uploads a referenced Deployment Manager
-// template to GCS.
-type DeploymentManagerTemplateOnGCS struct {
+// DeploymentManagerTemplate saves a referenced Deployment Manager
+// template to GCS or the local filesystem
+type DeploymentManagerTemplate struct {
 	BaseResource
 	DeploymentManagerRef Reference
-	GCS                  struct {
-		Bucket string
-		Object string
-	}
+	ZipFilePath          string
 }
 
-// GetDependencies returns dependencies for DeploymentManagerTemplateOnGCS
-func (dm *DeploymentManagerTemplateOnGCS) GetDependencies() (r []Reference) {
+// GetDependencies returns dependencies for DeploymentManagerTemplate
+func (dm *DeploymentManagerTemplate) GetDependencies() (r []Reference) {
 	r = append(r, dm.DeploymentManagerRef)
 	return r
 }
 
 // Apply uploads a Deployment Manager template to GCS.
-func (dm *DeploymentManagerTemplateOnGCS) Apply(registry Registry) error {
+func (dm *DeploymentManagerTemplate) Apply(registry Registry) error {
 	dmRef := registry.GetResource(dm.DeploymentManagerRef)
 	if dmRef == nil {
 		return fmt.Errorf("autogen template not found %+v", dm.DeploymentManagerRef)
@@ -138,26 +140,38 @@ func (dm *DeploymentManagerTemplateOnGCS) Apply(registry Registry) error {
 		return fmt.Errorf("referenced autogen template is not correct type %+v", dm.DeploymentManagerRef)
 	}
 
-	zipFileName := "dm_template.zip"
-	zipFilePath, err := util.ZipDirectory(zipFileName, dmTemplate.outDir)
-	if err != nil {
-		return errors.Wrap(err, "failed to zip autogen template before uploading to GCS")
+	var localZipPath string
+	isGCSUpload := strings.HasPrefix(dm.ZipFilePath, "gs://")
+	if isGCSUpload {
+		localZipPath = filepath.Join(dmTemplate.outDir, "dm_template.zip")
+	} else {
+		var err error
+		localZipPath, err = registry.ResolveFilePath(dm, dm.ZipFilePath)
+		if err != nil {
+			return errors.Wrapf(err, "failed to resolve path to zipFile: %s", dm.ZipFilePath)
+		}
 	}
 
-	gcsPath := fmt.Sprintf("gs://%s/%s", dm.GCS.Bucket, dm.GCS.Object)
-
-	cmd := exec.Command("gsutil", "cp", zipFilePath, gcsPath)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	fmt.Printf("Uploading DM template to GCS. Running command: %v\n", cmd)
-
-	err = cmd.Run()
+	err := util.ZipDirectory(localZipPath, dmTemplate.outDir)
 	if err != nil {
-		return errors.Wrap(err, "failed to copy autogen template to GCS")
+		return errors.Wrapf(err, "failed to zip DM template to %s", localZipPath)
 	}
+	fmt.Printf("DM template zipped to %s", localZipPath)
 
-	fmt.Printf("Uploaded DM template to GCS path: %s\n", gcsPath)
+	if isGCSUpload {
+		cmd := exec.Command("gsutil", "cp", localZipPath, dm.ZipFilePath)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		fmt.Printf("Uploading DM template to GCS. Running command: %v\n", cmd)
+
+		err = cmd.Run()
+		if err != nil {
+			return errors.Wrap(err, "failed to copy DM template to GCS")
+		}
+
+		fmt.Printf("Uploaded DM template to GCS path: %s\n", dm.ZipFilePath)
+	}
 
 	return nil
 }

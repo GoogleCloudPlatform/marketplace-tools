@@ -21,7 +21,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	autogen "github.com/GoogleCloudPlatform/marketplace-tools/autogen/generated"
+	autogen "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/autogen/generated"
 	yaml2json "github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
