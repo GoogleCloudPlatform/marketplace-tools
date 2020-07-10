@@ -46,7 +46,7 @@ license-check:
 	$(GOBIN)/go-licenses check $(PKG)
 
 test:
-	bazel test //...
+	bazel test //... --test_output=errors
 
 bazel-build-gen:
 	bazel run :gazelle -- update-repos -from_file=go.mod -build_file_proto_mode disable --to_macro=repos.bzl%go_repositories --prune

@@ -160,14 +160,14 @@ func (dm *DeploymentManagerTemplate) Apply(registry Registry) error {
 	if err != nil {
 		return errors.Wrapf(err, "failed to zip DM template to %s", localZipPath)
 	}
-	fmt.Printf("DM template zipped to %s", localZipPath)
+	fmt.Printf("DM template zipped to %s\n", localZipPath)
 
 	if isGCSUpload {
 		cmd := executor.Command("gsutil", "cp", localZipPath, dm.ZipFilePath)
 		cmd.SetStdout(os.Stdout)
 		cmd.SetStderr(os.Stderr)
 
-		fmt.Printf("Uploading DM template to GCS. Running command: %v\n", cmd)
+		fmt.Printf("Uploading DM template to GCS from:%s to:%s\n", localZipPath, dm.ZipFilePath)
 
 		err = cmd.Run()
 		if err != nil {

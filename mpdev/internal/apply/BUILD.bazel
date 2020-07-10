@@ -24,6 +24,7 @@ go_library(
 go_test(
     name = "go_default_test",
     srcs = [
+        "deployment_manager_test.go",
         "registry_test.go",
         "resource_test.go",
     ],
@@ -31,5 +32,6 @@ go_test(
     deps = [
         "@com_github_stretchr_testify//assert:go_default_library",
         "@io_k8s_utils//exec:go_default_library",
+        "@io_k8s_utils//exec/testing:go_default_library",
     ],
 )
