@@ -22,9 +22,9 @@ import (
 
 // ZipDirectory zips the given directory to the given zipFile and returns
 // the path of the zipFile which is directory/zipFile
-func ZipDirectory(zipFile string, directory string) (string, error) {
+func ZipDirectory(zipFile string, directory string) error {
 	if directory == "" || zipFile == "" {
-		return "", fmt.Errorf("directory: %s or zipFile: %s cannot be empty string", directory, zipFile)
+		return fmt.Errorf("directory: %s or zipFile: %s cannot be empty string", directory, zipFile)
 	}
 
 	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("cd %s && zip -r %s .", directory, zipFile))
@@ -32,5 +32,5 @@ func ZipDirectory(zipFile string, directory string) (string, error) {
 	cmd.Stderr = os.Stderr
 
 	err := cmd.Run()
-	return fmt.Sprintf("%s/%s", directory, zipFile), err
+	return err
 }

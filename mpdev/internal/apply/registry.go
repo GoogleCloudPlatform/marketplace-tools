@@ -26,7 +26,7 @@ import (
 type Registry interface {
 	RegisterResource(resource Resource, workingDirectory string)
 	GetResource(reference Reference) Resource
-	ResolveFilePath(rs Resource, path string) string
+	ResolveFilePath(rs Resource, path string) (string, error)
 	Apply() error
 }
 
@@ -71,12 +71,12 @@ func (r *registry) Apply() error {
 	return nil
 }
 
-func (r *registry) ResolveFilePath(rs Resource, path string) string {
-	if !filepath.IsAbs(path) {
-		return filepath.Join(r.dirMap[rs.GetReference()], path)
+func (r *registry) ResolveFilePath(rs Resource, path string) (string, error) {
+	if filepath.IsAbs(path) {
+		return path, nil
 	}
 
-	return path
+	return filepath.Abs(filepath.Join(r.dirMap[rs.GetReference()], path))
 }
 
 // topologicalSort returns a list of resources such that each

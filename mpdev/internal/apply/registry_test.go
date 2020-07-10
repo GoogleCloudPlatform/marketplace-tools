@@ -15,6 +15,8 @@
 package apply
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,18 +25,22 @@ import (
 func TestResolveFilePath(t *testing.T) {
 	r := newTestResource("testResource")
 
+	wd, err := os.Getwd()
+	assert.NoError(t, err)
+
 	testCases := map[string]string{
 		// Absolute path
 		"/tmp/foo/2.txt": "/tmp/foo/2.txt",
 		// Relative path
-		"foo/2.txt":    "dir/foo/2.txt",
-		"../foo/2.txt": "foo/2.txt",
+		"foo/2.txt":    filepath.Join(wd, "dir/foo/2.txt"),
+		"../foo/2.txt": filepath.Join(wd, "foo/2.txt"),
 	}
 
 	for path, expected := range testCases {
 		registry := NewRegistry()
 		registry.RegisterResource(r, "dir")
-		resolvedPath := registry.ResolveFilePath(r, path)
+		resolvedPath, err := registry.ResolveFilePath(r, path)
+		assert.NoError(t, err)
 		assert.Equal(t, expected, resolvedPath)
 	}
 }

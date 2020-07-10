@@ -1,4 +1,4 @@
-module github.com/GoogleCloudPlatform/marketplace-tools/autogen
+module github.com/GoogleCloudPlatform/marketplace-tools/mpdev/autogen
 
 go 1.13
 
