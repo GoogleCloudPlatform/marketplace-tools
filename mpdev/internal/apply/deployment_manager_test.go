@@ -16,12 +16,13 @@ package apply
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v3"
 	"k8s.io/utils/exec"
 	testingexec "k8s.io/utils/exec/testing"
 )
@@ -87,7 +88,7 @@ func TestDeploymentManager(t *testing.T) {
 			}
 			r := NewRegistry(executor)
 
-			autogen := getDeploymentManagerAutogenTemplate("dummyFile.yaml")
+			autogen := getDeploymentManagerAutogenTemplate()
 			autogen.outDir = "/tmp/outdir"
 
 			dm := &DeploymentManagerTemplate{
@@ -128,26 +129,70 @@ func TestDeploymentManager(t *testing.T) {
 	}
 }
 
+var autogenSpecStr = `
+partnerId: testPartner
+solutionId: testSolution
+spec:
+  singleVm:
+    adminUrl:
+      path: wp-admin
+      scheme: HTTP
+    applicationStatus:
+      type: WAITER
+      waiter:
+        waiterTimeoutSecs: 300
+    bootDisk:
+      diskSize:
+        defaultSizeGb: 10
+        minSizeGb: 10
+      diskType:
+        defaultType: pd-standard
+    gceMetadataItems:
+    - key: installphpmyadmin
+      valueFromDeployInputField: installphpmyadmin
+    deployInput:
+      sections:
+      - fields:
+        - name: installphpmyadmin
+          title: Install phpMyAdmin
+          description: phpMyAdmin is an open source tool to administer MySQL databases
+          booleanCheckbox:
+          default_value: true
+          placement: MAIN
+`
+var autogenSpec interface{}
+
 func TestAutogen(t *testing.T) {
-	autogenFile, err := ioutil.TempFile("", "autogen")
+	err := yaml.Unmarshal([]byte(autogenSpecStr), &autogenSpec)
 	assert.NoError(t, err)
-	defer autogenFile.Close()
-	defer os.Remove(autogenFile.Name())
 
-	autogenConvertOut := "convertOut"
+	autogen := getDeploymentManagerAutogenTemplate()
 
-	autogen := getDeploymentManagerAutogenTemplate(autogenFile.Name())
+	mountRegex := regexp.MustCompile("type=bind,src=/tmp/autogen(.*),dst=/autogen")
+	// docker run argv index for mounting autogen input file
+	mountIdx := 7
+	fcmd := testingexec.FakeCmd{}
 
-	fcmd := testingexec.FakeCmd{
-		RunScript: []testingexec.FakeRunAction{
-			func() ([]byte, []byte, error) { return []byte(autogenConvertOut), nil, nil },
-			func() ([]byte, []byte, error) { return nil, nil, nil },
+	fcmd.RunScript = []testingexec.FakeRunAction{
+		func() ([]byte, []byte, error) {
+			mountMatch := mountRegex.FindStringSubmatch(fcmd.Argv[mountIdx])
+			assert.Equal(t, 2, len(mountMatch))
+
+			f, err := os.Open(fmt.Sprintf("/tmp/autogen%s/autogen.yaml", mountMatch[1]))
+			assert.NoError(t, err)
+
+			// Check that input file to autogen container matches autogenSpec
+			dec := yaml.NewDecoder(f)
+			var specOnFile interface{}
+			err = dec.Decode(&specOnFile)
+			assert.NoError(t, err)
+			assert.Equal(t, autogenSpec, specOnFile)
+			return nil, nil, nil
 		},
 	}
 
 	executor := &testingexec.FakeExec{
 		CommandScript: []testingexec.FakeCommandAction{
-			func(cmd string, args ...string) exec.Cmd { return testingexec.InitFakeCmd(&fcmd, cmd, args...) },
 			func(cmd string, args ...string) exec.Cmd { return testingexec.InitFakeCmd(&fcmd, cmd, args...) },
 		},
 	}
@@ -156,26 +201,23 @@ func TestAutogen(t *testing.T) {
 	dir := "dir2"
 	r.RegisterResource(autogen, dir)
 	err = r.Apply()
+	assert.NoError(t, err)
 
-	expectedArgs := [][]string{
-		{
-			"docker", "run", "--rm", "-i", "bazel/mpdev/autogen:docker_image", "--partnerId", autogen.PartnerID, "--solutionId", autogen.SolutionID,
-		},
-		{
-			"docker", "run", "--rm", "-i", "--mount", fmt.Sprintf("type=bind,src=%s,dst=/autogen", autogen.outDir), "gcr.io/cloud-marketplace-tools/dm/autogen",
-			"--input_type", "YAML", "--single_input", "/autogen/autogen.yaml",
-			"--output_type", "PACKAGE", "--output", "/autogen",
-		},
+	assert.Equal(t, 1, fcmd.RunCalls)
+	// Temp directory created is random so check that bind mount matches regex
+	assert.Regexp(t, mountRegex, fcmd.RunLog[0][mountIdx])
+
+	expectedArgs := []string{
+		"docker", "run", "--rm", "-i", "--mount", fmt.Sprintf("type=bind,src=%s,dst=/tmp/out", autogen.outDir),
+		"--mount", fcmd.RunLog[0][mountIdx], "gcr.io/cloud-marketplace-tools/dm/autogen",
+		"--input_type", "YAML", "--single_input", "/autogen/autogen.yaml",
+		"--output_type", "PACKAGE", "--output", "/tmp/out",
 	}
 
-	assert.NoError(t, err)
-	assert.Equal(t, expectedArgs, fcmd.RunLog)
-	autogenFileOut, err := ioutil.ReadFile(filepath.Join(autogen.outDir, "autogen.yaml"))
-	assert.NoError(t, err)
-	assert.Equal(t, autogenConvertOut, string(autogenFileOut))
+	assert.Equal(t, expectedArgs, fcmd.RunLog[0])
 }
 
-func getDeploymentManagerAutogenTemplate(autogenFile string) *DeploymentManagerAutogenTemplate {
+func getDeploymentManagerAutogenTemplate() *DeploymentManagerAutogenTemplate {
 	autogen := &DeploymentManagerAutogenTemplate{
 		BaseResource: BaseResource{
 			TypeMeta{
@@ -186,7 +228,7 @@ func getDeploymentManagerAutogenTemplate(autogenFile string) *DeploymentManagerA
 		},
 		PartnerID:   "testPartner1",
 		SolutionID:  "testSolution1",
-		AutogenFile: autogenFile,
+		AutogenSpec: autogenSpec,
 	}
 	return autogen
 }

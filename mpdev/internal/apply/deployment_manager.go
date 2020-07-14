@@ -23,13 +23,14 @@ import (
 
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/util"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 // DeploymentManagerAutogenTemplate generates a deployment manager template
 // given an autogen.yaml file.
 type DeploymentManagerAutogenTemplate struct {
 	BaseResource
-	AutogenFile string
+	AutogenSpec interface{}
 	PartnerID   string `json:"partnerId"`
 	SolutionID  string `json:"solutionId"`
 
@@ -44,73 +45,51 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
 	}
 	dm.outDir = dir
 
-	autogenFile, err := registry.ResolveFilePath(dm, dm.AutogenFile)
+	inputDir, err := ioutil.TempDir("", "autogenInput")
 	if err != nil {
-		return errors.Wrapf(err, "failed to resolve path to: %s", autogenFile)
+		return err
 	}
+	defer os.RemoveAll(inputDir)
 
-	fmt.Printf("Generating deployment manager template from autogen file:%s ...\n", autogenFile)
-	err = dm.convertAutogenSchema(registry, autogenFile)
+	inputFile, err := os.Create(filepath.Join(inputDir, "autogen.yaml"))
 	if err != nil {
 		return err
 	}
 
+	enc := yaml.NewEncoder(inputFile)
+	err = enc.Encode(dm.AutogenSpec)
+	if err != nil {
+		return errors.Wrap(err, "failed to write autogen spec to temp file")
+	}
+
+	err = dm.runAutogen(registry, inputDir)
+	return err
+}
+
+func (dm *DeploymentManagerAutogenTemplate) runAutogen(registry Registry, inputDir string) error {
 	autogenImg := "gcr.io/cloud-marketplace-tools/dm/autogen"
 	args := []string{"--input_type", "YAML", "--single_input", "/autogen/autogen.yaml",
-		"--output_type", "PACKAGE", "--output", "/autogen"}
+		"--output_type", "PACKAGE", "--output", "/tmp/out"}
 
 	cp := newContainerProcess(
 		registry.GetExecutor(),
 		autogenImg,
 		args,
-		[]mount{&bindMount{src: dm.outDir, dst: "/autogen"}},
+		[]mount{
+			&bindMount{src: dm.outDir, dst: "/tmp/out"},
+			&bindMount{src: inputDir, dst: "/autogen"},
+		},
 	)
 	cmd := cp.getCommand()
 	cmd.SetStderr(os.Stderr)
 	cmd.SetStdout(os.Stdout)
 
-	err = cmd.Run()
+	err := cmd.Run()
 	if err != nil {
 		return errors.Wrap(err, "failed to execute autogen")
 	}
 
 	fmt.Printf("Wrote autogen output to directory: %s\n", dm.outDir)
-
-	return nil
-}
-
-func (dm *DeploymentManagerAutogenTemplate) convertAutogenSchema(registry Registry, autogenFile string) error {
-	inputFile, err := os.Open(autogenFile)
-	if err != nil {
-		return err
-	}
-	defer inputFile.Close()
-
-	outFile, err := os.Create(filepath.Join(dm.outDir, "autogen.yaml"))
-	if err != nil {
-		return err
-	}
-	defer outFile.Close()
-
-	// TODO(#12) Publish docker image and allow image to be parameterized
-	// Image name from running `bazel run //mpdev/autogen:docker_image -- --norun`
-	autogenConverterImg := "bazel/mpdev/autogen:docker_image"
-	cp := newContainerProcess(
-		registry.GetExecutor(),
-		autogenConverterImg,
-		[]string{"--partnerId", dm.PartnerID, "--solutionId", dm.SolutionID},
-		nil,
-	)
-	cmd := cp.getCommand()
-
-	cmd.SetStderr(os.Stderr)
-	cmd.SetStdin(inputFile)
-	cmd.SetStdout(outFile)
-
-	err = cmd.Run()
-	if err != nil {
-		return errors.Wrap(err, "failed to execute autogen converter")
-	}
 
 	return nil
 }

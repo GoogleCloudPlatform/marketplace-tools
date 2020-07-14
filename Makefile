@@ -19,8 +19,6 @@ PKG := github.com/GoogleCloudPlatform/marketplace-tools/mpdev
 
 build:
 	bazel build //...:all
-	# Tags docker image
-	bazel run //mpdev/autogen:docker_image -- --norun
 
 all: fix vet fmt license license-check lint bazel-build-gen tidy build test
 
