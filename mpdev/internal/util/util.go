@@ -27,7 +27,8 @@ func ZipDirectory(executor exec.Interface, zipFile string, directory string) err
 		return fmt.Errorf("directory: %s or zipFile: %s cannot be empty string", directory, zipFile)
 	}
 
-	cmd := executor.Command("/bin/sh", "-c", fmt.Sprintf("cd %s && zip -r %s .", directory, zipFile))
+	cmd := executor.Command("zip", "-r", zipFile, ".")
+	cmd.SetDir(directory)
 	cmd.SetStdout(os.Stdout)
 	cmd.SetStderr(os.Stderr)
 
