@@ -59,16 +59,14 @@ func TestDeploymentManager(t *testing.T) {
 			zipFilePath: "/tmp/dir3/localzippath.zip",
 		},
 		{
-			name:            "Deployment Manager Missing Reference",
-			expectedRunArgs: nil,
-			zipFilePath:     "/tmp/dir4/localzippath.zip",
-			missingRef:      true,
+			name:        "Deployment Manager Missing Reference",
+			zipFilePath: "/tmp/dir4/localzippath.zip",
+			missingRef:  true,
 		},
 		{
-			name:            "Deployment Manager Bad Reference Type",
-			expectedRunArgs: nil,
-			zipFilePath:     "/tmp/dir5/localzippath.zip",
-			badRefType:      true,
+			name:        "Deployment Manager Bad Reference Type",
+			zipFilePath: "/tmp/dir5/localzippath.zip",
+			badRefType:  true,
 		},
 	}
 	for _, tc := range testcases {
