@@ -17,7 +17,7 @@ To use this mpdev package, execute the following command which will checkout thi
 package to a directory named wordpress.
 
 ```
-mpdev pkg get https://github.com/marketplace-tools.git/examples/wordpress wordpress
+mpdev pkg get https://github.com/marketplace-tools.git/examples/deployment-manager/autogen/singlevm wordpress
 ```
 
 `mpdev pkg` and `mpdev cfg` are wrappers around 
