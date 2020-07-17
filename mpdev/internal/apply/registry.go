@@ -15,6 +15,7 @@
 package apply
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"gonum.org/v1/gonum/graph/simple"
@@ -106,6 +107,11 @@ func (r *registry) topologicalSort() ([]Resource, error) {
 	for ref, resource := range r.refMap {
 		to := dag.Node(refToID[ref])
 		for _, depRef := range resource.GetDependencies() {
+			depRes := r.GetResource(depRef)
+			if depRes == nil {
+				return []Resource{}, fmt.Errorf("resource not found with reference %+v", depRef)
+			}
+
 			from := dag.Node(refToID[depRef])
 			e := dag.NewEdge(from, to)
 			dag.SetEdge(e)

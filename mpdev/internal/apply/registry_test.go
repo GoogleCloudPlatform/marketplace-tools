@@ -17,6 +17,7 @@ package apply
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -80,4 +81,24 @@ func TestApplyOrder(t *testing.T) {
 	err := registry.Apply()
 	assert.Equal(t, 5, order)
 	assert.NoError(t, err)
+}
+
+func TestApplyInvalidRef(t *testing.T) {
+	depFunc := func() []Reference {
+		ref := Reference{
+			Group: "fakeGroup",
+			Kind:  "fakeKind",
+			Name:  "fakeResource",
+		}
+		return []Reference{ref}
+	}
+
+	r := newTestResourceFunc("r", nil, depFunc)
+	dir := "dirpath"
+	registry := NewRegistry(exec.New())
+	registry.RegisterResource(r, dir)
+
+	err := registry.Apply()
+	assert.Error(t, err)
+	assert.True(t, strings.Contains(err.Error(), "resource not found with reference"))
 }
