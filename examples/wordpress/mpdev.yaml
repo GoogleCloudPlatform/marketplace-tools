@@ -1,0 +1,118 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: dev.marketplace.cloud.google.com/v1alpha1
+kind: DeploymentManagerTemplate
+metadata:
+  name: dmtemplate
+deploymentManagerRef:
+  group: dev.marketplace.cloud.google.com
+  kind: DeploymentManagerAutogenTemplate
+  name: autogen
+zipFilePath: template.zip
+---
+apiVersion: dev.marketplace.cloud.google.com/v1alpha1
+kind: DeploymentManagerAutogenTemplate
+metadata:
+  name: autogen
+spec:
+  packageInfo:
+    version: '1.2.0'
+    osInfo:
+      name: Debian
+      version: '9.12'
+    components:
+    - name: Wordpress
+      version: '5.4.2'
+  # See https://github.com/GoogleCloudPlatform/marketplace-tools/docs/autogen-reference.md
+  # for explanation of fields
+  deploymentSpec:
+    singleVm:
+      applicationStatus:
+        type: WAITER
+        waiter:
+          waiterTimeoutSecs: 300
+      bootDisk:
+        diskSize:
+          defaultSizeGb: 10
+          minSizeGb: 10
+        diskType:
+          defaultType: pd-standard
+      gceMetadataItems:
+      - key: installphpmyadmin
+        valueFromDeployInputField: installphpmyadmin
+      - key: wordpress-admin-email
+        valueFromDeployInputField: adminEmailAddress
+      deployInput:
+        sections:
+        - fields:
+          - name: adminEmailAddress
+            required: true
+            emailBox:
+              validation:
+                regex: ^[a-zA-Z0-9!#$%&\'*+\/=?^_`{|}~\.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9]?[.-]?[a-zA-Z0-9]+)+[[a-zA-Z0-9]{1}$
+            title: Administrator e-mail address
+            tooltip: The e-mail address used to create the administrator account for
+              WordPress.
+          - name: installphpmyadmin
+            title: Install phpMyAdmin
+            description: phpMyAdmin is an open source tool to administer MySQL databases
+              with the use of a web browser.
+            booleanCheckbox:
+              default_value: true
+          placement: MAIN
+      firewallRules:
+      - port: '80'
+        protocol: TCP
+      - defaultOff: true
+        port: '443'
+        protocol: TCP
+      images:
+      - name: imageName # {"$ref":"#/definitions/io.k8s.cli.setters.image"}
+        project: projectId # {"$ref":"#/definitions/io.k8s.cli.setters.projectId"}
+      machineType:
+        defaultMachineType:
+          gceMachineType: g1-small
+      networkInterfaces:
+        minCount: 1
+        maxCount: 8
+      passwords:
+      - allowSpecialChars: false
+        displayLabel: WordPress MySQL
+        length: 8
+        metadataKey: wordpress-mysql-password
+        username: wordpress
+      - allowSpecialChars: false
+        displayLabel: MySQL root
+        length: 14
+        metadataKey: mysql-root-password
+        username: root
+      - allowSpecialChars: true
+        displayLabel: WordPress Admin
+        length: 8
+        metadataKey: wordpress-admin-password
+        usernameFromDeployInputField: adminEmailAddress
+      postDeploy:
+        actionItems:
+        - heading: Access the phpMyAdmin web interface
+          description: Visit <a href="http://{{ externalIp(outputs().vmSelfLink) }}/phpmyadmin">http://{{
+            externalIp(outputs().vmSelfLink) }}/phpmyadmin</a>
+          showIf:
+            booleanDeployInputField:
+              name: installphpmyadmin
+      stackdriver:
+        logging:
+          defaultOn: false
+        monitoring:
+          defaultOn: false
