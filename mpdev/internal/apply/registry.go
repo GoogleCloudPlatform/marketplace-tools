@@ -15,6 +15,7 @@
 package apply
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"gonum.org/v1/gonum/graph/simple"
@@ -75,6 +76,7 @@ func (r *registry) Apply() error {
 			return err
 		}
 	}
+	fmt.Printf("all resources have been created")
 
 	return nil
 }
