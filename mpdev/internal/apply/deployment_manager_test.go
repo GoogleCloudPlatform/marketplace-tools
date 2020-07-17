@@ -86,7 +86,7 @@ func TestDeploymentManager(t *testing.T) {
 			}
 			r := NewRegistry(executor)
 
-			autogen := getDeploymentManagerAutogenTemplate()
+			autogen := getDeploymentManagerAutogenTemplate(&spec{})
 			autogen.outDir = "/tmp/outdir"
 
 			dm := &DeploymentManagerTemplate{
@@ -128,8 +128,59 @@ func TestDeploymentManager(t *testing.T) {
 }
 
 var autogenSpecStr = `
-partnerId: testPartner
-solutionId: testSolution
+packageInfo:
+  version: '1.2.0'
+  osInfo:
+    name: Debian
+    version: '9.12'
+  components:
+  - name: Wordpress
+    version: '5.4.2'
+deploymentSpec:
+  singleVm:
+    adminUrl:
+      path: wp-admin
+      scheme: HTTP
+    applicationStatus:
+      type: WAITER
+      waiter:
+        waiterTimeoutSecs: 300
+    bootDisk:
+      diskSize:
+        defaultSizeGb: 10
+        minSizeGb: 10
+      diskType:
+        defaultType: pd-standard
+    gceMetadataItems:
+    - key: installphpmyadmin
+      valueFromDeployInputField: installphpmyadmin
+    deployInput:
+      sections:
+      - fields:
+        - name: installphpmyadmin
+          title: Install phpMyAdmin
+          description: phpMyAdmin is an open source tool to administer MySQL databases
+          booleanCheckbox:
+          default_value: true
+          placement: MAIN
+`
+
+var expectedConvertedSpec = `
+partnerId: placeholder
+solutionId: solution
+partnerInfo:
+  name: placeholder
+solutionInfo:
+  name: placeholder
+  version: '1.2.0'
+  packagedSoftwareGroups:
+  - type: SOFTWARE_GROUP_OS
+    components:
+    - name: Debian
+      version: '9.12'
+  - components:
+    - name: Wordpress
+      version: '5.4.2'
 spec:
   singleVm:
     adminUrl:
@@ -158,13 +209,13 @@ spec:
           default_value: true
           placement: MAIN
 `
-var autogenSpec interface{}
 
 func TestAutogen(t *testing.T) {
+	var autogenSpec spec
 	err := yaml.Unmarshal([]byte(autogenSpecStr), &autogenSpec)
 	assert.NoError(t, err)
 
-	autogen := getDeploymentManagerAutogenTemplate()
+	autogen := getDeploymentManagerAutogenTemplate(&autogenSpec)
 
 	mountRegex := regexp.MustCompile("type=bind,src=/tmp/autogen(.*),dst=/autogen")
 	// docker run argv index for mounting autogen input file
@@ -179,12 +230,17 @@ func TestAutogen(t *testing.T) {
 			f, err := os.Open(fmt.Sprintf("/tmp/autogen%s/autogen.yaml", mountMatch[1]))
 			assert.NoError(t, err)
 
-			// Check that input file to autogen container matches autogenSpec
+			// Check that input file to autogen container matches convertedSpec
 			dec := yaml.NewDecoder(f)
 			var specOnFile interface{}
 			err = dec.Decode(&specOnFile)
 			assert.NoError(t, err)
-			assert.Equal(t, autogenSpec, specOnFile)
+
+			var expectedSpec interface{}
+			err = yaml.Unmarshal([]byte(expectedConvertedSpec), &expectedSpec)
+			assert.NoError(t, err)
+
+			assert.Equal(t, expectedSpec, specOnFile)
 			return nil, nil, nil
 		},
 	}
@@ -215,7 +271,7 @@ func TestAutogen(t *testing.T) {
 	assert.Equal(t, expectedArgs, fcmd.RunLog[0])
 }
 
-func getDeploymentManagerAutogenTemplate() *DeploymentManagerAutogenTemplate {
+func getDeploymentManagerAutogenTemplate(spec *spec) *DeploymentManagerAutogenTemplate {
 	autogen := &DeploymentManagerAutogenTemplate{
 		BaseResource: BaseResource{
 			TypeMeta{
@@ -224,9 +280,7 @@ func getDeploymentManagerAutogenTemplate() *DeploymentManagerAutogenTemplate {
 			},
 			Metadata{Name: "autogen"},
 		},
-		PartnerID:   "testPartner1",
-		SolutionID:  "testSolution1",
-		AutogenSpec: autogenSpec,
+		Spec: *spec,
 	}
 	return autogen
 }
