@@ -86,7 +86,7 @@ func TestDeploymentManager(t *testing.T) {
 			}
 			r := NewRegistry(executor)
 
-			autogen := getDeploymentManagerAutogenTemplate(&spec{})
+			autogen := getDeploymentManagerAutogenTemplate(&AutogenSpec{})
 			autogen.outDir = "/tmp/outdir"
 
 			dm := &DeploymentManagerTemplate{
@@ -181,7 +181,7 @@ solutionInfo:
   - components:
     - name: Wordpress
       version: '5.4.2'
-spec:
+AutogenSpec:
   singleVm:
     adminUrl:
       path: wp-admin
@@ -211,7 +211,7 @@ spec:
 `
 
 func TestAutogen(t *testing.T) {
-	var autogenSpec spec
+	var autogenSpec AutogenSpec
 	err := yaml.Unmarshal([]byte(autogenSpecStr), &autogenSpec)
 	assert.NoError(t, err)
 
@@ -271,7 +271,7 @@ func TestAutogen(t *testing.T) {
 	assert.Equal(t, expectedArgs, fcmd.RunLog[0])
 }
 
-func getDeploymentManagerAutogenTemplate(spec *spec) *DeploymentManagerAutogenTemplate {
+func getDeploymentManagerAutogenTemplate(spec *AutogenSpec) *DeploymentManagerAutogenTemplate {
 	autogen := &DeploymentManagerAutogenTemplate{
 		BaseResource: BaseResource{
 			TypeMeta{

@@ -1,9 +1,9 @@
 apiVersion: kpt.dev/v1alpha1
 kind: Kptfile
 metadata:
-  name: wordpress
+  name: YOUR_PACKAGE
 packageMetadata:
-  shortDescription: Wordpress Deployment Manager Autogen Template
+  shortDescription: Deployment Manager Autogen Template
 openAPI:
   definitions:
     io.k8s.cli.setters.projectId:

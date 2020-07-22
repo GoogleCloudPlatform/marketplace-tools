@@ -30,18 +30,28 @@ import (
 // given an autogen.yaml file.
 type DeploymentManagerAutogenTemplate struct {
 	BaseResource
-	Spec spec
+	Spec AutogenSpec
 
 	outDir string
 }
 
-type spec struct {
+// AutogenSpec is defines the spec used for auto-generating deployment packages.
+type AutogenSpec struct {
+	// Deployment Spec is documented in https://github.com/GoogleCloudPlatform/marketplace-tools/docs/autogen-reference.md
 	DeploymentSpec map[string]interface{} `yaml:"deploymentSpec"`
-	PackageInfo    struct {
-		Version    string
-		OsInfo     component `yaml:"osInfo"`
-		Components []component
-	} `yaml:"packageInfo"`
+	PackageInfo    PackageInfo
+}
+
+// PackageInfo describes the software packaged in a deployable solution. PackageInfo
+// is metadata displayed on the VM solution details page in the GCP marketplace
+// console.
+type PackageInfo struct {
+	// Version of combined software components
+	Version    string
+	// Name and version of OS
+	OsInfo     component `yaml:"osInfo"`
+	// Names and versions of software components
+	Components []component `yaml:"packageInfo"`
 }
 
 type component struct {
@@ -52,7 +62,7 @@ type component struct {
 type convertedSpec struct {
 	PartnerID    string                 `yaml:"partnerId"`
 	SolutionID   string                 `yaml:"solutionId"`
-	Spec         map[string]interface{} `yaml:"spec"`
+	Spec         map[string]interface{} `yaml:"AutogenSpec"`
 	PartnerInfo  map[string]interface{} `yaml:"partnerInfo"`
 	SolutionInfo map[string]interface{} `yaml:"solutionInfo"`
 }
@@ -81,7 +91,7 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
 	enc := yaml.NewEncoder(inputFile)
 	err = enc.Encode(convertedSpec)
 	if err != nil {
-		return errors.Wrap(err, "failed to write autogen spec to temp file")
+		return errors.Wrap(err, "failed to write autogen AutogenSpec to temp file")
 	}
 
 	err = dm.runAutogen(registry, inputDir)

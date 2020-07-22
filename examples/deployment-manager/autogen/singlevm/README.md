@@ -17,14 +17,11 @@ To use this mpdev package, execute the following command which will checkout thi
 package to a directory named wordpress.
 
 ```
-mpdev pkg get https://github.com/marketplace-tools.git/examples/deployment-manager/autogen/singlevm wordpress
+mpdev pkg get https://github.com/marketplace-tools.git/examples/deployment-manager/autogen/singlevm/ wordpress
 ```
 
-`mpdev pkg` and `mpdev cfg` are wrappers around 
-[`kpt pkg`](https://googlecontainertools.github.io/kpt/reference/pkg/get/]) and
-[`kpt cfg`](https://googlecontainertools.github.io/kpt/reference/cfg/set/])
-respectively. `mpdev cfg set` will be used to customize values in the mpdev.yaml
-template. Particularly the
+`mpdev cfg set` will be used to customize values in the 
+configurations.yaml template. Particularly the
 [`projectId`](https://github.com/GoogleCloudPlatform/marketplace-tools/tree/gibbley/autogen-docs/docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec) 
 and [`image`](https://github.com/GoogleCloudPlatform/marketplace-tools/tree/gibbley/autogen-docs/docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec)
 values must be set for your particular solution.
@@ -35,7 +32,7 @@ IMAGE=wordpress
 ```
 
 After setting the variables above run the following commands to set the
-variables in `mpdev.yaml`
+variables in `configurations.yaml`
 
 ```bash
 mpdev cfg set wordpress projectId $PROJECT_ID
@@ -45,20 +42,30 @@ mpdev cfg set wordpress image $IMAGE
 Now generate a deployment manager template with the following command:
 
 ```
-mpdev apply -f wordpress/mpdev.yaml
+mpdev apply -f wordpress/configurations.yaml
 ```
 
-## Upload Solution To partner portal
+The template will be zipped to `wordpress/template.zip`, the location specified
+in the `DeploymentManagerTemplate` resource of `wordpress/configurations.yaml`.
 
-Open (Partner Portal)[https://pantheon.corp.google.com/partner/solutions] and 
-select your solution from the list of solutions, then follow these steps:
+To verify the template is properly configured, you can create a deployment from
+the template with the following commands:
 
-1. Next to **Deployment Package**, click **Edit**.
-1. Select to **Upload a Package**, and then click **Continue**
-1. Select the deployment package created by mpdev for **Upload a package**,
-uncheck the **Metadata selection** box and then click **Continue**.
-1. Click **Save** to save changes.
+```
+TMPDIR=$(mktemp -d)
+unzip wordpress/template.zip -d $TMPDIR
+gcloud deployment-manager deployments create wordpress --config $TMPDIR/test_config.yaml
+```
 
-**Warning:** Unchecking the **Metadata selection** box is crucial, so that
-mpdev does not override the solution metadata configured in earlier steps of
-the partner portal wizard.
+## Further Customization of Deployment Manager Template
+
+When creating your own Deployment Manager solution, you may need to
+customize other fields in the autogen specification, such as `passwords`,
+`deployInput`, and `postDeploy`. See the 
+[autogen reference](https://github.com/GoogleCloudPlatform/marketplace-tools/autogen-reference.md)
+for explanations of the fields.
+
+## Upload Solution To Partner Portal
+
+See instructions in this 
+[guide](https://github.com/GoogleCloudPlatform/marketplace-tools/docs/deployment-manager-guide.md).
