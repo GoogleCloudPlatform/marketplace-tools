@@ -181,7 +181,7 @@ solutionInfo:
   - components:
     - name: Wordpress
       version: '5.4.2'
-AutogenSpec:
+spec:
   singleVm:
     adminUrl:
       path: wp-admin

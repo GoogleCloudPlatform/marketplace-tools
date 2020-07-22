@@ -39,7 +39,7 @@ type DeploymentManagerAutogenTemplate struct {
 type AutogenSpec struct {
 	// Deployment Spec is documented in https://github.com/GoogleCloudPlatform/marketplace-tools/docs/autogen-reference.md
 	DeploymentSpec map[string]interface{} `yaml:"deploymentSpec"`
-	PackageInfo    PackageInfo
+	PackageInfo    PackageInfo            `yaml:"packageInfo"`
 }
 
 // PackageInfo describes the software packaged in a deployable solution. PackageInfo
@@ -51,7 +51,7 @@ type PackageInfo struct {
 	// Name and version of OS
 	OsInfo component `yaml:"osInfo"`
 	// Names and versions of software components
-	Components []component `yaml:"packageInfo"`
+	Components []component
 }
 
 type component struct {
@@ -62,7 +62,7 @@ type component struct {
 type convertedSpec struct {
 	PartnerID    string                 `yaml:"partnerId"`
 	SolutionID   string                 `yaml:"solutionId"`
-	Spec         map[string]interface{} `yaml:"AutogenSpec"`
+	Spec         map[string]interface{} `yaml:"spec"`
 	PartnerInfo  map[string]interface{} `yaml:"partnerInfo"`
 	SolutionInfo map[string]interface{} `yaml:"solutionInfo"`
 }
@@ -91,7 +91,7 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
 	enc := yaml.NewEncoder(inputFile)
 	err = enc.Encode(convertedSpec)
 	if err != nil {
-		return errors.Wrap(err, "failed to write autogen AutogenSpec to temp file")
+		return errors.Wrap(err, "failed to write autogen spec to temp file")
 	}
 
 	err = dm.runAutogen(registry, inputDir)
