@@ -47,9 +47,9 @@ type AutogenSpec struct {
 // console.
 type PackageInfo struct {
 	// Version of combined software components
-	Version    string
+	Version string
 	// Name and version of OS
-	OsInfo     component `yaml:"osInfo"`
+	OsInfo component `yaml:"osInfo"`
 	// Names and versions of software components
 	Components []component `yaml:"packageInfo"`
 }
