@@ -26,9 +26,9 @@ publishing to the Google Cloud Marketplace.
 // ReferenceExamples contains examples.
 const ReferenceExamples = `
   # get a package
-  $ mpdev pkg get https://github.com/GoogleCloudPlatform/kpt.git/examples/wordpress wordpress
-  fetching package /examples/wordpress from \
-    https://github.com/GoogleContainerTools/kpt to wordpress
+  $ mpdev pkg get https://github.com/GoogleCloudPlatform/marketplace-tools.git/examples/deployment-manager/autogen/singlevm wordpress
+  fetching package examples/deployment-manager/autogen/singlevm from \
+    https://github.com/GoogleCloudPlatform/marketplace-tools to wordpress
 
   # set a value in configuration
   $ mpdev cfg set image wordpress-image
@@ -41,7 +41,7 @@ const ReferenceExamples = `
 `
 
 // ApplyShort contains short help text for apply command.
-const ApplyShort = `Apply a mpdev configuration to a resource by filename or stdin`
+const ApplyShort = `Updates or creates artifacts defined by the configurations in filename or stdin`
 
 // ApplyLong contains expanded help text for apply command
 const ApplyLong = `
