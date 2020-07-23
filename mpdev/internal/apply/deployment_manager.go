@@ -30,15 +30,47 @@ import (
 // given an autogen.yaml file.
 type DeploymentManagerAutogenTemplate struct {
 	BaseResource
-	AutogenSpec interface{}
-	PartnerID   string `json:"partnerId"`
-	SolutionID  string `json:"solutionId"`
+	Spec AutogenSpec
 
 	outDir string
 }
 
+// AutogenSpec is defines the spec used for auto-generating deployment packages.
+type AutogenSpec struct {
+	// Deployment Spec is documented in https://github.com/GoogleCloudPlatform/marketplace-tools/docs/autogen-reference.md
+	DeploymentSpec map[string]interface{} `yaml:"deploymentSpec"`
+	PackageInfo    PackageInfo            `yaml:"packageInfo"`
+}
+
+// PackageInfo describes the software packaged in a deployable solution. PackageInfo
+// is metadata displayed on the VM solution details page in the GCP marketplace
+// console.
+type PackageInfo struct {
+	// Version of combined software components
+	Version string
+	// Name and version of OS
+	OsInfo component `yaml:"osInfo"`
+	// Names and versions of software components
+	Components []component
+}
+
+type component struct {
+	Name    string
+	Version string
+}
+
+type convertedSpec struct {
+	PartnerID    string                 `yaml:"partnerId"`
+	SolutionID   string                 `yaml:"solutionId"`
+	Spec         map[string]interface{} `yaml:"spec"`
+	PartnerInfo  map[string]interface{} `yaml:"partnerInfo"`
+	SolutionInfo map[string]interface{} `yaml:"solutionInfo"`
+}
+
 // Apply generates a deployment manager template from an autogen file.
 func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
+	convertedSpec := dm.convertToAutogen()
+
 	dir, err := ioutil.TempDir("", "autogen")
 	if err != nil {
 		return err
@@ -57,7 +89,7 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
 	}
 
 	enc := yaml.NewEncoder(inputFile)
-	err = enc.Encode(dm.AutogenSpec)
+	err = enc.Encode(convertedSpec)
 	if err != nil {
 		return errors.Wrap(err, "failed to write autogen spec to temp file")
 	}
@@ -92,6 +124,32 @@ func (dm *DeploymentManagerAutogenTemplate) runAutogen(registry Registry, inputD
 	fmt.Printf("Wrote autogen output to directory: %s\n", dm.outDir)
 
 	return nil
+}
+
+func (dm *DeploymentManagerAutogenTemplate) convertToAutogen() *convertedSpec {
+	// Placeholder fields are either unused by autogen or overidden in the partner
+	// portal UI when configuring solution details/metadata
+	autogenSpec := &convertedSpec{
+		PartnerID:    "placeholder",
+		SolutionID:   "solution",
+		Spec:         dm.Spec.DeploymentSpec,
+		PartnerInfo:  map[string]interface{}{"name": "placeholder"},
+		SolutionInfo: map[string]interface{}{"name": "placeholder", "version": dm.Spec.PackageInfo.Version},
+	}
+
+	pkgGroups := []struct {
+		Type       string `yaml:",omitempty"`
+		Components []component
+	}{{
+		"SOFTWARE_GROUP_OS",
+		[]component{dm.Spec.PackageInfo.OsInfo},
+	}, {
+		Components: dm.Spec.PackageInfo.Components,
+	}}
+
+	autogenSpec.SolutionInfo["packagedSoftwareGroups"] = pkgGroups
+
+	return autogenSpec
 }
 
 // DeploymentManagerTemplate saves a referenced Deployment Manager

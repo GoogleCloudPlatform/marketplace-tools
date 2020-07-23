@@ -1,0 +1,18 @@
+apiVersion: kpt.dev/v1alpha1
+kind: Kptfile
+metadata:
+  name: YOUR_PACKAGE
+packageMetadata:
+  shortDescription: Deployment Manager Autogen Template
+openAPI:
+  definitions:
+    io.k8s.cli.setters.projectId:
+      x-k8s-cli:
+        setter:
+          name: projectId
+          value: projectId
+    io.k8s.cli.setters.image:
+      x-k8s-cli:
+        setter:
+          name: image
+          value: imageName
