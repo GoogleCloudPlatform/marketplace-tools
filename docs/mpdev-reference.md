@@ -4,14 +4,17 @@ TODO: Give instructions for installing mpdev.
 
 ## Mpdev resources
 
-The `mpdev` tool creates resources from yaml templates. The mpdev resource schema
+The `mpdev` tool creates and updates artifacts defined by yaml configurations. The `mpdev` resource schema
 is inspired by the schema for kubernetes resources, where a resource type is
 uniquely specified by a `kind` and `apiVersion`.
 
-Currently, the `mpdev` tool supports two types of resources,
-[`DeploymentManagerAutogenTemplate`](https://pkg.go.dev/github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/apply?tab=doc#DeploymentManagerAutogenTemplate)
-and
-[`DeploymentManagerTemplate`](https://pkg.go.dev/github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/apply?tab=doc#DeploymentManagerTemplate).
+Currently, the `mpdev` tool supports the following types of resources:
+* [`DeploymentManagerAutogenTemplate`](https://pkg.go.dev/github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/apply?tab=doc#DeploymentManagerAutogenTemplate)
+* [`DeploymentManagerTemplate`](https://pkg.go.dev/github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/apply?tab=doc#DeploymentManagerTemplate).
+
+See the 
+[deployment manager guide](./deployment-manager-guide.md) for how to configure
+these resources.
 See the 
 [deployment manager guide](./deployment-manager-guide.md) for how to configure
 these resources.
@@ -47,7 +50,7 @@ The `apply` command creates resources from the mpdev template.
 mpdev apply -f dir/configurations.yaml
 ```
 
-The `dry-run` option can be used to verify that your environment is setup
+The `--dry-run` option can be used to verify that your environment is setup
 correctly to create the resources in the configuration files. This depends on
 the mpdev resource but can include proper `gcp` permissions, and whether 
 `docker` is installed.

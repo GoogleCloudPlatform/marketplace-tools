@@ -14,7 +14,7 @@ gcloud compute --project=$PROJECT_ID images create wordpress --source-image=word
 ## Generating Deployment Manager Template
 
 To use this mpdev package, execute the following command which will checkout this
-package to a directory named wordpress.
+package to a directory named `wordpress`.
 
 ```
 mpdev pkg get https://github.com/marketplace-tools.git/examples/deployment-manager/autogen/singlevm/ wordpress
