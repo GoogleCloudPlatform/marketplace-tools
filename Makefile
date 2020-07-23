@@ -20,6 +20,7 @@ PKG := github.com/GoogleCloudPlatform/marketplace-tools/mpdev
 build:
 	bazel build //...:all
 
+
 all: fix vet fmt docs license license-check lint bazel-build-gen tidy build test
 
 docs:
