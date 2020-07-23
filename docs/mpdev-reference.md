@@ -15,9 +15,6 @@ Currently, the `mpdev` tool supports the following types of resources:
 See the 
 [deployment manager guide](./deployment-manager-guide.md) for how to configure
 these resources.
-See the 
-[deployment manager guide](./deployment-manager-guide.md) for how to configure
-these resources.
 
 ## Commands
 
