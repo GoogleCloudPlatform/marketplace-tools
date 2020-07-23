@@ -31,7 +31,7 @@ import (
 func GetApplyCommand() *cobra.Command {
 	var c command
 	cmd := &cobra.Command{
-		Use:     "apply",
+		Use:     "apply -f FILENAME",
 		Short:   docs.ApplyShort,
 		Long:    docs.ApplyLong,
 		Example: docs.ApplyExamples,
@@ -39,6 +39,7 @@ func GetApplyCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringSliceVarP(&c.Filenames, "filename", "f", c.Filenames, "that contains the configuration to apply")
+	_ = cobra.MarkFlagRequired(cmd.Flags(), "filename")
 
 	return cmd
 }
@@ -74,11 +75,18 @@ func (c *command) RunE(_ *cobra.Command, _ []string) error {
 
 func decodeFile(file string) ([]apply.Unstructured, error) {
 	var objs []apply.Unstructured
-	f, err := os.Open(file)
-	if err != nil {
-		return objs, err
+
+	var f *os.File
+	var err error
+	if file == "-" {
+		f = os.Stdin
+	} else {
+		f, err = os.Open(file)
+		if err != nil {
+			return objs, err
+		}
+		defer f.Close()
 	}
-	defer f.Close()
 
 	dec := yaml.NewDecoder(f)
 	for err == nil {

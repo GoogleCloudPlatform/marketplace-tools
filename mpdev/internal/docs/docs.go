@@ -15,19 +15,51 @@
 package docs
 
 // ReferenceShort contains short help text.
-const ReferenceShort = `placeholder`
+const ReferenceShort = `Overview of mpdev commands`
 
 // ReferenceLong contains expanded help text.
-const ReferenceLong = `placeholder`
+const ReferenceLong = `
+mpdev contains commands to both configure and construct artifacts needed for
+publishing to the Google Cloud Marketplace.
+`
 
 // ReferenceExamples contains examples.
-const ReferenceExamples = `placeholder`
+const ReferenceExamples = `
+  # get a package
+  $ mpdev pkg get https://github.com/GoogleCloudPlatform/marketplace-tools.git/examples/deployment-manager/autogen/singlevm wordpress
+  fetching package examples/deployment-manager/autogen/singlevm from \
+    https://github.com/GoogleCloudPlatform/marketplace-tools to wordpress
+
+  # set a value in configuration
+  $ mpdev cfg set image wordpress-image
+	set 1 fields
+
+  # apply mpdev configuration from mpdev.yaml file
+  $ mpdev apply -f mpdev.yaml
+  ...
+  all resources have been created
+`
 
 // ApplyShort contains short help text for apply command.
-const ApplyShort = `placeholder`
+const ApplyShort = `Updates or creates artifacts defined by the configurations in filename or stdin`
 
 // ApplyLong contains expanded help text for apply command
-const ApplyLong = `placeholder`
+const ApplyLong = `
+  mpdev apply -f FILENAME
+
+Flags::
+  --f: File
+		The filename of the mpdev configuration to apply
+`
 
 // ApplyExamples contains examples for apply command.
-const ApplyExamples = `placeholder`
+const ApplyExamples = `
+  # apply the configuration in mpdev.yaml
+  mpdev apply -f mpdev.yaml
+
+  # apply the yaml configuration passed into stdin
+  cat mpdev.yaml | mpdev apply -f
+
+  # apply the configuration in dm.yaml and gce.yaml
+  mpdev apply -f dm.yaml,gce.yaml
+`
