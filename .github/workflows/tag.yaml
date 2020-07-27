@@ -1,9 +1,9 @@
+name: Tag release
+
 on:
   push:
     tags:
     - 'v*'
-
-name: Tag release
 
 jobs:
   build:
@@ -12,10 +12,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Get the version
+        id: get_version
+        run: echo "::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}"
       - name: Build
         run: |
           bazel build --platforms=@io_bazel_rules_go//go/toolchain:darwin_amd64 //mpdev:mpdev
-          tar czf mpdev_darwin_amd64_${{ github.ref }}.tar.gz README.md -C bazel-bin/mpdev/mpdev_ mpdev
+          tar czf mpdev_darwin_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz README.md -C bazel-bin/mpdev/mpdev_ mpdev
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -30,6 +33,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mpdev_darwin_amd64_${{ github.ref }}.tar.gz
-          asset_name: mpdev_darwin_amd64_${{ github.ref }}.tar.gz
+          asset_path: ./mpdev_darwin_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_name: mpdev_darwin_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
           asset_content_type: application/gzip
