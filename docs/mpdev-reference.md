@@ -1,7 +1,3 @@
-## Setup
-
-TODO: Give instructions for installing mpdev.
-
 ## Mpdev resources
 
 The `mpdev` tool creates and updates artifacts defined by yaml configurations. The `mpdev` resource schema

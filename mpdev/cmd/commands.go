@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/GoogleContainerTools/kpt/commands"
 	"github.com/spf13/cobra"
 )
@@ -25,9 +27,24 @@ func GetMpdevCommands(name string) (c []*cobra.Command) {
 	cfgCmd := commands.GetConfigCommand(name)
 	applyCmd := GetApplyCommand()
 
-	c = append(c, pkgCmd, cfgCmd, applyCmd)
+	c = append(c, pkgCmd, cfgCmd, applyCmd, versionCmd)
 
 	// apply cross-cutting issues to command
 	commands.NormalizeCommand(c...)
 	return c
+}
+
+var version string
+var gitCommit string
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the version number of mpdev",
+	Run: func(cmd *cobra.Command, args []string) {
+		if version == "" {
+			version = "unknown version (built from source)"
+		}
+		fmt.Printf("Version: %s\n", version)
+		fmt.Printf("GitCommit: %s\n", gitCommit)
+	},
 }

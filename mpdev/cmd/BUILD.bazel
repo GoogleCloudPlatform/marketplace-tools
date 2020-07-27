@@ -9,6 +9,10 @@ go_library(
     ],
     importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/cmd",
     visibility = ["//visibility:public"],
+    x_defs = {
+        "version": "{STABLE_VERSION}",
+        "gitCommit": "{STABLE_GIT_COMMIT}",
+    },
     deps = [
         "//mpdev/internal/apply:go_default_library",
         "//mpdev/internal/docs:go_default_library",
