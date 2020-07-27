@@ -17,8 +17,16 @@ jobs:
         run: echo "::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}"
       - name: Build
         run: |
-          bazel build --platforms=@io_bazel_rules_go//go/toolchain:darwin_amd64 //mpdev:mpdev
-          tar czf mpdev_darwin_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz README.md -C bazel-bin/mpdev/mpdev_ mpdev
+          for OS in darwin linux windows;
+          do
+            bazel build --platforms=@io_bazel_rules_go//go/toolchain:${OS}_amd64 //mpdev:mpdev;
+            if [[ $OS = "windows" ]]; then
+              EXE=.exe
+            else
+              EXE=
+            fi
+            tar czf mpdev_${OS}_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz LICENSE README.md -C bazel-bin/mpdev/mpdev_ mpdev${EXE};
+          done
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -27,7 +35,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-      - name: Upload Release Asset
+      - name: Upload Release Asset Darwin
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -35,4 +43,22 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./mpdev_darwin_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
           asset_name: mpdev_darwin_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_content_type: application/gzip
+      - name: Upload Release Asset Windows
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./mpdev_windows_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_name: mpdev_windows_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_content_type: application/gzip
+      - name: Upload Release Asset Linux
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./mpdev_linux_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_name: mpdev_linux_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
           asset_content_type: application/gzip
