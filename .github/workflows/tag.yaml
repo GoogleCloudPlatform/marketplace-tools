@@ -1,0 +1,35 @@
+on:
+  push:
+    tags:
+    - 'v*'
+
+name: Tag release
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+        bazel build --platforms=@io_bazel_rules_go//go/toolchain:darwin_amd64 //mpdev:mpdev
+        tar czf mpdev_darwin_amd64_${{ github.ref }}.tar.gz README.md -C bazel-bin/mpdev/mpdev_ mpdev
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: ./mpdev_darwin_amd64_${{ github.ref }}.tar.gz
+            asset_name: mpdev_darwin_amd64_${{ github.ref }}.tar.gz
+            asset_content_type: application/gzip
