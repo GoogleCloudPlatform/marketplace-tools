@@ -18,7 +18,7 @@ https://github.com/GoogleCloudPlatform/marketplace-tools/releases/latest
 ### Install with Homebrew
 
 ```
-brew tap GoogleCloudPlatform/mpdev https://github.com/GoogleCloudPlatform/mpdev.git
+brew tap GoogleCloudPlatform/marketplace-tools https://github.com/GoogleCloudPlatform/marketplace-tools.git
 brew install mpdev
 ```
 

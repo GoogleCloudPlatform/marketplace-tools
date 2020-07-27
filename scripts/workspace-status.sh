@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-echo "STABLE_GIT_COMMIT $(git rev-parse HEAD)"
+if [ -z "$(git status --porcelain)" ]; then
+  echo "STABLE_GIT_COMMIT $(git rev-parse HEAD)"
+fi
+# Value set in https://github.com/GoogleCloudPlatform/marketplace-tools/blob/master/.github/workflows/tag.yaml
 echo "STABLE_VERSION $MPDEV_VERSION"

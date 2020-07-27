@@ -34,8 +34,12 @@ func GetMpdevCommands(name string) (c []*cobra.Command) {
 	return c
 }
 
-var version string
-var gitCommit string
+// Variables populated by linking. See: https://github.com/bazelbuild/rules_go/blob/master/go/core.rst#defines-and-stamping
+// and x_deps in https://github.com/GoogleCloudPlatform/marketplace-tools/blob/master/mpdev/cmd/BUILD.bazel
+var (
+	version   string
+	gitCommit string
+)
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
@@ -43,6 +47,9 @@ var versionCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if version == "" {
 			version = "unknown version (built from source)"
+		}
+		if gitCommit == "" {
+			gitCommit = "unknown commit (dirty git repo)"
 		}
 		fmt.Printf("Version: %s\n", version)
 		fmt.Printf("GitCommit: %s\n", gitCommit)
