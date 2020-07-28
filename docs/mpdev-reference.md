@@ -47,10 +47,8 @@ The `apply` command creates resources from the mpdev template.
 mpdev apply -f dir/configurations.yaml
 ```
 
-The `--dry-run` option can be used to verify that your environment is setup
-correctly to create the resources in the configuration files. This depends on
-the mpdev resource but can include proper `gcp` permissions, and whether 
-`docker` is installed.
+The `--dry-run` option can be used to validate the schema of configuration files
+quickly without creating the `mpdev` resources.
 
 ```bash
 mpdev apply --dry-run -f dir/configurations.yaml

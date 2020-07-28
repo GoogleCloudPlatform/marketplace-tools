@@ -31,13 +31,14 @@ import (
 func GetApplyCommand() *cobra.Command {
 	var c command
 	cmd := &cobra.Command{
-		Use:     "apply -f FILENAME",
+		Use:     "apply -f FILENAME [--dryrun]",
 		Short:   docs.ApplyShort,
 		Long:    docs.ApplyLong,
 		Example: docs.ApplyExamples,
 		RunE:    c.RunE,
 	}
 
+	cmd.Flags().BoolVar(&c.DryRun, "dryrun", c.DryRun, "if set, validates configuration files without creating resource")
 	cmd.Flags().StringSliceVarP(&c.Filenames, "filename", "f", c.Filenames, "that contains the configuration to apply")
 	_ = cobra.MarkFlagRequired(cmd.Flags(), "filename")
 
@@ -46,10 +47,11 @@ func GetApplyCommand() *cobra.Command {
 
 type command struct {
 	Filenames []string
+	DryRun    bool
 }
 
 // RunE Executes the `apply` command
-func (c *command) RunE(_ *cobra.Command, _ []string) error {
+func (c *command) RunE(_ *cobra.Command, _ []string) (err error) {
 	registry := apply.NewRegistry(exec.New())
 	for _, file := range c.Filenames {
 		objs, err := decodeFile(file)
@@ -68,7 +70,7 @@ func (c *command) RunE(_ *cobra.Command, _ []string) error {
 		}
 	}
 
-	err := registry.Apply()
+	err = registry.Apply(c.DryRun)
 
 	return err
 }

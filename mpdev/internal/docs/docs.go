@@ -18,9 +18,8 @@ package docs
 const ReferenceShort = `Overview of mpdev commands`
 
 // ReferenceLong contains expanded help text.
-const ReferenceLong = `
-mpdev contains commands to both configure and construct artifacts needed for
-publishing to the Google Cloud Marketplace.
+const ReferenceLong = `mpdev contains commands to both configure and construct 
+artifacts needed for publishing to the Google Cloud Marketplace.
 `
 
 // ReferenceExamples contains examples.
@@ -44,22 +43,22 @@ const ReferenceExamples = `
 const ApplyShort = `Updates or creates artifacts defined by the configurations in filename or stdin`
 
 // ApplyLong contains expanded help text for apply command
-const ApplyLong = `
-  mpdev apply -f FILENAME
-
-Flags::
-  --f: File
-		The filename of the mpdev configuration to apply
+const ApplyLong = `Updates or creates artifacts defined by the configurations in filename or stdin.
+See https://github.com/GoogleCloudPlatform/marketplace-tools/blob/master/docs/mpdev-reference.md#mpdev-resources
+for list of resources that can be created.
 `
 
 // ApplyExamples contains examples for apply command.
 const ApplyExamples = `
-  # apply the configuration in mpdev.yaml
-  mpdev apply -f mpdev.yaml
+  # apply the configuration in dm.yaml
+  mpdev apply -f dm.yaml
 
   # apply the yaml configuration passed into stdin
   cat mpdev.yaml | mpdev apply -f
 
   # apply the configuration in dm.yaml and gce.yaml
   mpdev apply -f dm.yaml,gce.yaml
+
+  # dryrun of configuration in dm.yaml
+  mpdev apply -f dm.yaml --dryrun
 `

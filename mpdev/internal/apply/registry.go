@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/pkg/errors"
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
 	"k8s.io/utils/exec"
@@ -30,7 +32,7 @@ type Registry interface {
 	GetExecutor() exec.Interface
 	GetResource(reference Reference) Resource
 	ResolveFilePath(rs Resource, path string) (string, error)
-	Apply() error
+	Apply(dryRun bool) error
 }
 
 type registry struct {
@@ -64,21 +66,28 @@ func (r *registry) RegisterResource(rs Resource, workingDirectory string) {
 }
 
 // Apply invokes `Apply` on all resources in the registry.
-func (r *registry) Apply() error {
+func (r *registry) Apply(dryRun bool) error {
 	resources, err := r.topologicalSort()
 	if err != nil {
 		return err
 	}
 
 	for _, resource := range resources {
-		err = resource.Apply(r)
-		if err != nil {
-			return err
+		fmt.Printf("Starting to validate/create resource %+v\n", resource.GetReference())
+		applyErr := resource.Apply(r, dryRun)
+		if applyErr != nil {
+			applyErr := errors.Wrapf(applyErr, "Error in resource %+v\n", resource.GetReference())
+			// Accumulate errors if dryRun
+			if dryRun {
+				err = multierror.Append(applyErr, err)
+			} else {
+				return applyErr
+			}
 		}
 	}
-	fmt.Printf("all resources have been created")
+	fmt.Printf("all resources have been validated/created\n")
 
-	return nil
+	return err
 }
 
 func (r *registry) ResolveFilePath(rs Resource, path string) (string, error) {

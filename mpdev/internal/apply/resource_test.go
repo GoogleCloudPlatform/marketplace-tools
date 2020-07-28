@@ -16,12 +16,12 @@ package apply
 
 type testResource struct {
 	BaseResource
-	applyFunc func(r Registry) error
+	applyFunc func(r Registry, dryRun bool) error
 	depFunc   func() []Reference
 }
 
-func (tr *testResource) Apply(r Registry) error {
-	return tr.applyFunc(r)
+func (tr *testResource) Apply(r Registry, dryRun bool) error {
+	return tr.applyFunc(r, dryRun)
 }
 
 func (tr *testResource) GetDependencies() []Reference {
@@ -35,7 +35,7 @@ func newTestResource(name string) *testResource {
 	return newTestResourceFunc(name, nil, nil)
 }
 
-func newTestResourceFunc(name string, applyFunc func(Registry) error, depFunc func() []Reference) *testResource {
+func newTestResourceFunc(name string, applyFunc func(Registry, bool) error, depFunc func() []Reference) *testResource {
 	return &testResource{
 		BaseResource: BaseResource{
 			TypeMeta: TypeMeta{
