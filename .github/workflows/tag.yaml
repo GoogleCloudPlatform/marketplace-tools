@@ -19,14 +19,18 @@ jobs:
         run: |
           for OS in darwin linux windows;
           do
-            bazel build --platforms=@io_bazel_rules_go//go/toolchain:${OS}_amd64 //mpdev:mpdev;
+            bazel build --stamp --workspace_status_command="./scripts/workspace-status.sh" \
+            --platforms=@io_bazel_rules_go//go/toolchain:${OS}_amd64 //mpdev:mpdev;
             if [[ $OS = "windows" ]]; then
               EXE=.exe
             else
               EXE=
             fi
-            tar czf mpdev_${OS}_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz LICENSE README.md -C bazel-bin/mpdev/mpdev_ mpdev${EXE};
+            tar czf mpdev_${OS}_amd64_${MPDEV_VERSION}.tar.gz LICENSE README.md -C bazel-bin/mpdev/mpdev_ mpdev${EXE};
           done
+        env:
+          # Sets STABLE_VERSION variable in ./scripts/workspace-status.sh
+          MPDEV_VERSION: ${{ steps.get_version.outputs.VERSION }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1

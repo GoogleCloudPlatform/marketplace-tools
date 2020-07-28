@@ -1,3 +1,6 @@
 .idea/
 .ijwb/
 bazel-*
+
+# Ignore tar output from Github Actions
+mpdev_*.tar.gz

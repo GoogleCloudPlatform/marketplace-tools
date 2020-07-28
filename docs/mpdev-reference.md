@@ -1,6 +1,6 @@
 ## Setup
 
-TODO: Give instructions for installing mpdev.
+See installation instructions [here](../README.md).
 
 ## Mpdev resources
 
