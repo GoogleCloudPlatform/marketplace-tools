@@ -17,16 +17,11 @@ jobs:
         run: echo "::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}"
       - name: Build
         run: |
-          for OS in darwin linux windows;
+          for OS in darwin linux;
           do
             bazel build --stamp --workspace_status_command="./scripts/workspace-status.sh" \
             --platforms=@io_bazel_rules_go//go/toolchain:${OS}_amd64 //mpdev:mpdev;
-            if [[ $OS = "windows" ]]; then
-              EXE=.exe
-            else
-              EXE=
-            fi
-            tar czf mpdev_${OS}_amd64_${MPDEV_VERSION}.tar.gz LICENSE README.md -C bazel-bin/mpdev/mpdev_ mpdev${EXE};
+            tar czf mpdev_${OS}_amd64_${MPDEV_VERSION}.tar.gz LICENSE README.md -C bazel-bin/mpdev/mpdev_ mpdev;
           done
         env:
           # Sets STABLE_VERSION variable in ./scripts/workspace-status.sh
@@ -47,15 +42,6 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./mpdev_darwin_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
           asset_name: mpdev_darwin_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
-          asset_content_type: application/gzip
-      - name: Upload Release Asset Windows
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mpdev_windows_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
-          asset_name: mpdev_windows_amd64_${{ steps.get_version.outputs.VERSION }}.tar.gz
           asset_content_type: application/gzip
       - name: Upload Release Asset Linux
         uses: actions/upload-release-asset@v1
