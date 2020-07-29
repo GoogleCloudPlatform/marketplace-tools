@@ -1,0 +1,135 @@
+# DeploymentManagerTemplate specifies the location that a deployment manager
+# template is generated when `mpdev apply` is invoked
+apiVersion: dev.marketplace.cloud.google.com/v1alpha1
+kind: DeploymentManagerTemplate
+metadata:
+  name: dmtemplate
+deploymentManagerRef:
+  group: dev.marketplace.cloud.google.com
+  kind: DeploymentManagerAutogenTemplate
+  name: autogen
+zipFilePath: template.zip
+---
+# DeploymentManagerAutogenTemplate auto-generates a deployment manager template
+# that can be deployed using `gcloud deployments create ...`
+apiVersion: dev.marketplace.cloud.google.com/v1alpha1
+kind: DeploymentManagerAutogenTemplate
+metadata:
+  name: autogen
+spec:
+  # See https://pkg.go.dev/github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/apply?tab=doc#PackageInfo
+  packageInfo:
+    version: '1.2.0'
+    osInfo:
+      name: Debian
+      version: '9.12'
+    components:
+      - name: Google-Fluentd,
+        version: '1.6.37'
+      - name: Redis,
+        version: '6.0.5'
+      - name: Stackdriver-Agent,
+        version: '5.5.2'
+  # See https://github.com/GoogleCloudPlatform/marketplace-tools/docs/autogen-reference.md
+  # for explanation of fields
+  deploymentSpec:
+    multiVm:
+      tiers:
+      - name: db
+        title: Redis
+        bootDisk:
+          diskSize:
+            defaultSizeGb: 500
+            minSizeGb: 10
+          diskType:
+            defaultType: pd-standard
+        firewallRules:
+        - port: '6379'
+          protocol: TCP
+          allowed_source: TIER
+        - port: '26379'
+          protocol: TCP
+          allowed_source: TIER
+        - protocol: ICMP
+          allowed_source: TIER
+        gceMetadataItems:
+        - key: redis_node_hostnames
+          tierVmNames:
+            tier: db
+            allVms:
+              delimiter: ' '
+        - key: redis_persistent_nodes
+          valueFromDeployInputField: persistentNodes
+        images:
+        - name: imageName # {"$ref":"#/definitions/io.k8s.cli.setters.image"}
+          project: projectId # {"$ref":"#/definitions/io.k8s.cli.setters.projectId"}
+        instanceCount:
+          defaultValue: 3 # {"$ref":"#/definitions/io.k8s.cli.setters.defaultReplicas"}
+          range:
+            startValue: 3
+            endValue: 11
+        machineType:
+          defaultMachineType:
+            gceMachineType: n1-standard-4
+          minimum:
+            cpu: 1
+            ramGb: 1.69
+        applicationStatus:
+          type: WAITER
+          waiter:
+            waiterTimeoutSecs: 300
+        networkInterfaces:
+          minCount: 1
+          maxCount: 8
+          externalIp:
+            defaultType: EPHEMERAL
+      deployInput:
+        sections:
+        - placement: MAIN
+          fields:
+          - name: persistentNodes
+            title: Persistent Redis nodes
+            description: Configure how many nodes save Redis databases to disk.
+            required: true
+            integerDropdown:
+              values:
+              - -1
+              - 0
+              - 2
+              - 3
+              defaultValueIndex:
+                value: 0
+              valueLabels:
+                "-1": All nodes
+                "0": No persistence
+                "2": Two nodes
+                "3": Three nodes
+      postDeploy:
+        actionItems:
+        # SSH through an external IP
+        - heading: Connect to the Redis primary server
+          description: The initial Redis master is {{ outputs().db_vmName0 }}; use
+            the gcloud command below to connect.
+          snippet: gcloud compute ssh {{ outputs().db_vmName0 }} --project {{ outputs().project
+            }} --zone {{ properties().zone }}
+          showIf:
+            hasExternalIp:
+              tier: db
+        # SSH through an internal IP
+        - heading: Connect to the Redis primary server (internal IP)
+          description: The initial Redis master is {{ outputs().db_vmName0 }}; use
+            the gcloud command below to connect.
+          snippet: gcloud beta compute ssh {{ outputs().db_vmName0 }} --project {{
+            outputs().project }} --zone {{ properties().zone }} --internal-ip
+          showIf:
+            hasExternalIp:
+              negated: true
+              tier: db
+        - heading: Learn about Redis Sentinel
+          description: The Redis master may be reassigned by <a href="https://redis.io/topics/sentinel">Redis
+            Sentinel</a>. Use a Sentinel-aware client to locate the master.
+      stackdriver:
+        logging:
+          defaultOn: false
+        monitoring:
+          defaultOn: false

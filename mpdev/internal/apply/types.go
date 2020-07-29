@@ -17,6 +17,8 @@ package apply
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/pkg/errors"
 )
 
 const apiVersion = "dev.marketplace.cloud.google.com/v1alpha1"
@@ -39,12 +41,12 @@ func UnstructuredToResource(obj Unstructured) (Resource, error) {
 	resource := fn()
 	b, err := json.Marshal(obj)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err,"unable to marshal resource with kind: %s", typeMeta.Kind)
 	}
 
 	err = json.Unmarshal(b, resource)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "unable to unmarshal resource with kind: %s", typeMeta.Kind)
 	}
 
 	return resource, nil
