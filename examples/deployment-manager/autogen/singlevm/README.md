@@ -22,8 +22,8 @@ mpdev pkg get https://github.com/marketplace-tools.git/examples/deployment-manag
 
 `mpdev cfg set` will be used to customize values in the 
 configurations.yaml template. Particularly the
-[`projectId`](https://github.com/GoogleCloudPlatform/marketplace-tools/tree/gibbley/autogen-docs/docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec) 
-and [`image`](https://github.com/GoogleCloudPlatform/marketplace-tools/tree/gibbley/autogen-docs/docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec)
+[`projectId`](https://github.com/GoogleCloudPlatform/marketplace-tools/tree/master/docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec) 
+and [`image`](https://github.com/GoogleCloudPlatform/marketplace-tools/tree/master/docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec)
 values must be set for your particular solution.
 
 ```
@@ -62,10 +62,10 @@ gcloud deployment-manager deployments create wordpress --config $TMPDIR/test_con
 When creating your own Deployment Manager solution, you may need to
 customize other fields in the autogen specification, such as `passwords`,
 `deployInput`, and `postDeploy`. See the 
-[autogen reference](https://github.com/GoogleCloudPlatform/marketplace-tools/autogen-reference.md)
+[autogen reference](https://github.com/GoogleCloudPlatform/marketplace-tools/tree/master/docs/autogen-reference.md)
 for explanations of the fields.
 
 ## Upload Solution To Partner Portal
 
 See instructions in this 
-[guide](https://github.com/GoogleCloudPlatform/marketplace-tools/docs/deployment-manager-guide.md).
+[guide](https://github.com/GoogleCloudPlatform/marketplace-tools/tree/master/docs/deployment-manager-guide.md).

@@ -22,7 +22,7 @@ these resources.
 
 The `pkg get` command downloads a preconfigured mpdev template. `mpdev pkg` is
 a wrapper around 
-[`kpt pkg`](https://googlecontainertools.github.io/kpt/reference/pkg/get]).
+[`kpt pkg`](https://googlecontainertools.github.io/kpt/reference/pkg/get).
 
 ```bash
 mpdev pkg get https://github.com/marketplace-tools.git/examples/deployment-manager/autogen/singlevm dir
@@ -33,7 +33,7 @@ mpdev pkg get https://github.com/marketplace-tools.git/examples/deployment-manag
 The `cfg set` command can be used to programmatically customize values in a
 preconfigured mpdev template.
 `mpdev cfg` is a wrapper around
-[`kpt cfg`](https://googlecontainertools.github.io/kpt/reference/cfg/set]).
+[`kpt cfg`](https://googlecontainertools.github.io/kpt/reference/cfg/set).
 
 ```bash
 mpdev cfg set dir projectId YourProject
