@@ -20,7 +20,7 @@ import (
 
 // Resource represents a KRM resource that can be applied
 type Resource interface {
-	Apply(registry Registry) error
+	Apply(registry Registry, dryRun bool) error
 	GetReference() Reference
 	GetDependencies() []Reference
 }

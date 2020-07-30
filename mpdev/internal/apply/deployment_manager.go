@@ -68,7 +68,16 @@ type convertedSpec struct {
 }
 
 // Apply generates a deployment manager template from an autogen file.
-func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry) error {
+func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry, dryRun bool) error {
+	err := dm.validateSpec()
+	if err != nil {
+		return err
+	}
+
+	if dryRun {
+		return nil
+	}
+
 	convertedSpec := dm.convertToAutogen()
 
 	dir, err := ioutil.TempDir("", "autogen")
@@ -116,6 +125,7 @@ func (dm *DeploymentManagerAutogenTemplate) runAutogen(registry Registry, inputD
 	cmd.SetStderr(os.Stderr)
 	cmd.SetStdout(os.Stdout)
 
+	fmt.Printf("Executing autogen container: %s\n", autogenImg)
 	err := cmd.Run()
 	if err != nil {
 		return errors.Wrap(err, "failed to execute autogen")
@@ -152,6 +162,23 @@ func (dm *DeploymentManagerAutogenTemplate) convertToAutogen() *convertedSpec {
 	return autogenSpec
 }
 
+func (dm *DeploymentManagerAutogenTemplate) validateSpec() error {
+	packageInfo := dm.Spec.PackageInfo
+	osInfo := packageInfo.OsInfo
+	if osInfo.Version == "" || osInfo.Name == "" {
+		return fmt.Errorf("osInfo version or name not specified. Ensure spec.packageInfo.osInfo in config file is set")
+	}
+	if len(packageInfo.Components) == 0 {
+		return fmt.Errorf("no packageInfo Components. Ensure spec.packageInfo.Components in config file is set")
+	}
+
+	// Further deploymentSpec schema checks are done when executing autogen container.
+	if len(dm.Spec.DeploymentSpec) == 0 {
+		return fmt.Errorf("no deploymentSpec contents. Ensure spec.deploymentSpec in config file is set")
+	}
+	return nil
+}
+
 // DeploymentManagerTemplate saves a referenced Deployment Manager
 // template to GCS or the local filesystem
 type DeploymentManagerTemplate struct {
@@ -169,7 +196,7 @@ func (dm *DeploymentManagerTemplate) GetDependencies() (r []Reference) {
 }
 
 // Apply uploads a Deployment Manager template to GCS.
-func (dm *DeploymentManagerTemplate) Apply(registry Registry) error {
+func (dm *DeploymentManagerTemplate) Apply(registry Registry, dryRun bool) error {
 	dmRef := registry.GetResource(dm.DeploymentManagerRef)
 	if dmRef == nil {
 		return fmt.Errorf("autogen template not found %+v", dm.DeploymentManagerRef)
@@ -178,6 +205,14 @@ func (dm *DeploymentManagerTemplate) Apply(registry Registry) error {
 	dmTemplate, ok := dmRef.(*DeploymentManagerAutogenTemplate)
 	if !ok {
 		return fmt.Errorf("referenced autogen template is not correct type %+v", dm.DeploymentManagerRef)
+	}
+
+	if dm.ZipFilePath == "" {
+		return errors.New("ZipFilePath cannot be empty for DM template")
+	}
+
+	if dryRun {
+		return nil
 	}
 
 	var localZipPath string

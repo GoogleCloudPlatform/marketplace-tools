@@ -32,7 +32,7 @@ type PackerGceImageBuilder struct {
 }
 
 // Apply build a GCE image using Packer
-func (p *PackerGceImageBuilder) Apply(registry Registry) error {
+func (p *PackerGceImageBuilder) Apply(registry Registry, dryRun bool) error {
 	return nil
 }
 
@@ -52,7 +52,7 @@ type GceImage struct {
 
 // Apply publishes an image to with the project and name specified in
 // the GceImage
-func (g *GceImage) Apply(registry Registry) error {
+func (g *GceImage) Apply(registry Registry, dryRun bool) error {
 	return nil
 }
 

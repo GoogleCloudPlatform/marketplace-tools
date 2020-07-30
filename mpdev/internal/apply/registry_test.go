@@ -15,11 +15,13 @@
 package apply
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/utils/exec"
 )
@@ -49,8 +51,8 @@ func TestResolveFilePath(t *testing.T) {
 
 func TestApplyOrder(t *testing.T) {
 	order := 1
-	applyFunc := func(expectedOrder int) func(r Registry) error {
-		return func(r Registry) error {
+	applyFunc := func(expectedOrder int) func(r Registry, dryRun bool) error {
+		return func(r Registry, _ bool) error {
 			assert.Equal(t, expectedOrder, order)
 			order++
 			return nil
@@ -78,7 +80,7 @@ func TestApplyOrder(t *testing.T) {
 	registry.RegisterResource(r2, dir)
 	registry.RegisterResource(r1, dir)
 
-	err := registry.Apply()
+	err := registry.Apply(true)
 	assert.Equal(t, 5, order)
 	assert.NoError(t, err)
 }
@@ -98,7 +100,55 @@ func TestApplyInvalidRef(t *testing.T) {
 	registry := NewRegistry(exec.New())
 	registry.RegisterResource(r, dir)
 
-	err := registry.Apply()
+	err := registry.Apply(true)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "resource not found with reference"))
+}
+
+func TestApplyError(t *testing.T) {
+	testCases := []struct {
+		name          string
+		dryRun        bool
+		expectedCalls int
+	}{{
+		"Apply error, dryRun:false",
+		false,
+		1,
+	}, {
+		"Apply error, dryRun: true",
+		true,
+		2,
+	}}
+	applyFuncErr := func(expectedDryRun bool) (func(r Registry, dryRun bool) error, *int) {
+		applyCalls := 0
+		return func(_ Registry, dryRun bool) error {
+			applyCalls++
+			assert.Equal(t, expectedDryRun, dryRun)
+			return fmt.Errorf("Error during apply func")
+		}, &applyCalls
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			applyFunc, callCtr := applyFuncErr(tc.dryRun)
+			r1 := newTestResourceFunc("r1", applyFunc, nil)
+			r2 := newTestResourceFunc("r2", applyFunc, nil)
+			dir := "dirpath"
+			registry := NewRegistry(exec.New())
+			registry.RegisterResource(r1, dir)
+			registry.RegisterResource(r2, dir)
+
+			err := registry.Apply(tc.dryRun)
+			assert.Error(t, err)
+			// Check that dry run is called for both resources and errors are accumulated
+			assert.Equal(t, tc.expectedCalls, *callCtr)
+
+			if tc.dryRun {
+				merr, ok := err.(*multierror.Error)
+				assert.True(t, ok)
+				assert.Equal(t, tc.expectedCalls, merr.Len())
+			}
+		})
+	}
+
 }
