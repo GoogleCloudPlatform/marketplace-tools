@@ -5,7 +5,7 @@ The mpdev tool can autogenerate deployment manager templates from an
 build create a deployment manager template.
 
 1. Use the `mpdev pkg get` command to retrieve a preconfigured autogen
-specification. See an example [here](./examples/deployment-manager/autogen/singlevm/README.md).
+specification. See an example [here](../examples/deployment-manager/autogen/singlevm/README.md).
 1. Use `mpdev cfg set` to customize values in the retrieved autogen
 specification, or edit the spec manually.
 3. Execute `mpdev apply` to generate the deployment manager template.
