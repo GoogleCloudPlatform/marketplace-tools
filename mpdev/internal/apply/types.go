@@ -41,7 +41,7 @@ func UnstructuredToResource(obj Unstructured) (Resource, error) {
 	resource := fn()
 	b, err := json.Marshal(obj)
 	if err != nil {
-		return nil, errors.Wrapf(err,"unable to marshal resource with kind: %s", typeMeta.Kind)
+		return nil, errors.Wrapf(err, "unable to marshal resource with kind: %s", typeMeta.Kind)
 	}
 
 	err = json.Unmarshal(b, resource)
