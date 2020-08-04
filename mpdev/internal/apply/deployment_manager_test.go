@@ -286,7 +286,7 @@ packageInfo:
 
 			autogen := getDeploymentManagerAutogenTemplate(&autogenSpec)
 
-			mountRegex := regexp.MustCompile("type=bind,src=/tmp/autogen(.*),dst=/autogen")
+			mountRegex := regexp.MustCompile("type=bind,src=/(.*/autogen.*),dst=/autogen")
 			// docker run argv index for mounting autogen input file
 			mountIdx := 7
 			fcmd := testingexec.FakeCmd{}
@@ -296,7 +296,7 @@ packageInfo:
 					mountMatch := mountRegex.FindStringSubmatch(fcmd.Argv[mountIdx])
 					assert.Equal(t, 2, len(mountMatch))
 
-					f, err := os.Open(fmt.Sprintf("/tmp/autogen%s/autogen.yaml", mountMatch[1]))
+					f, err := os.Open(fmt.Sprintf("/%s/autogen.yaml", mountMatch[1]))
 					assert.NoError(t, err)
 
 					// Check that input file to autogen container matches convertedSpec

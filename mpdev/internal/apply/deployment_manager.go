@@ -16,7 +16,6 @@ package apply
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -80,13 +79,13 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry, dryRun bool
 
 	convertedSpec := dm.convertToAutogen()
 
-	dir, err := ioutil.TempDir("", "autogen")
+	dir, err := util.CreateTmpDir("autogen")
 	if err != nil {
 		return err
 	}
 	dm.outDir = dir
 
-	inputDir, err := ioutil.TempDir("", "autogenInput")
+	inputDir, err := util.CreateTmpDir("autogenInput")
 	if err != nil {
 		return err
 	}

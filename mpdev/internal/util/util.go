@@ -16,8 +16,11 @@ package util
 
 import (
 	"fmt"
-	"k8s.io/utils/exec"
+	"io/ioutil"
 	"os"
+	"path/filepath"
+
+	"k8s.io/utils/exec"
 )
 
 // ZipDirectory zips the given directory to the given zipFile and returns
@@ -34,4 +37,30 @@ func ZipDirectory(executor exec.Interface, zipFile string, directory string) err
 
 	err := cmd.Run()
 	return err
+}
+
+// OsTempDir gets os.TempDir() (usually provided by $TMPDIR) but expands any symlinks found within it.
+// This wrapper function can prevent problems with docker-for-mac trying to use /var/..., which is not typically
+// shared/mounted. It will be expanded via the /var symlink to /private/var/...
+func OsTempDir() (string, error) {
+	dirName := os.TempDir()
+	tmpDir, err := filepath.EvalSymlinks(dirName)
+	if err != nil {
+		return "", err
+	}
+	tmpDir = filepath.Clean(tmpDir)
+	return tmpDir, nil
+}
+
+// CreateTmpDir creates a temporary directory and returns its path as a string.
+func CreateTmpDir(prefix string) (string, error) {
+	systemTempDir, err := OsTempDir()
+	if err != nil {
+		return "", err
+	}
+	fullPath, err := ioutil.TempDir(systemTempDir, prefix)
+	if err != nil {
+		return "", err
+	}
+	return fullPath, nil
 }
