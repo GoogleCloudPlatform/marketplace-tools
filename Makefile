@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.PHONY: fix vet fmt formula docs license license-check lint bazel-build-gen tidy build test
+.PHONY: fix vet fmt formula docs license license-check lint bazel-build-gen tidy build test clean
 
 GOBIN := $(shell go env GOPATH)/bin
 PKG := github.com/GoogleCloudPlatform/marketplace-tools/mpdev
@@ -20,8 +20,10 @@ PKG := github.com/GoogleCloudPlatform/marketplace-tools/mpdev
 build:
 	bazel build --stamp --workspace_status_command="./scripts/workspace-status.sh" //...:all
 
-
 all: fix vet fmt formula docs license license-check lint bazel-build-gen tidy build test
+
+clean:
+	bazel clean
 
 docs:
 	docker run -v $(shell bazel info output_base)/external/deploymentmanager-autogen:/protos -v $(shell pwd)/docs:/out pseudomuto/protoc-gen-doc \
