@@ -4,7 +4,6 @@ go 1.13
 
 require (
 	github.com/GoogleContainerTools/kpt v0.30.0
-	github.com/ernesto-jimenez/gogen v0.0.0-20180125220232-d7d4131e6607 // indirect
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.0.0
