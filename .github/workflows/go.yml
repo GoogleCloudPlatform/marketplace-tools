@@ -24,8 +24,7 @@ jobs:
 
     - name: Check tidy go modules
       run: |-
-         [ -z "$(git status --porcelain)" ] || (echo "Dirty!" && exit 1)
-         make tidy
+         make fmt tidy
          [ -z "$(git status --porcelain)" ] || (echo "Not tidy!" && exit 1)
 
     - name: Lint, Build, and Test
