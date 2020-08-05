@@ -4,7 +4,6 @@ go 1.13
 
 require (
 	github.com/GoogleContainerTools/kpt v0.30.0
-	github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.0.0
