@@ -127,7 +127,7 @@ func (dm *DeploymentManagerAutogenTemplate) runAutogen(registry Registry, inputD
 	fmt.Printf("Executing autogen container: %s\n", autogenImg)
 	err := cmd.Run()
 	if err != nil {
-		return errors.Wrap(err, "failed to execute autogen")
+		return errors.Wrap(err, "failed to execute autogen container with docker")
 	}
 
 	fmt.Printf("Wrote autogen output to directory: %s\n", dm.outDir)
