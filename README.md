@@ -40,4 +40,4 @@ The mpdev binary will be created at `bazel-bin/mpdev/mpdev_/mpdev`
 ## Getting Started
 
 See the [mdpev reference](./docs/mpdev-reference.md) 
-and [deployment manager guide](./docs/deployment-manager-guide.md) documentation.
+and [Deployment Manager guide](./docs/deployment-manager-guide.md) documentation.
