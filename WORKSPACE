@@ -34,39 +34,6 @@ go_rules_dependencies()
 go_register_toolchains()
 
 http_archive(
-    name = "io_bazel_rules_docker",
-    sha256 = "4521794f0fba2e20f3bf15846ab5e01d5332e587e9ce81629c7f96c793bb7036",
-    strip_prefix = "rules_docker-0.14.4",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.14.4/rules_docker-v0.14.4.tar.gz"],
-)
-
-load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
-)
-
-container_repositories()
-
-load(
-    "@io_bazel_rules_docker//repositories:deps.bzl",
-    container_deps = "deps",
-)
-
-container_deps()
-
-# Required after moving to bazel v3.4 and rules_docker v0.14.4
-load("@io_bazel_rules_docker//repositories:pip_repositories.bzl", "pip_deps")
-
-pip_deps()
-
-load(
-    "@io_bazel_rules_docker//go:image.bzl",
-    _go_image_repos = "repositories",
-)
-
-_go_image_repos()
-
-http_archive(
     name = "bazel_gazelle",
     sha256 = "7fc87f4170011201b1690326e8c16c5d802836e3a0d617d8f75c3af2b23180c4",
     urls = [
