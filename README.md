@@ -3,13 +3,16 @@
 This repository contains the `mpdev` tool supporting the development of VMs deployable via
 [Google Cloud Marketplace](https://console.cloud.google.com/marketplace).
 
-## Installation
+# Installation
 
-### Prerequisites
+## Prerequisites
 
 The following tools must be installed before using `mpdev`.
 * [docker](https://docs.docker.com/get-docker/)
 * [gsutil](https://cloud.google.com/storage/docs/gsutil_install)
+* zip `sudo apt-get install zip`
+
+## Options
 
 ### Download latest release
 
