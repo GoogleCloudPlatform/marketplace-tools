@@ -13,7 +13,7 @@ gcloud compute --project=$PROJECT_ID images create wordpress --source-image=word
 
 ## Generating Deployment Manager Template
 
-To use this mpdev package, execute the following command which will checkout this
+To use this `mpdev` package, execute the following command which will checkout this
 package to a directory named `wordpress`.
 
 ```

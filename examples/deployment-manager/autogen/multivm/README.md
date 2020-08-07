@@ -14,7 +14,7 @@ gcloud compute --project=$PROJECT_ID images create redis --source-image=redis-v2
 
 ## Generating Deployment Manager Template
 
-To use this mpdev package, execute the following command which will checkout this
+To use this `mpdev` package, execute the following command which will checkout this
 package to a directory named `redis`.
 
 ```
