@@ -13,7 +13,7 @@ Currently, the `mpdev` tool supports the following types of resources:
 * [`DeploymentManagerTemplate`](https://pkg.go.dev/github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/apply?tab=doc#DeploymentManagerTemplate).
 
 See the 
-[deployment manager guide](./deployment-manager-guide.md) for how to configure
+[Deployment Manager guide](./deployment-manager-guide.md) for how to configure
 these resources.
 
 ## Commands
@@ -25,7 +25,7 @@ a wrapper around
 [`kpt pkg`](https://googlecontainertools.github.io/kpt/reference/pkg/get).
 
 ```bash
-mpdev pkg get https://github.com/marketplace-tools.git/examples/deployment-manager/autogen/singlevm dir
+mpdev pkg get https://github.com/GoogleCloudPlatform/marketplace-tools.git/examples/deployment-manager/autogen/singlevm dir
 ```
 
 ### Customize an mpdev template

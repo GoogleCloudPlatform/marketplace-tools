@@ -1,8 +1,8 @@
 ## Prerequisites
 
-This example package generates a deployment manager template for a wordpress GCE
-VM. Your GCP project must contain a wordpress VM image to use in the deployment
-manager template. The following command copies the wordpress VM image from the
+This example package generates a Deployment Manager template for a wordpress GCE
+VM. Your GCP project must contain a wordpress VM image to use in the Deployment
+Manager template. The following command copies the wordpress VM image from the
 [click-to-deploy project](https://github.com/GoogleCloudPlatform/click-to-deploy)
 to your GCP project.
 
@@ -17,7 +17,7 @@ To use this mpdev package, execute the following command which will checkout thi
 package to a directory named `wordpress`.
 
 ```
-mpdev pkg get https://github.com/marketplace-tools.git/examples/deployment-manager/autogen/singlevm/ wordpress
+mpdev pkg get https://github.com/GoogleCloudPlatform/marketplace-tools.git/examples/deployment-manager/autogen/singlevm/ wordpress
 ```
 
 `mpdev cfg set` will be used to customize values in the 
@@ -39,7 +39,7 @@ mpdev cfg set wordpress/ projectId $PROJECT_ID
 mpdev cfg set wordpress/ image $IMAGE
 ```
 
-Now generate a deployment manager template with the following command:
+Now generate a Deployment Manager template with the following command:
 
 ```
 mpdev apply -f wordpress/configurations.yaml

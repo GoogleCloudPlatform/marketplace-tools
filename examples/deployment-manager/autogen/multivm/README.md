@@ -1,8 +1,8 @@
 ## Prerequisites
 
-This example package generates a deployment manager template for a Redis 
+This example package generates a Deployment Manager template for a Redis 
 multiple VM setup. Your GCP project must contain a Redis VM image to use in the
-deployment manager template. The following command copies the Redis VM image
+Deployment Manager template. The following command copies the Redis VM image
 from the
 [click-to-deploy project](https://github.com/GoogleCloudPlatform/click-to-deploy)
 to your GCP project.
@@ -18,7 +18,7 @@ To use this mpdev package, execute the following command which will checkout thi
 package to a directory named `redis`.
 
 ```
-mpdev pkg get https://github.com/marketplace-tools.git/examples/deployment-manager/autogen/multivm/ redis
+mpdev pkg get https://github.com/GoogleCloudPlatform/marketplace-tools.git/examples/deployment-manager/autogen/multivm/ redis
 ```
 
 `mpdev cfg set` will be used to customize values in the 
@@ -41,7 +41,7 @@ mpdev cfg set redis/ image $IMAGE
 mpdev cfg set redis/ defaultReplicas 4
 ```
 
-Now generate a deployment manager template with the following command:
+Now generate a Deployment Manager template with the following command:
 
 ```
 mpdev apply -f redis/configurations.yaml
