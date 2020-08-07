@@ -20,23 +20,35 @@ these resources.
 
 ### Start from preconfigured mpdev template
 
-The `pkg get` command downloads a preconfigured mpdev template. `mpdev pkg` is
+The `pkg get` command downloads a preconfigured `mpdev` template. `mpdev pkg` is
 a wrapper around 
 [`kpt pkg`](https://googlecontainertools.github.io/kpt/reference/pkg/get).
 
 ```bash
-mpdev pkg get https://github.com/GoogleCloudPlatform/marketplace-tools.git/examples/deployment-manager/autogen/singlevm dir
+mpdev pkg get https://github.com/GoogleCloudPlatform/marketplace-tools.git/examples/deployment-manager/autogen/singlevm mypackage
+```
+
+See the [README](../examples/deployment-manager/autogen/singlevm/README.md) in
+the downloaded template for next steps.
+
+### Optional: git commit mpdev template
+
+Commit the package to git in order to track changes made when customizing the
+`mpdev` template.
+
+```bash
+git init && git add . && git commit -m "Initial clone"
 ```
 
 ### Customize an mpdev template
 
 The `cfg set` command can be used to programmatically customize values in a
-preconfigured mpdev template.
+preconfigured `mpdev` template.
 `mpdev cfg` is a wrapper around
 [`kpt cfg`](https://googlecontainertools.github.io/kpt/reference/cfg/set).
 
 ```bash
-mpdev cfg set dir projectId YourProject
+mpdev cfg set mypackage/ projectId <PROJECT_ID>
 ```
 
 ### Generate mpdev resources
@@ -44,12 +56,12 @@ mpdev cfg set dir projectId YourProject
 The `apply` command creates resources from the mpdev template.
 
 ```bash
-mpdev apply -f dir/configurations.yaml
+mpdev apply -f mypackage/configurations.yaml
 ```
 
 The `--dry-run` option can be used to validate the schema of configuration files
 quickly without creating the `mpdev` resources.
 
 ```bash
-mpdev apply --dry-run -f dir/configurations.yaml
+mpdev apply --dry-run -f mypackage/configurations.yaml
 ```
