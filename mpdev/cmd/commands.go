@@ -26,7 +26,7 @@ import (
 func GetMpdevCommands(name string) (c []*cobra.Command) {
 	pkgCmd := commands.GetPkgCommand(name)
 	cfgCmd := commands.GetConfigCommand(name)
-	fixDocs(regexp.MustCompile("\\bkpt\\b"), name, pkgCmd, cfgCmd)
+	fixDocs(regexp.MustCompile(`\bkpt\b`), name, pkgCmd, cfgCmd)
 	applyCmd := GetApplyCommand()
 
 	c = append(c, pkgCmd, cfgCmd, applyCmd, versionCmd)
