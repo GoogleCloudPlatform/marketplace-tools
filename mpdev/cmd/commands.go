@@ -16,7 +16,7 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
+	"regexp"
 
 	"github.com/GoogleContainerTools/kpt/commands"
 	"github.com/spf13/cobra"
@@ -26,7 +26,7 @@ import (
 func GetMpdevCommands(name string) (c []*cobra.Command) {
 	pkgCmd := commands.GetPkgCommand(name)
 	cfgCmd := commands.GetConfigCommand(name)
-	fixDocs("kpt", name, pkgCmd, cfgCmd)
+	fixDocs(regexp.MustCompile("\\bkpt\\b"), name, pkgCmd, cfgCmd)
 	applyCmd := GetApplyCommand()
 
 	c = append(c, pkgCmd, cfgCmd, applyCmd, versionCmd)
@@ -37,12 +37,12 @@ func GetMpdevCommands(name string) (c []*cobra.Command) {
 }
 
 // Replace occurrences of "kpt" with "mpdev" in docs.
-func fixDocs(old string, new string, cmd ...*cobra.Command) {
+func fixDocs(old *regexp.Regexp, new string, cmd ...*cobra.Command) {
 	for _, c := range cmd {
-		c.Use = strings.ReplaceAll(c.Use, old, new)
-		c.Short = strings.ReplaceAll(c.Short, old, new)
-		c.Long = strings.ReplaceAll(c.Long, old, new)
-		c.Example = strings.ReplaceAll(c.Example, old, new)
+		c.Use = old.ReplaceAllString(c.Use, new)
+		c.Short = old.ReplaceAllString(c.Short, new)
+		c.Long = old.ReplaceAllString(c.Long, new)
+		c.Example = old.ReplaceAllString(c.Example, new)
 		fixDocs(old, new, c.Commands()...)
 	}
 }
