@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/GoogleContainerTools/kpt/commands"
 	"github.com/spf13/cobra"
@@ -25,6 +26,7 @@ import (
 func GetMpdevCommands(name string) (c []*cobra.Command) {
 	pkgCmd := commands.GetPkgCommand(name)
 	cfgCmd := commands.GetConfigCommand(name)
+	fixDocs(regexp.MustCompile(`\bkpt\b`), name, pkgCmd, cfgCmd)
 	applyCmd := GetApplyCommand()
 
 	c = append(c, pkgCmd, cfgCmd, applyCmd, versionCmd)
@@ -32,6 +34,17 @@ func GetMpdevCommands(name string) (c []*cobra.Command) {
 	// apply cross-cutting issues to command
 	commands.NormalizeCommand(c...)
 	return c
+}
+
+// Replace occurrences of "kpt" with "mpdev" in docs.
+func fixDocs(old *regexp.Regexp, new string, cmd ...*cobra.Command) {
+	for _, c := range cmd {
+		c.Use = old.ReplaceAllString(c.Use, new)
+		c.Short = old.ReplaceAllString(c.Short, new)
+		c.Long = old.ReplaceAllString(c.Long, new)
+		c.Example = old.ReplaceAllString(c.Example, new)
+		fixDocs(old, new, c.Commands()...)
+	}
 }
 
 // Variables populated by linking. See: https://github.com/bazelbuild/rules_go/blob/master/go/core.rst#defines-and-stamping
