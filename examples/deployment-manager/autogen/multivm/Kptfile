@@ -21,3 +21,8 @@ openAPI:
         setter:
           name: image
           value: imageName
+    io.k8s.cli.setters.zipPath:
+      x-k8s-cli:
+        setter:
+          name: zipPath
+          value: template.zip

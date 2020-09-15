@@ -656,8 +656,8 @@ def go_repositories():
         name = "com_github_googlecontainertools_kpt",
         build_file_proto_mode = "disable",
         importpath = "github.com/GoogleContainerTools/kpt",
-        sum = "h1:YUGCyNIXrjrOXAeSLGAXly9mYaY2pwmLvJDt/9SL36o=",
-        version = "v0.30.0",
+        sum = "h1:vDGEbFsI+8OaXTB4k/2jBuAP6wu1NvZt8tjr9wm116w=",
+        version = "v0.33.0",
     )
     go_repository(
         name = "com_github_gophercloud_gophercloud",
@@ -1398,8 +1398,8 @@ def go_repositories():
         name = "in_gopkg_yaml_v2",
         build_file_proto_mode = "disable",
         importpath = "gopkg.in/yaml.v2",
-        sum = "h1:obN1ZagJSUGI0Ek/LBmuj4SNLPfIny3KsKFopxRdj10=",
-        version = "v2.2.8",
+        sum = "h1:clyUAQHOM3G0M3f5vQj7LuJrETvjVot3Z5el9nffUtU=",
+        version = "v2.3.0",
     )
     go_repository(
         name = "in_gopkg_yaml_v3",
@@ -1517,8 +1517,8 @@ def go_repositories():
         name = "io_k8s_sigs_cli_utils",
         build_file_proto_mode = "disable",
         importpath = "sigs.k8s.io/cli-utils",
-        sum = "h1:QiGX8wfBaegKQhejZg2EsqCPYGtyavIpEjNTMdpzUlY=",
-        version = "v0.15.0",
+        sum = "h1:K4usJmMlI98mL+z+TdAnKfzng64/m8bRXZKPwy3ZCWw=",
+        version = "v0.18.1",
     )
     go_repository(
         name = "io_k8s_sigs_controller_runtime",
@@ -1538,15 +1538,15 @@ def go_repositories():
         name = "io_k8s_sigs_kustomize_cmd_config",
         build_file_proto_mode = "disable",
         importpath = "sigs.k8s.io/kustomize/cmd/config",
-        sum = "h1:MXbJgQXeO45DAdttKjQKUgO7WJ3B8+BopDcMZw/qKbw=",
-        version = "v0.3.0",
+        sum = "h1:03tjs3SjvsumZjabctLicNUQwYlAeUqmRk1H4JBK+wI=",
+        version = "v0.6.0",
     )
     go_repository(
         name = "io_k8s_sigs_kustomize_kyaml",
         build_file_proto_mode = "disable",
         importpath = "sigs.k8s.io/kustomize/kyaml",
-        sum = "h1:Q0xajrIrKlt2tljTB3It2fnL9HXa7AfF3dxU6a01+vg=",
-        version = "v0.3.0",
+        sum = "h1:Z/9TxsiG21sbcd6JD4IeM6BVZ2+04001KKzbxCf+qeY=",
+        version = "v0.6.0",
     )
     go_repository(
         name = "io_k8s_sigs_structured_merge_diff",
@@ -1566,8 +1566,8 @@ def go_repositories():
         name = "io_k8s_sigs_yaml",
         build_file_proto_mode = "disable",
         importpath = "sigs.k8s.io/yaml",
-        sum = "h1:4A07+ZFc2wgJwo8YNlQpr1rVlgUDlxXHhPJciaPY5gs=",
-        version = "v1.1.0",
+        sum = "h1:kr/MCeFWJWTwyaHoR9c8EjH9OumOmoF9YGiZd7lFm/Q=",
+        version = "v1.2.0",
     )
     go_repository(
         name = "io_k8s_utils",
@@ -1671,8 +1671,8 @@ def go_repositories():
         name = "org_golang_x_net",
         build_file_proto_mode = "disable",
         importpath = "golang.org/x/net",
-        sum = "h1:0mm1VjtFUOIlE1SbDlwjYaDxZVDP2S5ou6y0gSgXHu8=",
-        version = "v0.0.0-20200226121028-0de0cce0169b",
+        sum = "h1:rjwSpXsdiK0dV8/Naq3kAw9ymfAeJIyd0upUIElB+lI=",
+        version = "v0.0.0-20191004110552-13f9640d40b9",
     )
     go_repository(
         name = "org_golang_x_oauth2",

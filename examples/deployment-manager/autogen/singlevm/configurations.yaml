@@ -22,7 +22,7 @@ deploymentManagerRef:
   group: dev.marketplace.cloud.google.com
   kind: DeploymentManagerAutogenTemplate
   name: autogen
-zipFilePath: template.zip
+zipFilePath: template.zip # {"$kpt-set":"zipPath"}
 ---
 # DeploymentManagerAutogenTemplate auto-generates a deployment manager template
 # that can be deployed using `gcloud deployments create ...`

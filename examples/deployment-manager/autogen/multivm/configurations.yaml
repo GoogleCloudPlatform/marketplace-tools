@@ -22,7 +22,7 @@ deploymentManagerRef:
   group: dev.marketplace.cloud.google.com
   kind: DeploymentManagerAutogenTemplate
   name: autogen
-zipFilePath: template.zip
+zipFilePath: template.zip # {"$kpt-set":"zipPath"}
 ---
 # DeploymentManagerAutogenTemplate auto-generates a deployment manager template
 # that can be deployed using `gcloud deployments create ...`
@@ -38,12 +38,12 @@ spec:
       name: Debian
       version: '9.12'
     components:
-      - name: Google-Fluentd,
-        version: '1.6.37'
-      - name: Redis,
-        version: '6.0.5'
-      - name: Stackdriver-Agent,
-        version: '5.5.2'
+    - name: Google-Fluentd,
+      version: '1.6.37'
+    - name: Redis,
+      version: '6.0.5'
+    - name: Stackdriver-Agent,
+      version: '5.5.2'
   # See https://github.com/GoogleCloudPlatform/marketplace-tools/docs/autogen-reference.md
   # for explanation of fields
   deploymentSpec:
