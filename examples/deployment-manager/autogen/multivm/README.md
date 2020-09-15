@@ -39,6 +39,10 @@ variables in `configurations.yaml`
 mpdev cfg set redis/ projectId $PROJECT_ID
 mpdev cfg set redis/ image $IMAGE
 mpdev cfg set redis/ defaultReplicas 4
+
+# Optionally set deployment package zip output path.
+# Can also be in GCS (e.g. gs://<BUCKET>/<OBJECT>/<GENERATION>)
+mpdev cfg set redis/ zipPath template.zip
 ```
 
 Now generate a Deployment Manager template with the following command:

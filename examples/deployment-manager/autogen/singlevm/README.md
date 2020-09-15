@@ -37,6 +37,10 @@ variables in `configurations.yaml`
 ```bash
 mpdev cfg set wordpress/ projectId $PROJECT_ID
 mpdev cfg set wordpress/ image $IMAGE
+
+# Optionally set deployment package zip output path.
+# Can also be in GCS (e.g. gs://<BUCKET>/<OBJECT>/<GENERATION>)
+mpdev cfg set wordpress/ zipPath template.zip
 ```
 
 Now generate a Deployment Manager template with the following command:
