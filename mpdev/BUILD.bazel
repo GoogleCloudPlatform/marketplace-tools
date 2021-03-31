@@ -1,4 +1,8 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+load("@io_bazel_rules_docker//docker/package_managers:apt_key.bzl", "add_apt_key")
+load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "download_pkgs")
+load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
 
 go_library(
     name = "go_default_library",
@@ -13,3 +17,31 @@ go_binary(
     embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )
+
+add_apt_key(
+    name = "image_with_keys",
+    image = "@ubuntu1604//:ubuntu1604_vanilla.tar",
+    keys = [
+        "@bazel_apt_key//file",
+        "@gcloud_sdk_apt_key//file",
+    ],
+)
+
+go_image(
+    name = "mpdev_img",
+    binary = ":mpdev"
+)
+
+
+download_pkgs(
+    name = "pkg",
+    additional_repos = [
+        "deb https://packages.cloud.google.com/apt cloud-sdk main",
+    ],
+    packages = ["google-cloud-sdk"],
+    image_tar = ":image_with_keys.tar"
+)
+#
+#install_pkgs(
+#    name = "ins_pkg"
+#)
