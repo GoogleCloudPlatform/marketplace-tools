@@ -1,8 +1,8 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
-load("@io_bazel_rules_docker//go:image.bzl", "go_image")
 load("@io_bazel_rules_docker//docker/package_managers:apt_key.bzl", "add_apt_key")
 load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "download_pkgs")
 load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
+load("@io_bazel_rules_docker//container:container.bzl", "container_push", "container_image")
 
 go_library(
     name = "go_default_library",
@@ -20,28 +20,43 @@ go_binary(
 
 add_apt_key(
     name = "image_with_keys",
-    image = "@ubuntu1604//:ubuntu1604_vanilla.tar",
+    image = "@cloud-sdk//image",
     keys = [
-        "@bazel_apt_key//file",
-        "@gcloud_sdk_apt_key//file",
+        "@docker_apt_key//file",
     ],
-)
-
-go_image(
-    name = "mpdev_img",
-    binary = ":mpdev"
 )
 
 
 download_pkgs(
     name = "pkg",
+    packages = ["zip", "docker-ce", "docker-ce-cli", "containerd.io"],
     additional_repos = [
-        "deb https://packages.cloud.google.com/apt cloud-sdk main",
+        "deb https://download.docker.com/linux/debian buster stable",
     ],
-    packages = ["google-cloud-sdk"],
     image_tar = ":image_with_keys.tar"
 )
-#
-#install_pkgs(
-#    name = "ins_pkg"
-#)
+
+install_pkgs(
+    name = "mpdev_base",
+    image_tar = "@cloud-sdk//image",
+    installables_tar = ":pkg.tar",
+    output_image_name = "mpdev_base"
+)
+
+container_image(
+    name = "mpdev_image",
+    base = ":mpdev_base",
+    files = [":mpdev"],
+    entrypoint = ["/mpdev"],
+)
+
+container_push(
+    name = "publish",
+    image = ":mpdev_image",
+    format = "Docker",
+
+    # Any of these components may have variables.
+    registry = "gcr.io",
+    repository = "{GCR_PROJECT}/mpdev",
+    tag = "{GCR_TAG}"
+)

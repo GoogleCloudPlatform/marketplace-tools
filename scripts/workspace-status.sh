@@ -18,3 +18,9 @@ if [ -z "$(git status --porcelain)" ]; then
 fi
 # Value set in https://github.com/GoogleCloudPlatform/marketplace-tools/blob/master/.github/workflows/tag.yaml
 echo "STABLE_VERSION $MPDEV_VERSION"
+
+if [ -z "${GCR_PROJECT}" ]; then
+  GCR_PROJECT=$(gcloud config get-value project)
+fi
+echo "GCR_PROJECT $GCR_PROJECT"
+echo "GCR_TAG" ${STABLE_VERSION:=latest}

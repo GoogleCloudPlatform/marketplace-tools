@@ -73,31 +73,18 @@ load(
 _go_image_repos()
 
 http_file(
-    name = "gcloud_sdk_apt_key",
+    name = "docker_apt_key",
     urls = [
-        "https://packages.cloud.google.com/apt/doc/apt-key.gpg",
+        "https://download.docker.com/linux/debian/gpg",
     ],
-    sha256 = "d9b7ded07f7ff37138f842e98c30f8ff54c185fc0013d47b5df749b6b4391e87",
-    downloaded_file_path = "gcloud.pub.gpg",
+    sha256 = "1500c1f56fa9e26b9b8f42452a553675796ade0807cdce11975eb98170b3a570",
 )
 
-http_file(
-    name = "bazel_apt_key",
-    urls = [
-        "https://bazel.build/bazel-release.pub.gpg",
-    ],
-    sha256 = "547ec71b61f94b07909969649d52ee069db9b0c55763d3add366ca7a30fb3f6d",
-    downloaded_file_path = "bazel-release.pub.gpg",
+
+load("@io_bazel_rules_docker//container:container.bzl", "container_pull")
+container_pull(
+    name = "cloud-sdk",
+    registry = "gcr.io",
+    repository = "google.com/cloudsdktool/cloud-sdk",
+    tag = "slim",
 )
-
-http_archive(
-    name = "ubuntu1604",
-    strip_prefix = "base-images-docker-36456edd3cc5a4d17852439cdcb038022cd912e5/ubuntu1604",
-    urls = ["https://github.com/GoogleContainerTools/base-images-docker/archive/36456edd3cc5a4d17852439cdcb038022cd912e5.tar.gz"],
-    sha256 = "eb50020790e22538676e17c0242b9272bdb5c81f7bc6b128a4abfa7ad31faf5b"
-
-)
-
-load("@ubuntu1604//:deps.bzl", ubuntu1604_deps = "deps")
-
-ubuntu1604_deps()
