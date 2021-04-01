@@ -26,21 +26,25 @@ add_apt_key(
     ],
 )
 
-
 download_pkgs(
     name = "pkg",
-    packages = ["zip", "docker-ce", "docker-ce-cli", "containerd.io"],
+    packages = [
+        "zip",
+        "docker-ce",
+        "docker-ce-cli",
+        "containerd.io",
+    ],
     additional_repos = [
         "deb https://download.docker.com/linux/debian buster stable",
     ],
-    image_tar = ":image_with_keys.tar"
+    image_tar = ":image_with_keys.tar",
 )
 
 install_pkgs(
     name = "mpdev_base",
     image_tar = "@cloud-sdk//image",
     installables_tar = ":pkg.tar",
-    output_image_name = "mpdev_base"
+    output_image_name = "mpdev_base",
 )
 
 container_image(
@@ -58,5 +62,5 @@ container_push(
     # Any of these components may have variables.
     registry = "gcr.io",
     repository = "{GCR_PROJECT}/mpdev",
-    tag = "{GCR_TAG}"
+    tag = "{GCR_TAG}",
 )
