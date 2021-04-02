@@ -1,4 +1,4 @@
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 http_archive(
@@ -50,41 +50,3 @@ load("//:repos.bzl", "go_repositories")
 
 # gazelle:repository_macro repos.bzl%go_repositories
 go_repositories()
-
-http_archive(
-    name = "io_bazel_rules_docker",
-    sha256 = "95d39fd84ff4474babaf190450ee034d958202043e366b9fc38f438c9e6c3334",
-    strip_prefix = "rules_docker-0.16.0",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.16.0/rules_docker-v0.16.0.tar.gz"],
-)
-
-load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
-)
-
-container_repositories()
-
-load(
-    "@io_bazel_rules_docker//go:image.bzl",
-    _go_image_repos = "repositories",
-)
-
-_go_image_repos()
-
-http_file(
-    name = "docker_apt_key",
-    urls = [
-        "https://download.docker.com/linux/debian/gpg",
-    ],
-    sha256 = "1500c1f56fa9e26b9b8f42452a553675796ade0807cdce11975eb98170b3a570",
-)
-
-
-load("@io_bazel_rules_docker//container:container.bzl", "container_pull")
-container_pull(
-    name = "cloud-sdk",
-    registry = "gcr.io",
-    repository = "google.com/cloudsdktool/cloud-sdk",
-    tag = "slim",
-)
