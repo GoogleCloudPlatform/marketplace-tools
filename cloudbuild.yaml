@@ -1,0 +1,14 @@
+timeout: 1200s
+
+steps:
+- id: Docker push
+  name: gcr.io/cloud-builders/docker
+  args: ['build', '.', '-t', 'gcr.io/$PROJECT_ID/mpdev', '--cache-from',
+      'gcr.io/$PROJECT_ID/mpdev:latest']
+- id: Test mpdev apply
+  name: gcr.io/$PROJECT_ID/mpdev
+  args: ['apply', '-f', 'examples/deployment-manager/autogen/singlevm/configurations.yaml']
+  env: ['MPDEV_TMP_DIR=/workspace']
+
+images:
+- 'gcr.io/$PROJECT_ID/mpdev'
