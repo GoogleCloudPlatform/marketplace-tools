@@ -1,7 +1,7 @@
 timeout: 1200s
 
 steps:
-- id: Docker push
+- id: Docker build
   name: gcr.io/cloud-builders/docker
   args: ['build', '.', '-t', 'gcr.io/$PROJECT_ID/mpdev', '--cache-from',
       'gcr.io/$PROJECT_ID/mpdev:latest']
