@@ -23,6 +23,10 @@ import (
 	"k8s.io/utils/exec"
 )
 
+var (
+	tmpDirOverride = os.Getenv("MPDEV_TMP_DIR")
+)
+
 // ZipDirectory zips the given directory to the given zipFile and returns
 // the path of the zipFile which is directory/zipFile
 func ZipDirectory(executor exec.Interface, zipFile string, directory string) error {
@@ -43,6 +47,10 @@ func ZipDirectory(executor exec.Interface, zipFile string, directory string) err
 // This wrapper function can prevent problems with docker-for-mac trying to use /var/..., which is not typically
 // shared/mounted. It will be expanded via the /var symlink to /private/var/...
 func OsTempDir() (string, error) {
+	if tmpDirOverride != "" {
+		return tmpDirOverride, nil
+	}
+
 	dirName := os.TempDir()
 	tmpDir, err := filepath.EvalSymlinks(dirName)
 	if err != nil {
