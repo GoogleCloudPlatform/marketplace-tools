@@ -11,4 +11,4 @@ steps:
       "gcr.io/$PROJECT_ID/mpdev:$TAG_NAME"]
 
 images:
-- gcr:io/$PROJECT_ID/mpdev:$TAG_NAME
+- gcr.io/$PROJECT_ID/mpdev:$TAG_NAME
