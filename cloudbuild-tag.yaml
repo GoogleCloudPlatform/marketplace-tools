@@ -1,0 +1,14 @@
+substitutions:
+  _STAGING_PROJECT_ID: null
+
+steps:
+- id: Pull Staging Image
+  name: gcr.io/cloud-builders/docker
+  args: ["pull", "gcr.io/$_STAGING_PROJECT_ID/mpdev:sha_$COMMIT_SHA"]
+- id: Tag Image
+  name: gcr.io/cloud-builders/docker
+  args: ["tag", "gcr.io/$_STAGING_PROJECT_ID/mpdev:sha_$COMMIT_SHA",
+      "gcr.io/$PROJECT_ID/mpdev:$TAG_NAME"]
+
+images:
+- gcr.io/$PROJECT_ID/mpdev:$TAG_NAME
