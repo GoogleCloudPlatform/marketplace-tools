@@ -14,12 +14,10 @@ go_library(
         "gitCommit": "{STABLE_GIT_COMMIT}",
     },
     deps = [
-        "//mpdev/internal/apply:go_default_library",
         "//mpdev/internal/docs:go_default_library",
+        "//mpdev/internal/resources:go_default_library",
         "@com_github_googlecontainertools_kpt//commands:go_default_library",
-        "@com_github_pkg_errors//:go_default_library",
         "@com_github_spf13_cobra//:go_default_library",
-        "@in_gopkg_yaml_v3//:go_default_library",
         "@io_k8s_sigs_kustomize_cmd_config//ext:go_default_library",
         "@io_k8s_utils//exec:go_default_library",
     ],
