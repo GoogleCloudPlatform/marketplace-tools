@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package apply
+package resources
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"path/filepath"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
+	"gopkg.in/yaml.v3"
 	"k8s.io/utils/exec"
 )
 
@@ -142,4 +145,56 @@ func (r *registry) topologicalSort() ([]Resource, error) {
 	}
 
 	return resources, err
+}
+
+// PopulateRegistryFromFiles registers resources declared in list of files
+func PopulateRegistryFromFiles(r Registry, files []string) error {
+	for _, file := range files {
+		objs, err := decodeFile(file)
+		if err != nil {
+			return err
+		}
+
+		dir := filepath.Dir(file)
+
+		for _, obj := range objs {
+			resource, err := UnstructuredToResource(obj)
+			if err != nil {
+				return err
+			}
+			r.RegisterResource(resource, dir)
+		}
+	}
+	return nil
+}
+
+func decodeFile(file string) ([]Unstructured, error) {
+	var objs []Unstructured
+
+	var f *os.File
+	var err error
+	if file == "-" {
+		f = os.Stdin
+	} else {
+		f, err = os.Open(file)
+		if err != nil {
+			return objs, err
+		}
+		defer f.Close()
+	}
+
+	dec := yaml.NewDecoder(f)
+	for err == nil {
+		var m Unstructured
+		err = dec.Decode(&m)
+		if err == nil {
+			objs = append(objs, m)
+		}
+	}
+
+	if err != io.EOF {
+		return objs, errors.Wrap(err, "failed to parse yaml")
+	}
+
+	return objs, nil
 }

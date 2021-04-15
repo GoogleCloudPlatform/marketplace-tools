@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package apply
+package resources
 
 // PackerGceImageBuilder uses Packer to create a GCEImage when applied
 type PackerGceImageBuilder struct {
@@ -36,6 +36,11 @@ func (p *PackerGceImageBuilder) Apply(registry Registry, dryRun bool) error {
 	return nil
 }
 
+// Test execute tests for GCE Image built from packer
+func (p *PackerGceImageBuilder) Test(registry Registry, dryRun bool) error {
+	return nil
+}
+
 // GceImage represents a Google Compute Engine image. One of BuilderRef or
 // ImageRef must be specified
 type GceImage struct {
@@ -53,6 +58,11 @@ type GceImage struct {
 // Apply publishes an image to with the project and name specified in
 // the GceImage
 func (g *GceImage) Apply(registry Registry, dryRun bool) error {
+	return nil
+}
+
+// Test is a no-op for GceImage
+func (g *GceImage) Test(registry Registry, dryRun bool) error {
 	return nil
 }
 

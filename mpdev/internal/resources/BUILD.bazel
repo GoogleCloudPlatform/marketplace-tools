@@ -10,7 +10,7 @@ go_library(
         "resource.go",
         "types.go",
     ],
-    importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/apply",
+    importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/resources",
     visibility = ["//mpdev:__subpackages__"],
     deps = [
         "//mpdev/internal/util:go_default_library",

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package apply
+package resources
 
 import (
 	"fmt"
@@ -104,6 +104,12 @@ func (dm *DeploymentManagerAutogenTemplate) Apply(registry Registry, dryRun bool
 
 	err = dm.runAutogen(registry, inputDir)
 	return err
+}
+
+// Test is a no-op for autogen template resource. Tests are executed on the
+// DeploymentManagerTemplate resource.
+func (dm *DeploymentManagerAutogenTemplate) Test(registry Registry, dryRun bool) error {
+	return nil
 }
 
 func (dm *DeploymentManagerAutogenTemplate) runAutogen(registry Registry, inputDir string) error {
@@ -248,5 +254,11 @@ func (dm *DeploymentManagerTemplate) Apply(registry Registry, dryRun bool) error
 		fmt.Printf("Uploaded DM template to GCS path: %s\n", dm.ZipFilePath)
 	}
 
+	return nil
+}
+
+// Test executes Deployment Manager verification tasks such as creating
+// a deployment from the template and deleting a deployment
+func (dm *DeploymentManagerTemplate) Test(registry Registry, dryRun bool) error {
 	return nil
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package apply
+package resources
 
 import (
 	"strings"
@@ -21,6 +21,7 @@ import (
 // Resource represents a KRM resource that can be applied
 type Resource interface {
 	Apply(registry Registry, dryRun bool) error
+	Test(registry Registry, dryRun bool) error
 	GetReference() Reference
 	GetDependencies() []Reference
 }

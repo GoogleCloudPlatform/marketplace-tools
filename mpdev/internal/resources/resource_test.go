@@ -12,16 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package apply
+package resources
 
 type testResource struct {
 	BaseResource
 	applyFunc func(r Registry, dryRun bool) error
+	testFunc  func(r Registry, dryRun bool) error
 	depFunc   func() []Reference
 }
 
 func (tr *testResource) Apply(r Registry, dryRun bool) error {
 	return tr.applyFunc(r, dryRun)
+}
+
+func (tr *testResource) Test(r Registry, dryRun bool) error {
+	return tr.testFunc(r, dryRun)
 }
 
 func (tr *testResource) GetDependencies() []Reference {
@@ -32,10 +37,10 @@ func (tr *testResource) GetDependencies() []Reference {
 }
 
 func newTestResource(name string) *testResource {
-	return newTestResourceFunc(name, nil, nil)
+	return newTestResourceFunc(name, nil, nil, nil)
 }
 
-func newTestResourceFunc(name string, applyFunc func(Registry, bool) error, depFunc func() []Reference) *testResource {
+func newTestResourceFunc(name string, applyFunc func(Registry, bool) error, testFunc func(Registry, bool) error, depFunc func() []Reference) *testResource {
 	return &testResource{
 		BaseResource: BaseResource{
 			TypeMeta: TypeMeta{
@@ -45,6 +50,7 @@ func newTestResourceFunc(name string, applyFunc func(Registry, bool) error, depF
 			Metadata: Metadata{Name: name},
 		},
 		applyFunc: applyFunc,
+		testFunc:  testFunc,
 		depFunc:   depFunc,
 	}
 }

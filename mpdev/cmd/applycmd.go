@@ -15,15 +15,9 @@
 package cmd
 
 import (
-	"io"
-	"os"
-	"path/filepath"
-
-	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/apply"
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/docs"
-	"github.com/pkg/errors"
+	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/resources"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 	"k8s.io/utils/exec"
 )
 
@@ -52,56 +46,12 @@ type command struct {
 
 // RunE Executes the `apply` command
 func (c *command) RunE(_ *cobra.Command, _ []string) (err error) {
-	registry := apply.NewRegistry(exec.New())
-	for _, file := range c.Filenames {
-		objs, err := decodeFile(file)
-		if err != nil {
-			return err
-		}
-
-		dir := filepath.Dir(file)
-
-		for _, obj := range objs {
-			resource, err := apply.UnstructuredToResource(obj)
-			if err != nil {
-				return err
-			}
-			registry.RegisterResource(resource, dir)
-		}
+	registry := resources.NewRegistry(exec.New())
+	err = resources.PopulateRegistryFromFiles(registry, c.Filenames)
+	if err != nil {
+		return err
 	}
 
 	err = registry.Apply(c.DryRun)
-
 	return err
-}
-
-func decodeFile(file string) ([]apply.Unstructured, error) {
-	var objs []apply.Unstructured
-
-	var f *os.File
-	var err error
-	if file == "-" {
-		f = os.Stdin
-	} else {
-		f, err = os.Open(file)
-		if err != nil {
-			return objs, err
-		}
-		defer f.Close()
-	}
-
-	dec := yaml.NewDecoder(f)
-	for err == nil {
-		var m apply.Unstructured
-		err = dec.Decode(&m)
-		if err == nil {
-			objs = append(objs, m)
-		}
-	}
-
-	if err != io.EOF {
-		return objs, errors.Wrap(err, "failed to parse yaml")
-	}
-
-	return objs, nil
 }

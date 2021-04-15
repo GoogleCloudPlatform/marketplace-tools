@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package apply
+package resources
 
 import (
 	"fmt"
@@ -68,10 +68,10 @@ func TestApplyOrder(t *testing.T) {
 		}
 	}
 
-	r1 := newTestResourceFunc("r1", applyFunc(1), nil)
-	r2 := newTestResourceFunc("r2", applyFunc(2), depFunc(r1))
-	r3 := newTestResourceFunc("r3", applyFunc(3), depFunc(r1, r2))
-	r4 := newTestResourceFunc("r4", applyFunc(4), depFunc(r3))
+	r1 := newTestResourceFunc("r1", applyFunc(1), nil, nil)
+	r2 := newTestResourceFunc("r2", applyFunc(2), nil, depFunc(r1))
+	r3 := newTestResourceFunc("r3", applyFunc(3), nil, depFunc(r1, r2))
+	r4 := newTestResourceFunc("r4", applyFunc(4), nil, depFunc(r3))
 
 	dir := "dirpath"
 	registry := NewRegistry(exec.New())
@@ -95,7 +95,7 @@ func TestApplyInvalidRef(t *testing.T) {
 		return []Reference{ref}
 	}
 
-	r := newTestResourceFunc("r", nil, depFunc)
+	r := newTestResourceFunc("r", nil, nil, depFunc)
 	dir := "dirpath"
 	registry := NewRegistry(exec.New())
 	registry.RegisterResource(r, dir)
@@ -131,8 +131,8 @@ func TestApplyError(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			applyFunc, callCtr := applyFuncErr(tc.dryRun)
-			r1 := newTestResourceFunc("r1", applyFunc, nil)
-			r2 := newTestResourceFunc("r2", applyFunc, nil)
+			r1 := newTestResourceFunc("r1", applyFunc, nil, nil)
+			r2 := newTestResourceFunc("r2", applyFunc, nil, nil)
 			dir := "dirpath"
 			registry := NewRegistry(exec.New())
 			registry.RegisterResource(r1, dir)
