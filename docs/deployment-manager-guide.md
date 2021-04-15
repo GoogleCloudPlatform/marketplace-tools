@@ -44,7 +44,7 @@ resource is pointing to the GCS bucket created above.
 If following an [example](../examples/deployment-manager/autogen/singlevm) in
 this repo, then the `zipFilePath` can be set programmatically with:
 ```
-mpdev cfg set <DIR> zipFilePath gs://$BUCKET_NAME/dm-template.zip
+mpdev cfg set <DIR> zipPath gs://$BUCKET_NAME/dm-template.zip
 ```
 
 After running `mpdev apply`, open
