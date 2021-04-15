@@ -41,11 +41,17 @@ Prior to running `mpdev apply`, ensure the `zipFilePath` specified
 in your [`DeploymentManagerTemplate`](../examples/deployment-manager/autogen/singlevm/configurations.yaml)
 resource is pointing to the GCS bucket created above.
 
+If following an [example](../examples/deployment-manager/autogen/singlevm) in
+this repo, then the `zipFilePath` can be set programmatically with:
+```
+mpdev cfg set <DIR> zipFilePath gs://$BUCKET_NAME/dm-template.zip
+```
+
 After running `mpdev apply`, open
 [Producer Portal](https://console.cloud.google.com/producer-portal) and select
 your product, then follow these steps:
 
 1. On the **Overview** page for your product, go to the **Deployment Package**
  section and click **EDIT**.
-1. Under **Specify your GCS object location**, select the deployment package 
- object previously uploaded. 
+1. Under **Specify your GCS object location**, select the deployment package
+ object previously uploaded.
