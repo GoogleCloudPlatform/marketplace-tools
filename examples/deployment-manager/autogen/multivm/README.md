@@ -41,7 +41,8 @@ mpdev cfg set redis/ image $IMAGE
 mpdev cfg set redis/ defaultReplicas 4
 
 # Optionally set deployment package zip output path.
-# Can also be in GCS (e.g. gs://<BUCKET>/<OBJECT>)
+# Set to GCS location (e.g. gs://<BUCKET>/<OBJECT>) if using 
+# Producer Portal (Public Preview)
 mpdev cfg set redis/ zipPath template.zip
 ```
 
@@ -74,5 +75,10 @@ for explanations of the fields.
 ## Upload Solution To Partner Portal
 
 See instructions in this 
-[guide](../../../../docs/deployment-manager-guide.md).
+[guide](../../../../docs/deployment-manager-guide.md#upload-solution-to-partner-portal).
+
+## Upload Solution to Producer Portal (Public Preview)
+
+See instructions in this
+[guide](../../../../docs/deployment-manager-guide.md#upload-solution-to-producer-portal-public-preview)
 
