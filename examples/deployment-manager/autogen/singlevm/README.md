@@ -79,4 +79,4 @@ See instructions in this
 **Preview**: This product or feature is covered by the [Pre-GA Offerings Terms](https://cloud.devsite.corp.google.com/terms/service-terms#1) of the Google Cloud Platform Terms of Service. Pre-GA products and features may have limited support, and changes to pre-GA products and features may not be compatible with other pre-GA versions. For more information, see the [launch stage descriptions](https://cloud.devsite.corp.google.com/products#product-launch-stages).  
 
 See instructions in this
-[guide](../../../../docs/deployment-manager-guide.md#upload-product-to-producer-portal-public-preview)
+[guide](../../../../docs/deployment-manager-guide.md#upload-product-to-producer-portal)
