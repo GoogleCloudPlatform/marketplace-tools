@@ -25,9 +25,10 @@ uncheck the **Metadata selection** box and then click **Continue**.
 `mpdev` does not override the solution metadata configured in earlier steps of
 the Partner Portal wizard.
 
-## Upload solution to Producer Portal (Public Preview)
+## Upload solution to Producer Portal
+**Preview**: This product or feature is covered by the [Pre-GA Offerings Terms](https://cloud.devsite.corp.google.com/terms/service-terms#1) of the Google Cloud Platform Terms of Service. Pre-GA products and features may have limited support, and changes to pre-GA products and features may not be compatible with other pre-GA versions. For more information, see the [launch stage descriptions](https://cloud.devsite.corp.google.com/products#product-launch-stages).
 
-The script below creates and configures a GCS bucket that you can use to upload
+The following commands create and configure a Google Cloud Storage bucket that you can use to upload
 your Deployment Manager template to Producer Portal.
 
 ```
@@ -37,17 +38,24 @@ gsutil versioning set on gs://$BUCKET_NAME
 gsutil iam ch "group:marketplace-ops@cloud.google.com:objectViewer" $BUCKET_NAME
 ```
 
-Prior to running `mpdev apply`, ensure the `zipFilePath` specified
+Prior to running `mpdev apply`, ensure that the `zipFilePath` that you specified
 in your [`DeploymentManagerTemplate`](../examples/deployment-manager/autogen/singlevm/configurations.yaml)
-resource is pointing to the GCS bucket created above.
+resource points to the Google Cloud Storage bucket that you created.
 
 If following an [example](../examples/deployment-manager/autogen/singlevm) in
-this repo, then the `zipFilePath` can be set programmatically with:
+this repo, you can use the following command to set the `zipFilePath` programmatically:
 ```
 mpdev cfg set <DIR> zipPath gs://$BUCKET_NAME/dm-template.zip
 ```
 
-After running `mpdev apply`, open
+After you run `mpdev apply`, upload the deployment package to Producer Portal:
+
+1. Open [Producer Portal](https://console.cloud.google.com/producer-portal) in the Google Cloud Console.
+1.  In the list of products, click the name of your product.
+1. On the **Overview** page for your product, go to the **Deployment Package**
+ section and click **EDIT**.
+1. Under **Specify your GCS object location**, select the deployment package
+ object that you uploaded to Google Cloud Storage.
 [Producer Portal](https://console.cloud.google.com/producer-portal) and select
 your product, then follow these steps:
 
