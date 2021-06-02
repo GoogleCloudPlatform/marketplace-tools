@@ -39,7 +39,8 @@ mpdev cfg set wordpress/ projectId $PROJECT_ID
 mpdev cfg set wordpress/ image $IMAGE
 
 # Optionally set deployment package zip output path.
-# Can also be in GCS (e.g. gs://<BUCKET>/<OBJECT>)
+# Set to GCS location (e.g. gs://<BUCKET>/<OBJECT>) if using 
+# Producer Portal (Public Preview)
 mpdev cfg set wordpress/ zipPath template.zip
 ```
 
@@ -69,7 +70,13 @@ customize other fields in the autogen specification, such as `passwords`,
 [autogen reference](../../../../docs/autogen-reference.md)
 for explanations of the fields.
 
-## Upload Solution To Partner Portal
+## Upload solution to Partner Portal
 
 See instructions in this 
-[guide](../../../../docs/deployment-manager-guide.md).
+[guide](../../../../docs/deployment-manager-guide.md#upload-solution-to-partner-portal).
+
+## Upload product to Producer Portal
+**Preview**: This product or feature is covered by the [Pre-GA Offerings Terms](https://cloud.devsite.corp.google.com/terms/service-terms#1) of the Google Cloud Platform Terms of Service. Pre-GA products and features may have limited support, and changes to pre-GA products and features may not be compatible with other pre-GA versions. For more information, see the [launch stage descriptions](https://cloud.devsite.corp.google.com/products#product-launch-stages).  
+
+See instructions in this
+[guide](../../../../docs/deployment-manager-guide.md#upload-product-to-producer-portal)
