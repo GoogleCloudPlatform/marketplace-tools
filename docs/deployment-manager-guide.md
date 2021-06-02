@@ -25,7 +25,7 @@ uncheck the **Metadata selection** box and then click **Continue**.
 `mpdev` does not override the solution metadata configured in earlier steps of
 the Partner Portal wizard.
 
-## Upload solution to Producer Portal
+## Upload product to Producer Portal
 **Preview**: This product or feature is covered by the [Pre-GA Offerings Terms](https://cloud.devsite.corp.google.com/terms/service-terms#1) of the Google Cloud Platform Terms of Service. Pre-GA products and features may have limited support, and changes to pre-GA products and features may not be compatible with other pre-GA versions. For more information, see the [launch stage descriptions](https://cloud.devsite.corp.google.com/products#product-launch-stages).
 
 The following commands create and configure a Google Cloud Storage bucket that you can use to upload
