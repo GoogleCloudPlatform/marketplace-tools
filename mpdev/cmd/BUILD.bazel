@@ -6,6 +6,7 @@ go_library(
         "applycmd.go",
         "commands.go",
         "rootcmd.go",
+        "testcmd.go"
     ],
     importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/cmd",
     visibility = ["//visibility:public"],

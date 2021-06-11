@@ -36,6 +36,7 @@ type Registry interface {
 	GetResource(reference Reference) Resource
 	ResolveFilePath(rs Resource, path string) (string, error)
 	Apply(dryRun bool) error
+	Test(dryRun bool) error
 }
 
 type registry struct {
@@ -85,6 +86,31 @@ func (r *registry) Apply(dryRun bool) error {
 				err = multierror.Append(applyErr, err)
 			} else {
 				return applyErr
+			}
+		}
+	}
+	fmt.Printf("all resources have been validated/created\n")
+
+	return err
+}
+
+// Apply invokes `Test` on all resources in the registry.
+func (r *registry) Test(dryRun bool) error {
+	resources, err := r.topologicalSort()
+	if err != nil {
+		return err
+	}
+
+	for _, resource := range resources {
+		fmt.Printf("Starting to test resource %+v\n", resource.GetReference())
+		testErr := resource.Test(r, dryRun)
+		if testErr != nil {
+			testErr := errors.Wrapf(testErr, "Error in resource %+v\n", resource.GetReference())
+			// Accumulate errors if dryRun
+			if dryRun {
+				err = multierror.Append(testErr, err)
+			} else {
+				return testErr
 			}
 		}
 	}
