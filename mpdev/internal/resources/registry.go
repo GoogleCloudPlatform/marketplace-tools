@@ -114,7 +114,7 @@ func (r *registry) Test(dryRun bool) error {
 			}
 		}
 	}
-	fmt.Printf("all resources have been validated/created\n")
+	fmt.Printf("all resources have been tested\n")
 
 	return err
 }
