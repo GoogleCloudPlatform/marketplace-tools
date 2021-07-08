@@ -119,6 +119,7 @@ func (dm *DeploymentManagerAutogenTemplate) runAutogen(registry Registry, inputD
 
 	cp := newContainerProcess(
 		registry.GetExecutor(),
+		[]string{},
 		autogenImg,
 		args,
 		[]mount{
