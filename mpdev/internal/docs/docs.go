@@ -62,3 +62,16 @@ const ApplyExamples = `
   # dryrun of configuration in dm.yaml
   mpdev apply -f dm.yaml --dryrun
 `
+
+// TestShort contains short help text for test command.
+const TestShort = `Tests artifacts defined by the configurations in filename or stdin`
+
+// TestLong contains expanded help text for test command
+const TestLong = `Tests artifacts defined by the configurations in filename or stdin.
+See https://github.com/GoogleCloudPlatform/marketplace-tools/blob/master/docs/mpdev-reference.md#mpdev-resources
+for list of resources that can be tested.
+`
+
+// TestExamples contains examples for test command.
+// TODO(willtang): add examples to docstring
+const TestExamples = ``

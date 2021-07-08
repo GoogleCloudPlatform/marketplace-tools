@@ -28,8 +28,9 @@ func GetMpdevCommands(name string) (c []*cobra.Command) {
 	cfgCmd := commands.GetConfigCommand(name)
 	fixDocs(regexp.MustCompile(`\bkpt\b`), name, pkgCmd, cfgCmd)
 	applyCmd := GetApplyCommand()
+	testCmd := GetTestCommand()
 
-	c = append(c, pkgCmd, cfgCmd, applyCmd, versionCmd)
+	c = append(c, pkgCmd, cfgCmd, applyCmd, testCmd, versionCmd)
 
 	// apply cross-cutting issues to command
 	commands.NormalizeCommand(c...)

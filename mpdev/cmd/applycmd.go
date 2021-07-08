@@ -29,7 +29,7 @@ func GetApplyCommand() *cobra.Command {
 		Short:   docs.ApplyShort,
 		Long:    docs.ApplyLong,
 		Example: docs.ApplyExamples,
-		RunE:    c.RunE,
+		RunE:    c.applyRunE,
 	}
 
 	cmd.Flags().BoolVar(&c.DryRun, "dryrun", c.DryRun, "if set, validates configuration files without creating resource")
@@ -44,8 +44,7 @@ type command struct {
 	DryRun    bool
 }
 
-// RunE Executes the `apply` command
-func (c *command) RunE(_ *cobra.Command, _ []string) (err error) {
+func (c *command) applyRunE(_ *cobra.Command, _ []string) (err error) {
 	registry := resources.NewRegistry(exec.New())
 	err = resources.PopulateRegistryFromFiles(registry, c.Filenames)
 	if err != nil {
