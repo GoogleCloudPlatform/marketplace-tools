@@ -70,5 +70,4 @@ gcloud deployment-manager deployments create redis --config $TMPDIR/test_config.
 
 ## What's next
 
-To generate Deployment Manager templates for your VM product, 
-see the guide for [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package).
+See [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package) to learn how to learn how to generate Deployment Manager templates for your VM product.
