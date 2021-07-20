@@ -1,60 +1,66 @@
+This example uses the `mpdev` tool to generate a Deployment Manager template for a Wordpress Google Compute Engine virtual machine (VM).
+
+To generate a Deployment Manager template for your VM product, 
+see the Google Cloud Marketplace documentation for [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package).
+
 ## Prerequisites
 
-This example package generates a Deployment Manager template for a wordpress GCE
-VM. Your GCP project must contain a wordpress VM image to use in the Deployment
-Manager template. The following command copies the wordpress VM image from the
+Your Google Cloud project must contain a Wordpress VM image to use in the Deployment
+Manager template. To copy the Wordpress VM image from the
 [click-to-deploy project](https://github.com/GoogleCloudPlatform/click-to-deploy)
-to your GCP project.
+to your project, run the following command:
 
 ```
 PROJECT_ID=<YOUR_PROJECT_ID>
 gcloud compute --project=$PROJECT_ID images create wordpress --source-image=wordpress-v20200629 --source-image-project=click-to-deploy-images
 ```
 
-## Generating Deployment Manager Template
+## Generate a Deployment Manager template
 
-To use this `mpdev` package, execute the following command which will checkout this
-package to a directory named `wordpress`.
+To retrieve this example's Autogen specification, execute the following command, which checks out the
+specification to a directory named `wordpress`.
 
 ```
 mpdev pkg get https://github.com/GoogleCloudPlatform/marketplace-tools.git/examples/deployment-manager/autogen/singlevm/ wordpress
 ```
 
-`mpdev cfg set` will be used to customize values in the 
-configurations.yaml template. Particularly the
-[`projectId`](../../../../docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec) 
+### Update the Autogen specification
+
+You use the command `mpdev cfg set` to update the configurations.yaml file with your product's
+[`projectId`](../../../../docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec)
 and [`image`](../../../../docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec)
-values must be set for your particular solution.
+values.
+
+Set the variables for the Google Cloud project and name of the VM image:
 
 ```
 PROJECT_ID=<PROJECT_ID>
 IMAGE=wordpress
 ```
 
-After setting the variables above run the following commands to set the
-variables in `configurations.yaml`
+Next, run the following commands to update the values in `configurations.yaml`:
 
 ```bash
 mpdev cfg set wordpress/ projectId $PROJECT_ID
 mpdev cfg set wordpress/ image $IMAGE
-
-# Optionally set deployment package zip output path.
-# Set to GCS location (e.g. gs://<BUCKET>/<OBJECT>) if using 
-# Producer Portal (Public Preview)
-mpdev cfg set wordpress/ zipPath template.zip
 ```
 
-Now generate a Deployment Manager template with the following command:
+### Generate the Deployment Manager template
+
+To generate a Deployment Manager template, run the following command with the updated
+Autogen specification:
 
 ```
 mpdev apply -f wordpress/configurations.yaml
 ```
 
-The template will be zipped to `wordpress/template.zip`, the location specified
+The template is zipped to `wordpress/template.zip`, which is the location specified
 in the `DeploymentManagerTemplate` resource of `wordpress/configurations.yaml`.
 
-To verify the template is properly configured, you can create a deployment from
-the template with the following commands:
+### Deploy the VM
+
+To verify the template is properly configured, create a deployment from
+the template:
 
 ```
 TMPDIR=$(mktemp -d)
@@ -62,21 +68,7 @@ unzip wordpress/template.zip -d $TMPDIR
 gcloud deployment-manager deployments create wordpress --config $TMPDIR/test_config.yaml
 ```
 
-## Further Customization of Deployment Manager Template
+## What's next
 
-When creating your own Deployment Manager solution, you may need to
-customize other fields in the autogen specification, such as `passwords`,
-`deployInput`, and `postDeploy`. See the 
-[autogen reference](../../../../docs/autogen-reference.md)
-for explanations of the fields.
-
-## Upload solution to Partner Portal
-
-See instructions in this 
-[guide](../../../../docs/deployment-manager-guide.md#upload-solution-to-partner-portal).
-
-## Upload product to Producer Portal
-**Preview**: This product or feature is covered by the [Pre-GA Offerings Terms](https://cloud.devsite.corp.google.com/terms/service-terms#1) of the Google Cloud Platform Terms of Service. Pre-GA products and features may have limited support, and changes to pre-GA products and features may not be compatible with other pre-GA versions. For more information, see the [launch stage descriptions](https://cloud.devsite.corp.google.com/products#product-launch-stages).  
-
-See instructions in this
-[guide](../../../../docs/deployment-manager-guide.md#upload-product-to-producer-portal)
+For instructions for generating a Deployment Manager template for your
+VM product, see [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package).

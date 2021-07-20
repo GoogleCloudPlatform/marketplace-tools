@@ -1,62 +1,67 @@
+This example uses the `mpdev` tool to generate a Deployment Manager template for a Redis multiple virtual machine (VM) product.
+
+To generate a Deployment Manager template for your VM product, 
+see the Google Cloud Marketplace documentation for [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package).
+
 ## Prerequisites
 
-This example package generates a Deployment Manager template for a Redis 
-multiple VM setup. Your GCP project must contain a Redis VM image to use in the
-Deployment Manager template. The following command copies the Redis VM image
-from the
+Your Google Cloud project must contain a Redis VM image to use in the
+Deployment Manager template. To copy the Redis VM image from the
 [click-to-deploy project](https://github.com/GoogleCloudPlatform/click-to-deploy)
-to your GCP project.
+to your project, run the following command:
 
 ```
 PROJECT_ID=<YOUR_PROJECT_ID>
 gcloud compute --project=$PROJECT_ID images create redis --source-image=redis-v20200726 --source-image-project=click-to-deploy-images
 ```
 
-## Generating Deployment Manager Template
+## Generate a Deployment Manager template
 
-To use this `mpdev` package, execute the following command which will checkout this
-package to a directory named `redis`.
+To retrieve this example's Autogen specification, execute the following command, which checks out the
+specification to a directory named `redis`:
 
 ```
 mpdev pkg get https://github.com/GoogleCloudPlatform/marketplace-tools.git/examples/deployment-manager/autogen/multivm/ redis
 ```
 
-`mpdev cfg set` will be used to customize values in the 
-configurations.yaml template. Particularly the
+### Update the Autogen specification
+
+You use the command `mpdev cfg set` to update the configurations.yaml file with your product's
 [`projectId`](../../../../docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec)
 and [`image`](../../../../docs/autogen-reference.md#cloud.deploymentmanager.autogen.ImageSpec)
-values must be set for your particular solution.
+values.
+
+Set the variables for the Google Cloud project and name of the VM image:
 
 ```
 PROJECT_ID=<PROJECT_ID>
 IMAGE=redis
 ```
 
-After setting the variables above run the following commands to set the
-variables in `configurations.yaml`
+Next, run the following commands to update the values in `configurations.yaml`:
 
 ```bash
 mpdev cfg set redis/ projectId $PROJECT_ID
 mpdev cfg set redis/ image $IMAGE
 mpdev cfg set redis/ defaultReplicas 4
-
-# Optionally set deployment package zip output path.
-# Set to GCS location (e.g. gs://<BUCKET>/<OBJECT>) if using 
-# Producer Portal (Public Preview)
-mpdev cfg set redis/ zipPath template.zip
 ```
 
-Now generate a Deployment Manager template with the following command:
+### Generate the Deployment Manager template
+
+To generate a Deployment Manager template, run the following command with the updated
+Autogen specification:
 
 ```
 mpdev apply -f redis/configurations.yaml
 ```
 
-The template will be zipped to `redis/template.zip`, the location specified
+The template is zipped to `redis/template.zip`, which is the location specified
 in the `DeploymentManagerTemplate` resource of `redis/configurations.yaml`.
 
-To verify the template is properly configured, you can create a deployment from
-the template with the following commands:
+### Deploy the VM
+
+To verify the template is properly configured, create a deployment from
+the template:
 
 ```
 TMPDIR=$(mktemp -d)
@@ -64,21 +69,7 @@ unzip redis/template.zip -d $TMPDIR
 gcloud deployment-manager deployments create redis --config $TMPDIR/test_config.yaml
 ```
 
-## Further Customization of Deployment Manager Template
+## What's next
 
-When creating your own Deployment Manager solution, you may need to
-customize other fields in the autogen specification, such as `passwords`,
-`deployInput`, and `postDeploy`. See the 
-[autogen reference](../../../../docs/autogen-reference.md)
-for explanations of the fields.
-
-## Upload solution to Partner Portal
-
-See instructions in this 
-[guide](../../../../docs/deployment-manager-guide.md#upload-solution-to-partner-portal).
-
-## Upload product to Producer Portal
-**Preview**: This product or feature is covered by the [Pre-GA Offerings Terms](https://cloud.devsite.corp.google.com/terms/service-terms#1) of the Google Cloud Platform Terms of Service. Pre-GA products and features may have limited support, and changes to pre-GA products and features may not be compatible with other pre-GA versions. For more information, see the [launch stage descriptions](https://cloud.devsite.corp.google.com/products#product-launch-stages).
-
-See instructions in this
-[guide](../../../../docs/deployment-manager-guide.md#upload-product-to-producer-portal)
+For instructions for generating a Deployment Manager template for your
+VM product, see [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package).
