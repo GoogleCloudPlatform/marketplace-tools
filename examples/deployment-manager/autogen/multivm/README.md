@@ -1,4 +1,4 @@
-This example uses the `mpdev` tool to generate a Deployment Manager template for a Redis multiple virtual machine (VM).
+This example uses the `mpdev` tool to generate a Deployment Manager template for a Redis multiple virtual machine (VM) product.
 
 To generate a Deployment Manager template for your VM product, 
 see the Google Cloud Marketplace documentation for [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package).
