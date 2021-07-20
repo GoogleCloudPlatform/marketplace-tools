@@ -1,8 +1,8 @@
 .idea/
 .ijwb/
 bazel-*
+.DS_Store
 
 # Ignore tar output from Github Actions
 mpdev_*.tar.gz
-examples/deployment-manager/.DS_Store
-examples/deployment-manager/autogen/.DS_Store
+
