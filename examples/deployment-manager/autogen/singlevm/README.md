@@ -1,14 +1,14 @@
-This example uses the `mpdev` tool to generate a Deployment Manager template for a wordpress Google Compute Engine virtual machine (VM).
+This example uses the `mpdev` tool to generate a Deployment Manager template for a Wordpress Google Compute Engine virtual machine (VM).
 
 To generate a Deployment Manager template for your VM product, 
 see the Google Cloud Marketplace documentation for [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package).
 
 ## Prerequisites
 
-Your Google Cloud project must contain a wordpress VM image to use in the Deployment
-Manager template. Run the following command to copy the wordpress VM image from the
+Your Google Cloud project must contain a Wordpress VM image to use in the Deployment
+Manager template. To copy the Wordpress VM image from the
 [click-to-deploy project](https://github.com/GoogleCloudPlatform/click-to-deploy)
-to your project:
+to your project, run the following command:
 
 ```
 PROJECT_ID=<YOUR_PROJECT_ID>
@@ -17,7 +17,7 @@ gcloud compute --project=$PROJECT_ID images create wordpress --source-image=word
 
 ## Generate a Deployment Manager template
 
-To retrieve this example's Autogen specification, execute the following command which checks out the
+To retrieve this example's Autogen specification, execute the following command, which checks out the
 specification to a directory named `wordpress`.
 
 ```
@@ -47,7 +47,8 @@ mpdev cfg set wordpress/ image $IMAGE
 
 ### Generate the Deployment Manager template
 
-With the updated Autogen specification, run the following command to generate a Deployment Manager template:
+To generate a Deployment Manager template, run the following command with the updated
+Autogen specification:
 
 ```
 mpdev apply -f wordpress/configurations.yaml
@@ -69,4 +70,5 @@ gcloud deployment-manager deployments create wordpress --config $TMPDIR/test_con
 
 ## What's next
 
-See [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package) to learn how to learn how to generate Deployment Manager templates for your VM product.
+For instructions for generating a Deployment Manager template for your
+VM product, see [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package).

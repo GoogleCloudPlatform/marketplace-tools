@@ -6,9 +6,9 @@ see the Google Cloud Marketplace documentation for [Creating your deployment pac
 ## Prerequisites
 
 Your Google Cloud project must contain a Redis VM image to use in the
-Deployment Manager template. Run the following command to copy the Redis VM image
-from the [click-to-deploy project](https://github.com/GoogleCloudPlatform/click-to-deploy)
-to your project:
+Deployment Manager template. To copy the Redis VM image from the
+[click-to-deploy project](https://github.com/GoogleCloudPlatform/click-to-deploy)
+to your project, run the following command:
 
 ```
 PROJECT_ID=<YOUR_PROJECT_ID>
@@ -17,7 +17,7 @@ gcloud compute --project=$PROJECT_ID images create redis --source-image=redis-v2
 
 ## Generate a Deployment Manager template
 
-To retrieve this example's Autogen specification, execute the following command which checks out the
+To retrieve this example's Autogen specification, execute the following command, which checks out the
 specification to a directory named `redis`:
 
 ```
@@ -48,7 +48,8 @@ mpdev cfg set redis/ defaultReplicas 4
 
 ### Generate the Deployment Manager template
 
-With the updated Autogen specification, run the following command to generate a Deployment Manager template:
+To generate a Deployment Manager template, run the following command with the updated
+Autogen specification:
 
 ```
 mpdev apply -f redis/configurations.yaml
@@ -70,4 +71,5 @@ gcloud deployment-manager deployments create redis --config $TMPDIR/test_config.
 
 ## What's next
 
-See [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package) to learn how to learn how to generate Deployment Manager templates for your VM product.
+For instructions for generating a Deployment Manager template for your
+VM product, see [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package).
