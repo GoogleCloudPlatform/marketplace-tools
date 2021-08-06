@@ -46,6 +46,11 @@ mpdev cfg set redis/ image $IMAGE
 mpdev cfg set redis/ defaultReplicas 4
 ```
 
+**Optional**: For further customizations, manually edit `configurations.yaml`.
+Editing `yaml` can be error-prone. We recommend using an IDE and following these
+[instructions](../../../../docs/setup-autocomplete.md) to set up auto-complete
+and schema validation.
+
 ### Generate the Deployment Manager template
 
 To generate a Deployment Manager template, run the following command with the updated

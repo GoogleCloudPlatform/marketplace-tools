@@ -12,7 +12,9 @@ You use the following `mpdev` commands to generate a deployment package:
 1. Use the `mpdev pkg get` command to retrieve a [preconfigured Autogen
 specification](../examples/deployment-manager/autogen).
 1. Use `mpdev cfg set` to customize values in the retrieved Autogen
-specification, or edit the specification manually.
+specification, or edit the specification manually. If editing manually, we
+recommend **setting up auto-complete** by following these
+[instructions](setup-autocomplete.md)
 3. Use `mpdev apply` to generate the Deployment Manager template.
 
 ## See also 
