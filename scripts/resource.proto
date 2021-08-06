@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package cloud.deploymentmanager.autogen;
+
+import "java/com/google/cloud/deploymentmanager/autogen/deployment_package_autogen_spec.proto";
+
+// This Resource proto is unused by the code but is helpful in generating a jsonschema to use for mpdev.
+message Resource {
+  // Must be dev.marketplace.cloud.google.com/v1alpha1
+  string api_version = 1;
+
+  // Must be DeploymentManagerTemplate" or "DeploymentManagerAutogenTemplate.
+  string kind = 2;
+
+  message Metadata {
+    string name = 1;
+  };
+
+  Metadata metadata = 3;
+
+  message PackageInfo {
+    message Component {
+      string name = 1;
+
+      string version = 2;
+    };
+
+
+    string version = 1;
+
+    // Defines the OS Software Component in the Deployment package.
+    // (e.g. Debian, Windows, etc.)
+    Component os_info = 2;
+
+    // Defines individual Software Components in the Deployment package.
+    // (e.g. Wordpress, Apache, etc.)
+    repeated Component component = 3;
+  }
+
+  message Spec {
+    // Defines the Software Component metadata in the Deployment package
+    PackageInfo package_info = 1;
+
+    // The Top Level Autogen Spec for the deployment package
+    DeploymentPackageAutogenSpec deployment_spec = 2;
+  };
+
+  // Contains the Autogen Spec for the deployment package and package metadata.
+  Spec spec = 4;
+
+  // The path of the deployment manager template on mpdev apply.
+  // Can be local path or gs://<bucket-name>/<object-name>
+  // Only set for a DeploymentManagerTemplate kind
+  string zip_file_path = 5;
+
+  message DeploymentManagerRef {
+    // Must be dev.marketplace.cloud.google.com
+    string group = 1;
+    // Must be DeploymentManagerAutogenTemplate
+    string kind = 2;
+    // The metadata.name of the referenced DeploymentManagerAutogenTemplate.
+    string name = 3;
+  }
+
+  // Reference the DeploymentManagerAutogenTemplate to package into a zip file.
+  // Should only be present in a DeploymentManagerTemplate
+  DeploymentManagerRef deployment_manager_ref = 6;
+}

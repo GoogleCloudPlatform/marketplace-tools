@@ -6,6 +6,7 @@ require (
 	github.com/GoogleContainerTools/kpt v0.33.0
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/hashicorp/go-multierror v1.0.0
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/ginkgo v1.12.0 // indirect

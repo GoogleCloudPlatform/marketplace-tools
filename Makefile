@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.PHONY: fix vet fmt formula docs license license-check lint bazel-build-gen tidy build test clean
+.PHONY: fix vet fmt formula docs license license-check lint bazel-build-gen tidy build test clean jsonschema
 
 GOBIN := $(shell go env GOPATH)/bin
 PKG := github.com/GoogleCloudPlatform/marketplace-tools/mpdev
@@ -20,7 +20,7 @@ PKG := github.com/GoogleCloudPlatform/marketplace-tools/mpdev
 build:
 	bazel build --stamp --workspace_status_command="./scripts/workspace-status.sh" //...:all
 
-all: fix vet fmt formula docs license license-check lint bazel-build-gen tidy build test
+all: fix vet fmt formula docs license license-check lint bazel-build-gen tidy build test jsonschema
 
 clean:
 	bazel clean
@@ -42,6 +42,9 @@ formula:
 
 tidy:
 	go mod tidy
+
+jsonschema:
+	./scripts/generate-jsonschema.sh
 
 lint:
 	( [ -f $(GOBIN)/golangci-lint ] || go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.27.0)
