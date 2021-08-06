@@ -60,12 +60,12 @@ spec:
         firewallRules:
         - port: '6379'
           protocol: TCP
-          allowed_source: TIER
+          allowedSource: TIER
         - port: '26379'
           protocol: TCP
-          allowed_source: TIER
+          allowedSource: TIER
         - protocol: ICMP
-          allowed_source: TIER
+          allowedSource: TIER
         gceMetadataItems:
         - key: redis_node_hostnames
           tierVmNames:

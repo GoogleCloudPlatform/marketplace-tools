@@ -1,0 +1,1525 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "description": "Must be dev.marketplace.cloud.google.com/v1alpha1",
+      "enum": [
+        "dev.marketplace.cloud.google.com/v1alpha1"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "description": "Must be DeploymentManagerTemplate\" or \"DeploymentManagerAutogenTemplate.",
+      "enum": [
+        "DeploymentManagerTemplate",
+        "DeploymentManagerAutogenTemplate"
+      ]
+    },
+    "metadata": {
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "spec": {
+      "properties": {
+        "packageInfo": {
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "osInfo": {
+              "$ref": "#/definitions/cloud.deploymentmanager.autogen.Resource.PackageInfo.Component",
+              "additionalProperties": true,
+              "description": "Defines the OS Software Component in the Deployment package.\n (e.g. Debian, Windows, etc.)"
+            },
+            "component": {
+              "items": {
+                "$schema": "http://json-schema.org/draft-04/schema#",
+                "$ref": "#/definitions/cloud.deploymentmanager.autogen.Resource.PackageInfo.Component"
+              },
+              "type": "array",
+              "description": "Defines individual Software Components in the Deployment package.\n (e.g. Wordpress, Apache, etc.)"
+            }
+          },
+          "additionalProperties": true,
+          "type": "object",
+          "description": "Defines the Software Component metadata in the Deployment package"
+        },
+        "deploymentSpec": {
+          "properties": {
+            "singleVm": {
+              "properties": {
+                "images": {
+                  "items": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "$ref": "#/definitions/cloud.deploymentmanager.autogen.ImageSpec"
+                  },
+                  "type": "array",
+                  "description": "Defines the disk images. If there are more than one, the user can select\n which image to deploy with. The 1st image is the default.\n Required."
+                },
+                "machineType": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.MachineTypeSpec",
+                  "additionalProperties": true,
+                  "description": "Specifies the default machine type, and any size constraints which\n restrict what the user can select.\n Will use defaults if not specified."
+                },
+                "bootDisk": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.DiskSpec",
+                  "additionalProperties": true,
+                  "description": "Defines boot disk. Will use defaults if not specified."
+                },
+                "localSsds": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.LocalSsdSpec",
+                  "additionalProperties": true,
+                  "description": "Specifies additionally added local SSD disks\n (with a default naming convention)."
+                },
+                "additionalDisks": {
+                  "items": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "$ref": "#/definitions/cloud.deploymentmanager.autogen.DiskSpec"
+                  },
+                  "type": "array",
+                  "description": "Defines additional persistent disks. Optional."
+                },
+                "ipForwarding": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.IpForwardingSpec",
+                  "additionalProperties": true,
+                  "description": "If not specified, IP forwarding is forced off and not user-configurable."
+                },
+                "networkInterfaces": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.NetworkInterfacesSpec",
+                  "additionalProperties": true,
+                  "description": "Spec to define Multi/Single NIC(s) usage for this solution."
+                },
+                "firewallRules": {
+                  "items": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "$ref": "#/definitions/cloud.deploymentmanager.autogen.FirewallRuleSpec"
+                  },
+                  "type": "array",
+                  "description": "Specifies the default firewall rules to access the deployed application.\n They could be off by default, but should still be listed so that the user\n can get instructions on how to enable them post-deployment."
+                },
+                "siteUrl": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.InstanceUrlSpec",
+                  "additionalProperties": true,
+                  "description": "Declares a URL to access the deployed application."
+                },
+                "adminUrl": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.InstanceUrlSpec",
+                  "additionalProperties": true,
+                  "description": "Declares a URL to administer the deployed application."
+                },
+                "passwords": {
+                  "items": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "$ref": "#/definitions/cloud.deploymentmanager.autogen.PasswordSpec"
+                  },
+                  "type": "array",
+                  "description": "Defines how to generate passwords at deployment time."
+                },
+                "gcpAuthScopes": {
+                  "items": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "$ref": "#/definitions/cloud.deploymentmanager.autogen.GcpAuthScopeSpec"
+                  },
+                  "type": "array",
+                  "description": "Declares what GCP APIs should be available to the VM."
+                },
+                "gceStartupScript": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.GceStartupScriptSpec",
+                  "additionalProperties": true,
+                  "description": "Specifies a startup script for a VM instance."
+                },
+                "applicationStatus": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.ApplicationStatusSpec",
+                  "additionalProperties": true,
+                  "description": "Defines how to determine the application installation status in\n post-deployment. This tells when the application is ready for consumption."
+                },
+                "externalIp": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.ExternalIpSpec",
+                  "additionalProperties": true,
+                  "description": "Defines how the VM is accessible from the Internet.\n Will use defaults if not specified.\n DEPRECATED! Use NetworkInterfacesSpec instead."
+                },
+                "postDeploy": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.PostDeployInfo",
+                  "additionalProperties": true,
+                  "description": "Customizes post-deploy information displayed to the user.\n This helps get the user started with using the deployed solution."
+                },
+                "gceMetadataItems": {
+                  "items": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "$ref": "#/definitions/cloud.deploymentmanager.autogen.GceMetadataItem"
+                  },
+                  "type": "array",
+                  "description": "Customizes metadata items on a GCE VM instance."
+                },
+                "accelerators": {
+                  "items": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "$ref": "#/definitions/cloud.deploymentmanager.autogen.AcceleratorSpec"
+                  },
+                  "type": "array",
+                  "description": "Attach accelerator hardware (GPU) to the VM.\n Currently at most one accelerator spec is supported."
+                },
+                "deployInput": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.DeployInputSpec",
+                  "additionalProperties": true,
+                  "description": "Customizes additional inputs configured by user prior to deployment.\n Currently, the configured values can be passed through to the VM via\n metadata items."
+                },
+                "zone": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.ZoneSpec",
+                  "additionalProperties": true,
+                  "description": "Customizes the zone selector."
+                },
+                "stackdriver": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.StackdriverSpec",
+                  "additionalProperties": true,
+                  "description": "Integration with Stackdriver."
+                }
+              },
+              "additionalProperties": true,
+              "type": "object",
+              "description": "For solution deploying a single VM."
+            },
+            "multiVm": {
+              "properties": {
+                "tiers": {
+                  "items": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Unique name for this tier. Only lowercases. Required."
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "Display title for this tier. Required."
+                      },
+                      "instanceCount": {
+                        "properties": {
+                          "defaultValue": {
+                            "type": "integer",
+                            "description": "The default number of instances. Must satisfy the constraint."
+                          },
+                          "range": {
+                            "properties": {
+                              "startValue": {
+                                "type": "integer",
+                                "description": "The inclusive starting value. Required."
+                              },
+                              "endValue": {
+                                "type": "integer",
+                                "description": "The inclusive ending value. Required."
+                              }
+                            },
+                            "additionalProperties": true,
+                            "type": "object",
+                            "description": "Specifies a range of contiguous values."
+                          },
+                          "list": {
+                            "properties": {
+                              "values": {
+                                "items": {
+                                  "type": "integer"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "additionalProperties": true,
+                            "type": "object",
+                            "description": "Explicitly lists out the supported values."
+                          },
+                          "tooltip": {
+                            "type": "string",
+                            "description": "Optional. Specify the tooltip text.\n If not specified, it will get a default value."
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "Optional. Field's description."
+                          }
+                        },
+                        "additionalProperties": true,
+                        "type": "object",
+                        "description": "Defines the number of VM instances in this tier."
+                      },
+                      "images": {
+                        "items": {
+                          "$schema": "http://json-schema.org/draft-04/schema#",
+                          "$ref": "#/definitions/cloud.deploymentmanager.autogen.ImageSpec"
+                        },
+                        "type": "array",
+                        "description": "Defines the disk images. If there are more than one, the user can select\n which image to deploy with. The 1st image is the default.\n Required."
+                      },
+                      "machineType": {
+                        "$ref": "#/definitions/cloud.deploymentmanager.autogen.MachineTypeSpec",
+                        "additionalProperties": true,
+                        "description": "Specifies the default machine type, and any size constraints which\n restrict what the user can select.\n Will use defaults if not specified."
+                      },
+                      "bootDisk": {
+                        "$ref": "#/definitions/cloud.deploymentmanager.autogen.DiskSpec",
+                        "additionalProperties": true,
+                        "description": "Defines boot disk. Will use defaults if not specified."
+                      },
+                      "additionalDisks": {
+                        "items": {
+                          "$schema": "http://json-schema.org/draft-04/schema#",
+                          "$ref": "#/definitions/cloud.deploymentmanager.autogen.DiskSpec"
+                        },
+                        "type": "array",
+                        "description": "Defines additional persistent disks to attach to each VM. Optional"
+                      },
+                      "localSsds": {
+                        "$ref": "#/definitions/cloud.deploymentmanager.autogen.LocalSsdSpec",
+                        "additionalProperties": true,
+                        "description": "Specifies additionally added local SSD disks\n (with a default naming convention)."
+                      },
+                      "ipForwarding": {
+                        "$ref": "#/definitions/cloud.deploymentmanager.autogen.IpForwardingSpec",
+                        "additionalProperties": true,
+                        "description": "If not specified, IP forwarding is forced off and not user-configurable."
+                      },
+                      "networkInterfaces": {
+                        "$ref": "#/definitions/cloud.deploymentmanager.autogen.NetworkInterfacesSpec",
+                        "additionalProperties": true,
+                        "description": "Spec to define Multi/Single NIC(s) usage for this solution."
+                      },
+                      "gcpAuthScopes": {
+                        "items": {
+                          "$schema": "http://json-schema.org/draft-04/schema#",
+                          "$ref": "#/definitions/cloud.deploymentmanager.autogen.GcpAuthScopeSpec"
+                        },
+                        "type": "array",
+                        "description": "Declares what GCP APIs should be available to the VM."
+                      },
+                      "gceStartupScript": {
+                        "$ref": "#/definitions/cloud.deploymentmanager.autogen.GceStartupScriptSpec",
+                        "additionalProperties": true,
+                        "description": "Specifies a startup script for each VM instance in this tier."
+                      },
+                      "applicationStatus": {
+                        "$ref": "#/definitions/cloud.deploymentmanager.autogen.ApplicationStatusSpec",
+                        "additionalProperties": true,
+                        "description": "Defines how to determine that VMs in this tier are ready to serve.\n The entire deployment is ready to serve when all tiers are."
+                      },
+                      "externalIp": {
+                        "$ref": "#/definitions/cloud.deploymentmanager.autogen.ExternalIpSpec",
+                        "additionalProperties": true,
+                        "description": "Defines how the VMs are accessible from the Internet.\n Will use defaults if not specified.\n DEPRECATED! Use NetworkInterfacesSpec instead."
+                      },
+                      "gceMetadataItems": {
+                        "items": {
+                          "$schema": "http://json-schema.org/draft-04/schema#",
+                          "$ref": "#/definitions/cloud.deploymentmanager.autogen.GceMetadataItem"
+                        },
+                        "type": "array",
+                        "description": "Customizes metadata items on each GCE VM instance."
+                      },
+                      "accelerators": {
+                        "items": {
+                          "$schema": "http://json-schema.org/draft-04/schema#",
+                          "$ref": "#/definitions/cloud.deploymentmanager.autogen.AcceleratorSpec"
+                        },
+                        "type": "array",
+                        "description": "Attach accelerator hardware (GPU) to the VM.\n Currently at most accelerator is supported."
+                      },
+                      "firewallRules": {
+                        "items": {
+                          "$schema": "http://json-schema.org/draft-04/schema#",
+                          "$ref": "#/definitions/cloud.deploymentmanager.autogen.FirewallRuleSpec"
+                        },
+                        "type": "array",
+                        "description": "Specifies the default firewall rules to access the VMs in this tier.\n They could be off by default, but should still be listed so that the user\n can get instructions on how to enable them post-deployment."
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "description": "A tier consists of one or more VMs of the same type. Each VM is\n uniquely identified by its index.\n Next ID: 18"
+                  },
+                  "type": "array",
+                  "description": "One or more tiers."
+                },
+                "siteUrl": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.InstanceUrlSpec",
+                  "additionalProperties": true,
+                  "description": "Declares a URL to access the deployed application."
+                },
+                "adminUrl": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.InstanceUrlSpec",
+                  "additionalProperties": true,
+                  "description": "Declares a URL to administer the deployed application."
+                },
+                "passwords": {
+                  "items": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "$ref": "#/definitions/cloud.deploymentmanager.autogen.PasswordSpec"
+                  },
+                  "type": "array",
+                  "description": "Defines how to generate passwords at deployment time."
+                },
+                "postDeploy": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.PostDeployInfo",
+                  "additionalProperties": true,
+                  "description": "Customizes post-deploy information displayed to the user.\n This helps get the user started with using the deployed solution."
+                },
+                "deployInput": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.DeployInputSpec",
+                  "additionalProperties": true,
+                  "description": "Customizes additional inputs configured by user prior to deployment.\n Currently, the configured values can be passed through to the VM via\n metadata items."
+                },
+                "zone": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.ZoneSpec",
+                  "additionalProperties": true,
+                  "description": "Customizes the zone selector."
+                },
+                "stackdriver": {
+                  "$ref": "#/definitions/cloud.deploymentmanager.autogen.StackdriverSpec",
+                  "additionalProperties": true,
+                  "description": "Integration with Stackdriver."
+                }
+              },
+              "additionalProperties": true,
+              "type": "object",
+              "description": "For solution deploying multiple tiers of VMs."
+            },
+            "version": {
+              "type": "string",
+              "description": "Human readable version of the deployment package."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object",
+          "description": "The Top Level Autogen Spec for the deployment package"
+        }
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "description": "Contains the Autogen Spec for the deployment package and package metadata."
+    },
+    "zipFilePath": {
+      "type": "string",
+      "description": "The path of the deployment manager template on mpdev apply.\n Can be local path or gs://<bucket-name>/<object-name>\n Only set for a DeploymentManagerTemplate kind"
+    },
+    "deploymentManagerRef": {
+      "properties": {
+        "group": {
+          "type": "string",
+          "description": "Must be dev.marketplace.cloud.google.com",
+          "enum": [
+            "dev.marketplace.cloud.google.com"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "description": "Must be DeploymentManagerAutogenTemplate",
+          "enum": [
+            "DeploymentManagerAutogenTemplate"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "The metadata.name of the referenced DeploymentManagerAutogenTemplate."
+        }
+      },
+      "additionalProperties": true,
+      "type": "object",
+      "description": "Reference the DeploymentManagerAutogenTemplate to package into a zip file.\n Should only be present in a DeploymentManagerTemplate"
+    }
+  },
+  "additionalProperties": false,
+  "type": "object",
+  "description": "This Resource proto is unused by the code but is helpful in generating a jsonschema to use for mpdev.",
+  "definitions": {
+    "cloud.deploymentmanager.autogen.AcceleratorSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "types": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "One or more accelerator types. If the list contains exactly one item, the\n type will not be selectable by the user.\n Currently avaiable types: \"nvidia-tesla-k80\", \"nvidia-tesla-p100\",\n \"nvidia-tesla-v100\"."
+        },
+        "defaultType": {
+          "type": "string",
+          "description": "Default accelerator type, which should be one of those listed above"
+        },
+        "defaultCount": {
+          "type": "integer",
+          "description": "Default number of accelerators.\n Currently, only values of 0, 1, 2, 4, and 8 are supported."
+        },
+        "minCount": {
+          "type": "integer",
+          "description": "Minimum number of accelerators (inclusive) that may be selected.\n Currently, only values of 0, 1, 2, 4, and 8 are supported."
+        },
+        "maxCount": {
+          "type": "integer",
+          "description": "Maximum number of accelerators (inclusive) that may be selected.\n Currently, only values of 0, 1, 2, 4, and 8 are supported."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "id": "cloud.deploymentmanager.autogen.AcceleratorSpec"
+    },
+    "cloud.deploymentmanager.autogen.ApplicationStatusSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "type": {
+          "enum": [
+            "NONE",
+            0,
+            "LEGACY_DETECTOR",
+            1,
+            "WAITER",
+            2
+          ],
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "description": "Defines how to monitor application installation status. Required."
+        },
+        "waiter": {
+          "properties": {
+            "waiterTimeoutSecs": {
+              "type": "integer",
+              "description": "Timeout when the waiter fails itself in absence of status signals.\n Required."
+            },
+            "script": {
+              "properties": {
+                "checkTimeoutSecs": {
+                  "type": "integer",
+                  "description": "If not set, the waiter timeout will be used."
+                },
+                "checkScriptContent": {
+                  "type": "string",
+                  "description": "Optional bash script to check the status. This should return 0 if\n the application is ready, 1 if the application is not yet ready but the\n check should be retried, and greater than 1 if the check has failed\n permanently.\n If the script is not present, the waiter is signaled as soon as the\n VM finishes booting."
+                },
+                "disableStartupScriptUrl": {
+                  "type": "boolean",
+                  "description": "If true, the generated template will include an empty\n \"startup-script-url\" VM metadata value. This effectively disables\n project-wide startup_script_url settings which took precedence over\n instance-level startup_script settings in older versions of the\n Google instance init logic.\n This option is not necessary for images that use Google base packages\n newer than June, 2016. See b/31729022 for more context.\n TODO(volkman): Remove this once all images (Brocade, etc.) have moved\n to the new base package version."
+                }
+              },
+              "additionalProperties": true,
+              "type": "object",
+              "description": "Optional integration with the VM to signal the waiter via startup-script.\n If the script spec is not present, the application is expected to\n directly signal the waiter."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object",
+          "description": "Required if type is WAITER."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies how to monitor application installation status in order to\n detect when the application is ready or has failed.",
+      "id": "cloud.deploymentmanager.autogen.ApplicationStatusSpec"
+    },
+    "cloud.deploymentmanager.autogen.BooleanExpression": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "hasExternalIp": {
+          "properties": {
+            "negated": {
+              "type": "boolean",
+              "description": "Specifies if expression is based on external IP being available or not."
+            },
+            "tier": {
+              "type": "string",
+              "description": "Multi-vm's tier name. It is required for multi vm spec."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "booleanDeployInputField": {
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of the deploy input field. Required."
+            },
+            "negated": {
+              "type": "boolean",
+              "description": "If true, negate the value of the input field."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Allows to build an expression which value should be evaluated to boolean.",
+      "id": "cloud.deploymentmanager.autogen.BooleanExpression"
+    },
+    "cloud.deploymentmanager.autogen.DeployInputSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "sections": {
+          "items": {
+            "$schema": "http://json-schema.org/draft-04/schema#",
+            "properties": {
+              "placement": {
+                "enum": [
+                  "PLACEMENT_UNSPECIFIED",
+                  0,
+                  "MAIN",
+                  1,
+                  "CUSTOM_TOP",
+                  2,
+                  "CUSTOM_BOTTOM",
+                  3,
+                  "TIER",
+                  4
+                ],
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "description": "Required."
+              },
+              "name": {
+                "type": "string",
+                "description": "Section name, required if this section is a custom one.\n Must be unique among all sections.\n Convention is to use an UPPERCASE_UNDERSCORE name."
+              },
+              "tier": {
+                "type": "string",
+                "description": "For Placement.TIER, this specifies the required tier name."
+              },
+              "title": {
+                "type": "string",
+                "description": "Section title, required if this section is a custom one."
+              },
+              "description": {
+                "type": "string",
+                "description": "Optional description appearing below the title."
+              },
+              "tooltip": {
+                "type": "string",
+                "description": "Optional tooltip."
+              },
+              "fields": {
+                "items": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the field. Letters, numbers, dashes, and underscores only.\n Required."
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Title of the field. Required."
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Optional description appearing below the title."
+                    },
+                    "tooltip": {
+                      "type": "string",
+                      "description": "Optional tooltip."
+                    },
+                    "level": {
+                      "type": "integer",
+                      "description": "Indicates the \"advanced\" level of the input property. Level 0 (default)\n will always be shown. Level 1 corresponds to one expansion (user clicks\n \"show advanced options\" or \"more options\"). Higher levels correspond to\n further expansions, or they may be collapsed to level 1 by the UI\n implementation. Optional."
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "description": "If required, the user must input a valid value."
+                    },
+                    "booleanCheckbox": {
+                      "properties": {
+                        "defaultValue": {
+                          "type": "boolean"
+                        }
+                      },
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "groupedBooleanCheckbox": {
+                      "properties": {
+                        "defaultValue": {
+                          "type": "boolean"
+                        },
+                        "displayGroup": {
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "description": "Name of the group. Required.\n Convention is to use an UPPERCASE_UNDERSCORE name."
+                            },
+                            "title": {
+                              "type": "string",
+                              "description": "Title of the group. Required."
+                            },
+                            "description": {
+                              "type": "string",
+                              "description": "Optional description appearing below the title."
+                            },
+                            "tooltip": {
+                              "type": "string",
+                              "description": "Optional tooltip."
+                            }
+                          },
+                          "additionalProperties": true,
+                          "type": "object"
+                        }
+                      },
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "integerBox": {
+                      "properties": {
+                        "defaultValue": {
+                          "$ref": "#/definitions/cloud.deploymentmanager.autogen.OptionalInt32",
+                          "additionalProperties": true
+                        },
+                        "validation": {
+                          "properties": {
+                            "description": {
+                              "type": "string",
+                              "description": "Description shown to the user if the input value fails validation."
+                            },
+                            "min": {
+                              "$ref": "#/definitions/cloud.deploymentmanager.autogen.OptionalInt32",
+                              "additionalProperties": true,
+                              "description": "Optional inclusive minimum value."
+                            },
+                            "max": {
+                              "$ref": "#/definitions/cloud.deploymentmanager.autogen.OptionalInt32",
+                              "additionalProperties": true,
+                              "description": "Optional inclusive maximum value."
+                            }
+                          },
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "placeholder": {
+                          "type": "string"
+                        },
+                        "testDefaultValue": {
+                          "$ref": "#/definitions/cloud.deploymentmanager.autogen.OptionalInt32",
+                          "additionalProperties": true,
+                          "description": "This attribute is used as field's value in automated tests.\n If present, it overrides the default_value. For required fields without\n default_value, it is required to set test_default_value."
+                        }
+                      },
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "integerDropdown": {
+                      "properties": {
+                        "values": {
+                          "items": {
+                            "type": "integer"
+                          },
+                          "type": "array"
+                        },
+                        "defaultValueIndex": {
+                          "$ref": "#/definitions/cloud.deploymentmanager.autogen.OptionalInt32",
+                          "additionalProperties": true
+                        },
+                        "valueLabels": {
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "type": "object",
+                          "description": "Optional labels for values (not indices). If a value does not have a\n corresponding label, its numeric string is used."
+                        }
+                      },
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "stringBox": {
+                      "properties": {
+                        "defaultValue": {
+                          "type": "string"
+                        },
+                        "validation": {
+                          "properties": {
+                            "description": {
+                              "type": "string",
+                              "description": "Description shown to the user if the input value fails validation."
+                            },
+                            "regex": {
+                              "type": "string",
+                              "description": "Optional pattern."
+                            }
+                          },
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "placeholder": {
+                          "type": "string"
+                        },
+                        "testDefaultValue": {
+                          "type": "string",
+                          "description": "This attribute is used as field's value in automated tests.\n If present, it overrides the default_value. For required fields without\n default_value, it is required to set test_default_value."
+                        }
+                      },
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "stringDropdown": {
+                      "properties": {
+                        "values": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "defaultValueIndex": {
+                          "$ref": "#/definitions/cloud.deploymentmanager.autogen.OptionalInt32",
+                          "additionalProperties": true
+                        },
+                        "valueLabels": {
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "type": "object",
+                          "description": "Optional labels for values. If a value does not have a corresponding\n label, its raw value will be displayed."
+                        }
+                      },
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "zoneDropdown": {
+                      "properties": {
+                        "defaultValue": {
+                          "properties": {
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": true,
+                          "type": "object"
+                        }
+                      },
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "emailBox": {
+                      "properties": {
+                        "defaultValue": {
+                          "type": "string"
+                        },
+                        "validation": {
+                          "properties": {
+                            "description": {
+                              "type": "string",
+                              "description": "Description shown to the user if the input value fails validation.\n If not specified, a default message is used."
+                            },
+                            "regex": {
+                              "type": "string",
+                              "description": "Optional pattern."
+                            }
+                          },
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "placeholder": {
+                          "type": "string",
+                          "description": "A placeholder to hint the user what to enter here.\n If not specified, user@example.com is used."
+                        },
+                        "testDefaultValue": {
+                          "type": "string",
+                          "description": "This attribute is used as field's value in automated tests.\n Defaults to default-user@example.com if this field is required unless\n the default_value or this field is explicitly present.\n If present, it overrides the default_value."
+                        }
+                      },
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object"
+          },
+          "type": "array",
+          "description": "One or more sections containing input fields."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "id": "cloud.deploymentmanager.autogen.DeployInputSpec"
+    },
+    "cloud.deploymentmanager.autogen.DiskSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "diskSize": {
+          "properties": {
+            "defaultSizeGb": {
+              "type": "integer",
+              "description": "The default disk size in GB. Required."
+            },
+            "minSizeGb": {
+              "type": "integer",
+              "description": "Specifies the min disk size allowed in GB."
+            },
+            "maxSizeGb": {
+              "type": "integer",
+              "description": "Specifies the max disk size allowed in GB. Not supported yet."
+            },
+            "notConfigurable": {
+              "type": "boolean",
+              "description": "Whether to restrict the user from changing away from the default\n settings. Not supported yet (always false)."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "diskType": {
+          "properties": {
+            "defaultType": {
+              "type": "string",
+              "description": "The default disk type. Required.\n See http://cloud.google.com/compute/docs/reference/latest/diskTypes."
+            },
+            "notConfigurable": {
+              "type": "boolean",
+              "description": "Whether to restrict the user from changing away from the default\n settings. Not supported yet (always false)."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "displayLabel": {
+          "type": "string",
+          "description": "A short descriptive label for this disk.\n Optional for boot disk; default is 'Boot disk'.\n Optional if this is the only one additional disk; default is 'Data disk'.\n Required otherwise."
+        },
+        "deviceNameSuffix": {
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Device name specified as a constant string. Optional.\n By default takes the value of disk's name."
+            },
+            "nameFromDeployInputField": {
+              "type": "string",
+              "description": "Specifies a deploy input field name from which the device name\n should be read."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object",
+          "description": "Specifies the device name suffix. Ignored for boot disk. Optional.\n The final device name will be a concatenation of an instance name with\n the specified device name."
+        },
+        "preventAutoDeletion": {
+          "type": "boolean",
+          "description": "Whether to leave the disk when the instance is deleted.\n Ignored for boot disk."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies a persistent disk.",
+      "id": "cloud.deploymentmanager.autogen.DiskSpec"
+    },
+    "cloud.deploymentmanager.autogen.ExternalIpSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "defaultType": {
+          "enum": [
+            "TYPE_UNSPECIFIED",
+            0,
+            "NONE",
+            1,
+            "EPHEMERAL",
+            2
+          ],
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "description": "Required."
+        },
+        "notConfigurable": {
+          "type": "boolean",
+          "description": "Whether to restrict the user from changing away from the default settings."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Defines how a VM is exposed on the Internet.",
+      "id": "cloud.deploymentmanager.autogen.ExternalIpSpec"
+    },
+    "cloud.deploymentmanager.autogen.FirewallRuleSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "protocol": {
+          "enum": [
+            "PROTOCOL_UNSPECIFIED",
+            0,
+            "TCP",
+            1,
+            "UDP",
+            2,
+            "ICMP",
+            3
+          ],
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "description": "The IP Protocol that the firewall rule allows. Required."
+        },
+        "port": {
+          "type": "string",
+          "description": "The target ports on the VM, which could be a single port number like \"80\"\n or a port range like \"32768-40000\"."
+        },
+        "defaultOff": {
+          "type": "boolean",
+          "description": "Specifies that by default it should be off.\n Applicable to TrafficSource.PUBLIC only."
+        },
+        "notConfigurable": {
+          "type": "boolean",
+          "description": "Whether to restrict the user from changing away from the default settings.\n Not supported yet (always false).\n Applicable to TrafficSource.PUBLIC only."
+        },
+        "allowedSource": {
+          "enum": [
+            "SOURCE_UNSPECIFIED",
+            0,
+            "PUBLIC",
+            1,
+            "TIER",
+            2,
+            "DEPLOYMENT",
+            3
+          ],
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "description": "Source of traffic, wrapping range/tags with friendly enum.\n Defaults to TrafficSource.PUBLIC."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies a firewall rule.",
+      "id": "cloud.deploymentmanager.autogen.FirewallRuleSpec"
+    },
+    "cloud.deploymentmanager.autogen.GceMetadataItem": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Metadata item key. Required."
+        },
+        "value": {
+          "type": "string",
+          "description": "Static metadata item value."
+        },
+        "tierVmNames": {
+          "properties": {
+            "tier": {
+              "type": "string",
+              "description": "The tier name."
+            },
+            "vmIndex": {
+              "type": "integer",
+              "description": "0-based index of a VM. A negative index can be used,\n with -1 referring the last, -2 the second last, etc."
+            },
+            "allVms": {
+              "properties": {
+                "delimiter": {
+                  "type": "string",
+                  "description": "Delimiter for the VM names in the list, for example a comma.\n Required."
+                }
+              },
+              "additionalProperties": true,
+              "type": "object",
+              "description": "All VM names as a string list."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object",
+          "description": "The value is the names of one or more VMs in a tier."
+        },
+        "valueFromDeployInputField": {
+          "type": "string",
+          "description": "Value referenced from deploy input field.\n Should specify existing input field's name."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "id": "cloud.deploymentmanager.autogen.GceMetadataItem"
+    },
+    "cloud.deploymentmanager.autogen.GceStartupScriptSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "bashScriptContent": {
+          "type": "string",
+          "description": "Specifies a complete startup script. If waiter specifies its check script,\n those two will be combined with a software_status_script.py resource.\n Required."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies the initial startup script for a VM instance.",
+      "id": "cloud.deploymentmanager.autogen.GceStartupScriptSpec"
+    },
+    "cloud.deploymentmanager.autogen.GcpAuthScopeSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "scope": {
+          "enum": [
+            "SCOPE_UNSPECIFIED",
+            0,
+            "CLOUD_PLATFORM_READONLY",
+            1,
+            "CLOUD_PLATFORM",
+            2,
+            "COMPUTE_READONLY",
+            3,
+            "COMPUTE",
+            4,
+            "SOURCE_READ_WRITE",
+            5,
+            "PROJECTHOSTING",
+            6
+          ],
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "description": "API scope. Required."
+        },
+        "defaultOff": {
+          "type": "boolean",
+          "description": "Specifies that by default it should be off."
+        },
+        "notConfigurable": {
+          "type": "boolean",
+          "description": "Whether to restrict the user from changing away from the default settings.\n Not supported yet (always false)."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies access to an GCP API on the VM. This effectively\n configures the corresponding scope under the VM's service account.",
+      "id": "cloud.deploymentmanager.autogen.GcpAuthScopeSpec"
+    },
+    "cloud.deploymentmanager.autogen.ImageSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "The GCP project containing the image. Required."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the image. Required."
+        },
+        "label": {
+          "type": "string",
+          "description": "A descriptive label for this image, useful in a list of\n images for the user to select from."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies a disk image resource.",
+      "id": "cloud.deploymentmanager.autogen.ImageSpec"
+    },
+    "cloud.deploymentmanager.autogen.InstanceUrlSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "scheme": {
+          "enum": [
+            "SCHEME_UNSPECIFIED",
+            0,
+            "HTTP",
+            1,
+            "HTTPS",
+            2
+          ],
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "description": "The URL scheme."
+        },
+        "port": {
+          "type": "integer",
+          "description": "The URL port."
+        },
+        "path": {
+          "type": "string",
+          "description": "The URL path, without the leading forward slash."
+        },
+        "query": {
+          "type": "string",
+          "description": "The URL query, without the leading question mark."
+        },
+        "fragment": {
+          "type": "string",
+          "description": "The URL fragment, without the leading hash sign."
+        },
+        "tierVm": {
+          "$ref": "#/definitions/cloud.deploymentmanager.autogen.TierVmInstance",
+          "additionalProperties": true,
+          "description": "Specifies a VM from tier whose address would be used. Required in a\n multi-VM configuration."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies a URL used for accessing the application on the VM.\n The domain is implied as the VM instance address.\n Currently the machine IP is used, but that might change to\n another endpoint in the future.",
+      "id": "cloud.deploymentmanager.autogen.InstanceUrlSpec"
+    },
+    "cloud.deploymentmanager.autogen.IpForwardingSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "defaultOff": {
+          "type": "boolean",
+          "description": "Specifies that by default it should be off."
+        },
+        "notConfigurable": {
+          "type": "boolean",
+          "description": "Whether to restrict the user from changing away from the default settings.\n Not supported yet (always false)."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies if the VM can route IP packets.\n See http://cloud.google.com/compute/docs/networking#eventualconsistency.",
+      "id": "cloud.deploymentmanager.autogen.IpForwardingSpec"
+    },
+    "cloud.deploymentmanager.autogen.LocalSsdSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "description": "Specifies the number of local SSDs to be attached to a vm instance."
+        },
+        "countFromDeployInputField": {
+          "type": "string",
+          "description": "Specifies the number of local SSDs by referencing a value from a deploy\n input field."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "id": "cloud.deploymentmanager.autogen.LocalSsdSpec"
+    },
+    "cloud.deploymentmanager.autogen.MachineTypeSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "defaultMachineType": {
+          "properties": {
+            "gceMachineType": {
+              "type": "string",
+              "description": "A predefined or custom machine type. Required.\n See http://cloud.google.com/compute/docs/machine-types."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object",
+          "description": "Specifies the machine type that should be selecteed by default. Required."
+        },
+        "minimum": {
+          "$ref": "#/definitions/cloud.deploymentmanager.autogen.MachineTypeSpec.MachineTypeConstraint",
+          "additionalProperties": true,
+          "description": "Specifies the minimum requirement for a user-selected machine type."
+        },
+        "maximum": {
+          "$ref": "#/definitions/cloud.deploymentmanager.autogen.MachineTypeSpec.MachineTypeConstraint",
+          "additionalProperties": true,
+          "description": "Specifies the minimum requirement for a user-selected machine type.\n Not supported yet (no max)."
+        },
+        "notConfigurable": {
+          "type": "boolean",
+          "description": "Whether to restrict the user from changing away from the default settings.\n Not supported yet (always false)."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies the default machine type, and any size constraints which\n restrict what the user can select.",
+      "id": "cloud.deploymentmanager.autogen.MachineTypeSpec"
+    },
+    "cloud.deploymentmanager.autogen.MachineTypeSpec.MachineTypeConstraint": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "cpu": {
+          "type": "integer"
+        },
+        "ramGb": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies an upper- or lower-bound constraint.",
+      "id": "cloud.deploymentmanager.autogen.MachineTypeSpec.MachineTypeConstraint"
+    },
+    "cloud.deploymentmanager.autogen.NetworkInterfacesSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "minCount": {
+          "type": "integer",
+          "description": "Minimum number of Network Interfaces (defaults to 1)."
+        },
+        "maxCount": {
+          "type": "integer",
+          "description": "Maximum number of Network Interfaces (can't exceed 8 and if not specified,\n will take the value of min_count)."
+        },
+        "externalIp": {
+          "$ref": "#/definitions/cloud.deploymentmanager.autogen.ExternalIpSpec",
+          "additionalProperties": true
+        },
+        "labels": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Label that will be in front of each Network Interface (according to the\n index in this list).\n If the list is greater than min_count, the last label will be used to name\n all networks added beyond min_count."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Network interfaces configuration for this solution.",
+      "id": "cloud.deploymentmanager.autogen.NetworkInterfacesSpec"
+    },
+    "cloud.deploymentmanager.autogen.OptionalInt32": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "value": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "id": "cloud.deploymentmanager.autogen.OptionalInt32"
+    },
+    "cloud.deploymentmanager.autogen.PasswordSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "metadataKey": {
+          "type": "string",
+          "description": "Specifies the name of the metadata entry, whose value contains the\n generated password, accessible to the VM. Must be unique per password spec\n in the same package spec.\n Required."
+        },
+        "length": {
+          "type": "integer",
+          "description": "The length of the generated password. Required."
+        },
+        "allowSpecialChars": {
+          "type": "boolean",
+          "description": "Whether special characters should be included in the generated password."
+        },
+        "username": {
+          "type": "string",
+          "description": "Specifies a static username accompanying this password."
+        },
+        "usernameFromDeployInputField": {
+          "type": "string",
+          "description": "Specifies that the username should come from a deploy input field whose\n name is specified here."
+        },
+        "displayLabel": {
+          "type": "string",
+          "description": "A label describing the purpose of this username/password.\n Required, unless this is the only password, in which case the label\n defaults to \"Admin\"."
+        },
+        "generateIf": {
+          "$ref": "#/definitions/cloud.deploymentmanager.autogen.BooleanExpression",
+          "additionalProperties": true,
+          "description": "Specifies a condition to decide if password should be generated or not.\n Optional. If it is not specified, the password is generated."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Specifies a generated password and username combination.",
+      "id": "cloud.deploymentmanager.autogen.PasswordSpec"
+    },
+    "cloud.deploymentmanager.autogen.PostDeployInfo": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "actionItems": {
+          "items": {
+            "$schema": "http://json-schema.org/draft-04/schema#",
+            "properties": {
+              "heading": {
+                "type": "string",
+                "description": "Summary heading for the item. UTF-8 text. No markup. At most 64\n characters. Required."
+              },
+              "description": {
+                "type": "string",
+                "description": "Longer description of the item. UTF-8 text.\n HTML <code>&lt;a href&gt;</code> tags only. At most 512 characters.\n Optional. At least one of description or snippet is required."
+              },
+              "snippet": {
+                "type": "string",
+                "description": "Fixed-width formatted code snippet.\n Accepts string expressions. UTF-8 text. No markup. At most 512\n characters. Optional. At least one of description or snippet is required."
+              },
+              "showIf": {
+                "$ref": "#/definitions/cloud.deploymentmanager.autogen.BooleanExpression",
+                "additionalProperties": true,
+                "description": "Specify the condition to display this action item. Optional."
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "description": "Specifies an action item for the user to take.\n Text content fields can either contain non-localized en-US text or a\n reference (e.g. @ACTION_1_HEADING) into a localized text file. The latter\n is not yet implemented, so only en-US text for now."
+          },
+          "type": "array"
+        },
+        "infoRows": {
+          "items": {
+            "$schema": "http://json-schema.org/draft-04/schema#",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Row label.\n Required. Accepts string expressions. UTF-8 text. No markup.\n At most 64 characters."
+              },
+              "value": {
+                "type": "string",
+                "description": "Row value.\n Accepts string expressions. UTF-8 text. HTML\n <code>&lt;a href&gt;</code> tags only. At most 128 characters."
+              },
+              "valueFromDeployInputField": {
+                "type": "string",
+                "description": "Row value referenced from deploy input field.\n Should specify existing input field's name."
+              },
+              "showIf": {
+                "$ref": "#/definitions/cloud.deploymentmanager.autogen.BooleanExpression",
+                "additionalProperties": true,
+                "description": "Specify the condition to display this row. Optional."
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "description": "Specifies a row in the application info table.\n Text content fields can either contain non-localized en-US text or a\n reference (e.g. @ROW_1_HEADING) into a localized text file. The latter\n is not yet implemented, so only en-US text for now."
+          },
+          "type": "array"
+        },
+        "connectButtonLabel": {
+          "type": "string",
+          "description": "Optional label to use for the button that connects to the VM.\n Deprecated in favor of connect_button.display_label."
+        },
+        "connectButton": {
+          "properties": {
+            "tierVm": {
+              "$ref": "#/definitions/cloud.deploymentmanager.autogen.TierVmInstance",
+              "additionalProperties": true,
+              "description": "Specifies a VM from tier whose address would be used. Required in a\n multi-vm configuration. Mustn't be specified for a single-vm."
+            },
+            "displayLabel": {
+              "type": "string",
+              "description": "Optional label to use for the button that connects to the VM."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Customizes post-deploy information displayed to the user.\n This information helps get the user started with using the deployed solution.",
+      "id": "cloud.deploymentmanager.autogen.PostDeployInfo"
+    },
+    "cloud.deploymentmanager.autogen.Resource.PackageInfo.Component": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "id": "cloud.deploymentmanager.autogen.Resource.PackageInfo.Component"
+    },
+    "cloud.deploymentmanager.autogen.StackdriverSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "logging": {
+          "properties": {
+            "defaultOn": {
+              "type": "boolean",
+              "description": "Specifies that by default it should be on."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object",
+          "description": "Shows a checkbox that enable Stackdriver Logging."
+        },
+        "monitoring": {
+          "properties": {
+            "defaultOn": {
+              "type": "boolean",
+              "description": "Specifies that by default it should be on."
+            }
+          },
+          "additionalProperties": true,
+          "type": "object",
+          "description": "Shows a checkbox that enable Stackdriver Monitoring."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "id": "cloud.deploymentmanager.autogen.StackdriverSpec"
+    },
+    "cloud.deploymentmanager.autogen.TierVmInstance": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "tier": {
+          "type": "string",
+          "description": "Name of the tier."
+        },
+        "index": {
+          "type": "integer",
+          "description": "0-based index of the VM in the tier. A negative index can be used, with\n -1 referring the last, -2 the second last, etc."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Identifies a specific VM in a tier.",
+      "id": "cloud.deploymentmanager.autogen.TierVmInstance"
+    },
+    "cloud.deploymentmanager.autogen.ZoneSpec": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "defaultZone": {
+          "type": "string",
+          "description": "Sets the default zone."
+        },
+        "whitelistedZones": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Lists the zones that are allowed to be used in this DM package. If list is\n empty, all zones are allowed."
+        },
+        "whitelistedRegions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Lists the regions that are allowed to be used in this DM package. Only the\n zones that belong to the specified regions will be allowed to be used."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "id": "cloud.deploymentmanager.autogen.ZoneSpec"
+    }
+  }
+}
