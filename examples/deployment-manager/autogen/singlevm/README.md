@@ -45,6 +45,11 @@ mpdev cfg set wordpress/ projectId $PROJECT_ID
 mpdev cfg set wordpress/ image $IMAGE
 ```
 
+**Optional**: For further customizations, manually edit `configurations.yaml`.
+Editing `yaml` can be error-prone. We recommend using an IDE and following these
+[instructions](../../../../docs/setup-autocomplete.md) to set up auto-complete
+and schema validation.
+
 ### Generate the Deployment Manager template
 
 To generate a Deployment Manager template, run the following command with the updated
