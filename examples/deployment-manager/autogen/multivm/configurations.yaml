@@ -109,6 +109,11 @@ spec:
 
       passwords:
       - allowSpecialChars: true
+        displayLabel: MariaDB
+        length: 14
+        metadataKey: MYSQL_ROOT_PASSWORD
+        username: root
+      - allowSpecialChars: true
         displayLabel: MariaDB replication
         length: 14
         metadataKey: MYSQL_REPLICATION_PASSWORD
