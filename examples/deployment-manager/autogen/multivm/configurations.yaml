@@ -122,10 +122,11 @@ spec:
         actionItems:
         # SSH through an external IP
         - heading: Connect to the MariaDB primary server
-          description: The initial Maria primary server is {{ outputs().db_vmName0 }}; use
-            the gcloud command below to connect.
-          snippet: gcloud compute ssh {{ outputs().db_vmName0 }} --project {{ outputs().project
-            }} --zone {{ properties().zone }}
+          description: The initial Maria primary server is
+            {{ outputs().mariadb_vmName0 }}; use the gcloud command below
+            to connect.
+          snippet: gcloud compute ssh {{ outputs().mariadb_vmName0 }} --project
+            {{ outputs().project}} --zone {{ properties().zone }}
           showIf:
             hasExternalIp:
               tier: db
