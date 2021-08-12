@@ -129,4 +129,4 @@ spec:
             {{ outputs().project}} --zone {{ properties().zone }}
           showIf:
             hasExternalIp:
-              tier: db
+              tier: mariadb
