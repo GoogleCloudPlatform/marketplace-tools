@@ -1,12 +1,12 @@
-This example uses the `mpdev` tool to generate a Deployment Manager template for a Redis multiple virtual machine (VM) product.
+This example uses the `mpdev` tool to generate a Deployment Manager template for a MariaDB multiple virtual machine (VM) product.
 
 To generate a Deployment Manager template for your VM product, 
 see the Google Cloud Marketplace documentation for [Creating your deployment package](https://cloud.google.com/marketplace/docs/partners/vm/create-deployment-package).
 
 ## Prerequisites
 
-Your Google Cloud project must contain a Redis VM image to use in the
-Deployment Manager template. To copy the Redis VM image from the
+Your Google Cloud project must contain a MariaDB VM image to use in the
+Deployment Manager template. To copy the MariaDB VM image from the
 [click-to-deploy project](https://github.com/GoogleCloudPlatform/click-to-deploy)
 to your project, run the following command:
 
