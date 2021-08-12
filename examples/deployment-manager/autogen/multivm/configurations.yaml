@@ -66,7 +66,7 @@ spec:
         - key: MYSQL_ROOT_ANYWHERE_ALLOW
           valueFromDeployInputField: rootFromAnywhere
         - key: MYSQL_DATABASE
-          value: 'example_database'
+          value: example_database
         firewallRules:
         - port: '3306'
           protocol: TCP
