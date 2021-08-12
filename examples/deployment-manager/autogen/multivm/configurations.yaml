@@ -65,6 +65,8 @@ spec:
               delimiter: '|'
         - key: MYSQL_ROOT_ANYWHERE_ALLOW
           valueFromDeployInputField: rootFromAnywhere
+        - key: MYSQL_DATABASE
+          value: 'demoDatabase'
         firewallRules:
         - port: '3306'
           protocol: TCP
