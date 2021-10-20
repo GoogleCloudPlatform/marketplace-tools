@@ -1,0 +1,10 @@
+apiVersion: dev.marketplace.cloud.google.com/v1alpha1
+kind: SaasListingTemplate
+credFilePath: cred.json
+integrationTestConfig:
+        provider: "providers/e2e-testing"
+        productExternalName: "procurement-ingestion-enabled-tester-with-subscription-usage.endpoints.cloud-marketplace-testing.cloud.goog"
+        billingAccount: "billingAccounts/000000-000000-000000"
+        plans: ["plan-a", "plan-b", "plan-c", "plan-d"]
+        approveEntitlementTimeoutSeconds: 600
+        approvePlanChangeTimeoutSeconds: 600
