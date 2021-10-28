@@ -28,6 +28,7 @@ var typeMapper = map[TypeMeta]func() Resource{
 	{APIVersion: apiVersion, Kind: "PackerGceImageBuilder"}:            func() Resource { return &PackerGceImageBuilder{} },
 	{APIVersion: apiVersion, Kind: "DeploymentManagerAutogenTemplate"}: func() Resource { return &DeploymentManagerAutogenTemplate{} },
 	{APIVersion: apiVersion, Kind: "DeploymentManagerTemplate"}:        func() Resource { return &DeploymentManagerTemplate{} },
+	{APIVersion: apiVersion, Kind: "SaasListingTemplate"}:              func() Resource { return &SaasListingTestTemplate{} },
 }
 
 // UnstructuredToResource converts Unstructured to a specific type implementing the

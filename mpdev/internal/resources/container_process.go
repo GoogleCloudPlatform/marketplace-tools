@@ -21,15 +21,17 @@ import (
 
 type containerProcess struct {
 	executor       exec.Interface
+	dockerArgs     []string
 	containerImage string
 	processArgs    []string
 	mounts         []mount
 }
 
 // newContainerProcess constructs a command to execute the container process
-func newContainerProcess(executor exec.Interface, containerImage string, processArgs []string, mounts []mount) *containerProcess {
+func newContainerProcess(executor exec.Interface, dockerArgs []string, containerImage string, processArgs []string, mounts []mount) *containerProcess {
 	return &containerProcess{
 		executor:       executor,
+		dockerArgs:     dockerArgs,
 		containerImage: containerImage,
 		processArgs:    processArgs,
 		mounts:         mounts,
@@ -54,6 +56,7 @@ func (cp *containerProcess) getCommand() exec.Cmd {
 	for _, mount := range cp.mounts {
 		args = append(args, "--mount", mount.getMount())
 	}
+	args = append(args, cp.dockerArgs...)
 	args = append(args, cp.containerImage)
 	args = append(args, cp.processArgs...)
 	return cp.executor.Command(args[0], args[1:]...)
