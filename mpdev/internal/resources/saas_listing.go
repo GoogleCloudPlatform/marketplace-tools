@@ -20,8 +20,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/util"
 	"github.com/pkg/errors"
@@ -73,27 +71,26 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 	}
 	defer os.RemoveAll(dir)
 
-	err = copyFile(registry.GetExecutor(), template.CredFilePath, filepath.Join(dir, "cred.json"))
+	credFilePathAbs, err := filepath.Abs(template.CredFilePath)
 	if err != nil {
 		return err
 	}
 
-	// copy all billing metering expectation files to `dir` so that they could be accessible from within the Docker container
-	for index, billingMeteringDriverConfig := range template.IntegrationTestConfig.BillingMeteringTestConfig {
-		srcFilePath := billingMeteringDriverConfig.Driver.BillingMeteringConfigPath
+	mountPoints := []mount{
+		&bindMount{src: credFilePathAbs, dst: credFilePathAbs},
+		&bindMount{src: dir, dst: "/input"},
+		&bindMount{src: "/var/run/docker.sock", dst: "/var/run/docker.sock"},
+	}
 
-		// create a new config filename using the index and the original filename's extension.
-		// This is required to prevent file name collision after we copy the files to `dir`.
-		// Example: index=3 and SrcFilePath=/path/to/file/config.json, then dstFileName=3.json
-		dstFileName := strings.Join([]string{strconv.Itoa(index), filepath.Ext(srcFilePath)}, "")
-		dstFilePath := filepath.Join(dir, dstFileName)
-
-		err = copyFile(registry.GetExecutor(), srcFilePath, dstFilePath)
+	// Add a mount for each billing metering configuration file so that it is accessible to sibling containers
+	// that get created by the test framework container
+	for _, billingMeteringDriverConfig := range template.IntegrationTestConfig.BillingMeteringTestConfig {
+		billingMeteringDriverConfigFilePath := billingMeteringDriverConfig.Driver.BillingMeteringConfigPath
+		billingMeteringDriverConfigFilePathAbs, err := filepath.Abs(billingMeteringDriverConfigFilePath)
 		if err != nil {
 			return err
 		}
-		
-		template.IntegrationTestConfig.BillingMeteringTestConfig[index].Driver.BillingMeteringConfigPath = dstFilePath
+		mountPoints = append(mountPoints, &bindMount{src: billingMeteringDriverConfigFilePathAbs, dst: billingMeteringDriverConfigFilePathAbs})
 	}
 
 	configFileName := "partner_integration_test_config.json"
@@ -110,7 +107,7 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 		return err
 	}
 
-	dockerArgs := []string{"-e", "GOOGLE_APPLICATION_CREDENTIALS=/input/cred.json"}
+	dockerArgs := []string{"-e", "GOOGLE_APPLICATION_CREDENTIALS=" + credFilePathAbs}
 	processArgs := []string{"/input/" + configFileName}
 
 	file, err := os.Open(filepath.Join(dir, configFileName))
@@ -129,9 +126,7 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 		dockerArgs,
 		testImg,
 		processArgs,
-		[]mount{
-			&bindMount{src: dir, dst: "/input"},
-		},
+		mountPoints,
 	)
 	cmd := cp.getCommand()
 	cmd.SetStderr(os.Stderr)
@@ -152,17 +147,6 @@ func dockerPull(executor exec.Interface, imageURL string) error {
 	cmd.SetStderr(os.Stdout)
 
 	return cmd.Run()
-}
-func copyFile(executor exec.Interface, source string, dest string) error {
-	cmd := executor.Command("cp", source, dest)
-
-	cmd.SetStderr(os.Stderr)
-	cmd.SetStderr(os.Stdout)
-	err := cmd.Run()
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (tc *PartnerIntegrationTestConfig) write(dir string, filename string) error {
