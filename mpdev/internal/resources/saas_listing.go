@@ -20,6 +20,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/util"
 	"github.com/pkg/errors"
@@ -38,14 +40,25 @@ func (template *SaasListingTestTemplate) Apply(registry Registry, dryRun bool) e
 	return nil
 }
 
+type BillingMeteringDriver struct {
+	DriverCommand             string `json:"driverCommand"`
+	PlanId                    string `json:"planId"`
+	BillingMeteringConfigPath string `json:"billingMeteringConfigPath"`
+}
+
+type BillingMeteringTestConfig struct {
+	Driver BillingMeteringDriver `json:"driver"`
+}
+
 // PartnerIntegrationTestConfig has the parameters that need to go into the test container.
 type PartnerIntegrationTestConfig struct {
-	Provider                         string   `json:"provider"`
-	ProductExternalName              string   `json:"productExternalName"`
-	BillingAccount                   string   `json:"billingAccount"`
-	Plans                            []string `json:"plans"`
-	ApproveEntitlementTimeoutSeconds int32    `json:"approveEntitlementTimeoutSeconds"`
-	ApprovePlanChangeTimeoutSeconds  int32    `json:"approvePlanChangeTimeoutSeconds"`
+	Provider                         string                      `json:"provider"`
+	ProductExternalName              string                      `json:"productExternalName"`
+	BillingAccount                   string                      `json:"billingAccount"`
+	Plans                            []string                    `json:"plans"`
+	ApproveEntitlementTimeoutSeconds int32                       `json:"approveEntitlementTimeoutSeconds"`
+	ApprovePlanChangeTimeoutSeconds  int32                       `json:"approvePlanChangeTimeoutSeconds"`
+	BillingMeteringTestConfig        []BillingMeteringTestConfig `json:"billingMeteringTestConfig"`
 }
 
 // Test takes a SaasListingTestTemplate and starts the partner integration test container.
@@ -65,6 +78,24 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 		return err
 	}
 
+	// copy all billing metering expectation files to `dir` so that they could be accessible from within the Docker container
+	for index, billingMeteringDriverConfig := range template.IntegrationTestConfig.BillingMeteringTestConfig {
+		srcFilePath := billingMeteringDriverConfig.Driver.BillingMeteringConfigPath
+
+		// create a new config filename using the index and the original filename's extension.
+		// This is required to prevent file name collision after we copy the files to `dir`.
+		// Example: index=3 and SrcFilePath=/path/to/file/config.json, then dstFileName=3.json
+		dstFileName := strings.Join([]string{strconv.Itoa(index), filepath.Ext(srcFilePath)}, "")
+		dstFilePath := filepath.Join(dir, dstFileName)
+
+		err = copyFile(registry.GetExecutor(), srcFilePath, dstFilePath)
+		if err != nil {
+			return err
+		}
+		
+		template.IntegrationTestConfig.BillingMeteringTestConfig[index].Driver.BillingMeteringConfigPath = dstFilePath
+	}
+
 	configFileName := "partner_integration_test_config.json"
 
 	err = template.IntegrationTestConfig.write(dir, configFileName)
@@ -81,6 +112,17 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 
 	dockerArgs := []string{"-e", "GOOGLE_APPLICATION_CREDENTIALS=/input/cred.json"}
 	processArgs := []string{"/input/" + configFileName}
+
+	file, err := os.Open(filepath.Join(dir, configFileName))
+	if err != nil {
+		return err
+	}
+
+	configContent, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("config file that will be passed to the Test Framework Container\n%s\n", configContent)
 
 	cp := newContainerProcess(
 		registry.GetExecutor(),
