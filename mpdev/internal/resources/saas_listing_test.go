@@ -99,7 +99,6 @@ integrationTestConfig:
 			assert.Equal(t, len(tc.expectedRunArgs), fcmd.RunCalls)
 
 			for i, arr := range fcmd.RunLog {
-				fmt.Printf("%v\n", arr);
 				for j, s := range arr {
 					res, _ := regexp.MatchString(tc.expectedRunArgs[i][j], s)
 					fmt.Println(res, s, tc.expectedRunArgs[i][j])
