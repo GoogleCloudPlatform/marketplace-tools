@@ -63,7 +63,7 @@ integrationTestConfig:
             max: 1000
             currency: "USD"`,
 		expectedRunArgs: [][]string{
-			{"cp", "", "/tmp/mp-saas-integ-test\\d+/cred.json"},
+			{"cp", "/docker-volume/cred.json", "/tmp/mp-saas-integ-test\\d+/cred.json"},
 			{"docker", "pull", "gcr.io/marketplace-saas-tools/mp-saas-test-framework"},
 			{"docker", "run", "--rm", "-i", "--mount", "type=bind,src=/tmp/mp-saas-integ-test\\d+,dst=/input", "--mount", "type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock", "-e", "GOOGLE_APPLICATION_CREDENTIALS=/input/cred.json", "gcr.io/marketplace-saas-tools/mp-saas-test-framework", "/input/partner_integration_test_config.json"}},
 	}}
@@ -99,6 +99,7 @@ integrationTestConfig:
 			assert.Equal(t, len(tc.expectedRunArgs), fcmd.RunCalls)
 
 			for i, arr := range fcmd.RunLog {
+				fmt.Printf("%v\n", arr);
 				for j, s := range arr {
 					res, _ := regexp.MatchString(tc.expectedRunArgs[i][j], s)
 					fmt.Println(res, s, tc.expectedRunArgs[i][j])
