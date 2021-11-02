@@ -38,10 +38,35 @@ func (template *SaasListingTestTemplate) Apply(registry Registry, dryRun bool) e
 	return nil
 }
 
+type ConnectionInfo struct {
+	Project   string `json:"project"`
+	TableName string `json:"tableName"`
+}
+
+type Expectation struct {
+	Project          string           `json:"project"`
+	SkuId            string           `json:"skuId"`
+	UsageExpectation UsageExpectation `json:"usageExpectation"`
+	CostExpectation  CostExpectation  `json:"costExpectation"`
+}
+
+type UsageExpectation struct {
+	Min       float64 `json:"min"`
+	Max       float64 `json:"max"`
+	BaseUnits string  `json:"baseUnits"`
+}
+
+type CostExpectation struct {
+	Min      float64 `json:"min"`
+	Max      float64 `json:"max"`
+	Currency string  `json:"currency"`
+}
+
 type BillingMeteringDriver struct {
-	DriverCommand             string `json:"driverCommand"`
-	PlanId                    string `json:"planId"`
-	BillingMeteringConfigPath string `json:"billingMeteringConfigPath"`
+	DriverCommand  string         `json:"driverCommand"`
+	PlanId         string         `json:"planId"`
+	Expectation    Expectation    `json:"expectation"`
+	ConnectionInfo ConnectionInfo `json:"connectionInfo"`
 }
 
 type BillingMeteringTestConfig struct {
@@ -82,17 +107,6 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 		&bindMount{src: "/var/run/docker.sock", dst: "/var/run/docker.sock"},
 	}
 
-	// Add a mount for each billing metering configuration file so that it is accessible to sibling containers
-	// that get created by the test framework container
-	for _, billingMeteringDriverConfig := range template.IntegrationTestConfig.BillingMeteringTestConfig {
-		billingMeteringDriverConfigFilePath := billingMeteringDriverConfig.Driver.BillingMeteringConfigPath
-		billingMeteringDriverConfigFilePathAbs, err := filepath.Abs(billingMeteringDriverConfigFilePath)
-		if err != nil {
-			return err
-		}
-		mountPoints = append(mountPoints, &bindMount{src: billingMeteringDriverConfigFilePathAbs, dst: billingMeteringDriverConfigFilePathAbs})
-	}
-
 	configFileName := "partner_integration_test_config.json"
 
 	err = template.IntegrationTestConfig.write(dir, configFileName)
@@ -100,7 +114,7 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 		return err
 	}
 
-	testImg := "gcr.io/marketplace-saas-tools/mp-saas-partner-integ-test"
+	testImg := "gcr.io/marketplace-saas-tools/mp-saas-test-framework"
 
 	err = dockerPull(registry.GetExecutor(), testImg)
 	if err != nil {
