@@ -38,36 +38,42 @@ func (template *SaasListingTestTemplate) Apply(registry Registry, dryRun bool) e
 	return nil
 }
 
+// ConnectionInfo has the needed information to connect to BigQuery billing export
 type ConnectionInfo struct {
 	Project   string `json:"project"`
 	TableName string `json:"tableName"`
 }
 
+// Expectation outlines the results from running the user provided driver
 type Expectation struct {
-	SkuId            string           `json:"skuId"`
+	SkuID            string           `json:"skuId"`
 	UsageExpectation UsageExpectation `json:"usageExpectation"`
 	CostExpectation  CostExpectation  `json:"costExpectation"`
 }
 
+// UsageExpectation has usage metrics that are compared by the metering validator
 type UsageExpectation struct {
 	Min       float64 `json:"min"`
 	Max       float64 `json:"max"`
 	BaseUnits string  `json:"baseUnits"`
 }
 
+// CostExpectation has metrics that are compared by the metering validator
 type CostExpectation struct {
 	Min      float64 `json:"min"`
 	Max      float64 `json:"max"`
 	Currency string  `json:"currency"`
 }
 
+// BillingMeteringDriver is the billing metering driver is executed by the test framework
 type BillingMeteringDriver struct {
 	DriverCommand  string         `json:"driverCommand"`
-	PlanId         string         `json:"planId"`
+	PlanID         string         `json:"planId"`
 	Expectation    Expectation    `json:"expectation"`
 	ConnectionInfo ConnectionInfo `json:"connectionInfo"`
 }
 
+// BillingMeteringTestConfig has the parameters that are needed to run the billing metering test
 type BillingMeteringTestConfig struct {
 	Driver BillingMeteringDriver `json:"driver"`
 }
