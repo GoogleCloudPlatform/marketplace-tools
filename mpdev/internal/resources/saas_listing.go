@@ -44,7 +44,6 @@ type ConnectionInfo struct {
 }
 
 type Expectation struct {
-	Project          string           `json:"project"`
 	SkuId            string           `json:"skuId"`
 	UsageExpectation UsageExpectation `json:"usageExpectation"`
 	CostExpectation  CostExpectation  `json:"costExpectation"`
@@ -96,15 +95,9 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 	}
 	defer os.RemoveAll(dir)
 
-	credFilePathAbs, err := filepath.Abs(template.CredFilePath)
+	err = copyFile(registry.GetExecutor(), template.CredFilePath, filepath.Join(dir, "cred.json"))
 	if err != nil {
 		return err
-	}
-
-	mountPoints := []mount{
-		&bindMount{src: credFilePathAbs, dst: credFilePathAbs},
-		&bindMount{src: dir, dst: "/input"},
-		&bindMount{src: "/var/run/docker.sock", dst: "/var/run/docker.sock"},
 	}
 
 	configFileName := "partner_integration_test_config.json"
@@ -121,7 +114,7 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 		return err
 	}
 
-	dockerArgs := []string{"-e", "GOOGLE_APPLICATION_CREDENTIALS=" + credFilePathAbs}
+	dockerArgs := []string{"-e", "GOOGLE_APPLICATION_CREDENTIALS=/input/cred.json"}
 	processArgs := []string{"/input/" + configFileName}
 
 	file, err := os.Open(filepath.Join(dir, configFileName))
@@ -140,7 +133,10 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 		dockerArgs,
 		testImg,
 		processArgs,
-		mountPoints,
+		[]mount{
+			&bindMount{src: dir, dst: "/input"},
+			&bindMount{src: "/var/run/docker.sock", dst: "/var/run/docker.sock"},
+		},
 	)
 	cmd := cp.getCommand()
 	cmd.SetStderr(os.Stderr)
@@ -161,6 +157,18 @@ func dockerPull(executor exec.Interface, imageURL string) error {
 	cmd.SetStderr(os.Stdout)
 
 	return cmd.Run()
+}
+
+func copyFile(executor exec.Interface, source string, dest string) error {
+	cmd := executor.Command("cp", source, dest)
+
+	cmd.SetStderr(os.Stderr)
+	cmd.SetStderr(os.Stdout)
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (tc *PartnerIntegrationTestConfig) write(dir string, filename string) error {
