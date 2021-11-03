@@ -1,0 +1,27 @@
+apiVersion: dev.marketplace.cloud.google.com/v1alpha1
+kind: SaasListingTemplate
+credFilePath: cred.json
+integrationTestConfig:
+  provider: "providers/test_provider"
+  productExternalName: "test_product"
+  billingAccount: "billingAccounts/017778-0B6CC1-FB92E9"
+  plans: ["plan-00", "plan-01", "plan-02", "plan-03"]
+  approveEntitlementTimeoutSeconds: 600
+  approvePlanChangeTimeoutSeconds: 600
+  billingMeteringTestConfig:
+    - driver:
+        driverCommand: "docker run my_saas_product_driver:latest"
+        planId: "plan-00"
+        connectionInfo:
+          project: "projects/my_project"
+          tableName: "my_big_query_billing_export_table_name"
+        expectation:
+          skuId: "0000-0000-0000"
+          usageExpectation:
+            min: 150
+            max: 200
+            baseUnits: "requests"
+          costExpectation:
+            min: 800
+            max: 1000
+            currency: "USD"

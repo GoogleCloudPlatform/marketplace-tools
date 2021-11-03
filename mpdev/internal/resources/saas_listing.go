@@ -38,14 +38,55 @@ func (template *SaasListingTestTemplate) Apply(registry Registry, dryRun bool) e
 	return nil
 }
 
+// ConnectionInfo has the needed information to connect to BigQuery billing export
+type ConnectionInfo struct {
+	Project   string `json:"project"`
+	TableName string `json:"tableName"`
+}
+
+// Expectation outlines the results from running the user provided driver
+type Expectation struct {
+	SkuID            string           `json:"skuId"`
+	UsageExpectation UsageExpectation `json:"usageExpectation"`
+	CostExpectation  CostExpectation  `json:"costExpectation"`
+}
+
+// UsageExpectation has usage metrics that are compared by the metering validator
+type UsageExpectation struct {
+	Min       float64 `json:"min"`
+	Max       float64 `json:"max"`
+	BaseUnits string  `json:"baseUnits"`
+}
+
+// CostExpectation has metrics that are compared by the metering validator
+type CostExpectation struct {
+	Min      float64 `json:"min"`
+	Max      float64 `json:"max"`
+	Currency string  `json:"currency"`
+}
+
+// BillingMeteringDriver is the billing metering driver is executed by the test framework
+type BillingMeteringDriver struct {
+	DriverCommand  string         `json:"driverCommand"`
+	PlanID         string         `json:"planId"`
+	Expectation    Expectation    `json:"expectation"`
+	ConnectionInfo ConnectionInfo `json:"connectionInfo"`
+}
+
+// BillingMeteringTestConfig has the parameters that are needed to run the billing metering test
+type BillingMeteringTestConfig struct {
+	Driver BillingMeteringDriver `json:"driver"`
+}
+
 // PartnerIntegrationTestConfig has the parameters that need to go into the test container.
 type PartnerIntegrationTestConfig struct {
-	Provider                         string   `json:"provider"`
-	ProductExternalName              string   `json:"productExternalName"`
-	BillingAccount                   string   `json:"billingAccount"`
-	Plans                            []string `json:"plans"`
-	ApproveEntitlementTimeoutSeconds int32    `json:"approveEntitlementTimeoutSeconds"`
-	ApprovePlanChangeTimeoutSeconds  int32    `json:"approvePlanChangeTimeoutSeconds"`
+	Provider                         string                      `json:"provider"`
+	ProductExternalName              string                      `json:"productExternalName"`
+	BillingAccount                   string                      `json:"billingAccount"`
+	Plans                            []string                    `json:"plans"`
+	ApproveEntitlementTimeoutSeconds int32                       `json:"approveEntitlementTimeoutSeconds"`
+	ApprovePlanChangeTimeoutSeconds  int32                       `json:"approvePlanChangeTimeoutSeconds"`
+	BillingMeteringTestConfig        []BillingMeteringTestConfig `json:"billingMeteringTestConfig"`
 }
 
 // Test takes a SaasListingTestTemplate and starts the partner integration test container.
@@ -72,7 +113,7 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 		return err
 	}
 
-	testImg := "gcr.io/marketplace-saas-tools/mp-saas-partner-integ-test"
+	testImg := "gcr.io/marketplace-saas-tools/mp-saas-test-framework"
 
 	err = dockerPull(registry.GetExecutor(), testImg)
 	if err != nil {
@@ -82,6 +123,17 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 	dockerArgs := []string{"-e", "GOOGLE_APPLICATION_CREDENTIALS=/input/cred.json"}
 	processArgs := []string{"/input/" + configFileName}
 
+	file, err := os.Open(filepath.Join(dir, configFileName))
+	if err != nil {
+		return err
+	}
+
+	configContent, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("config file that will be passed to the Test Framework Container\n%s\n", configContent)
+
 	cp := newContainerProcess(
 		registry.GetExecutor(),
 		dockerArgs,
@@ -89,6 +141,7 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 		processArgs,
 		[]mount{
 			&bindMount{src: dir, dst: "/input"},
+			&bindMount{src: "/var/run/docker.sock", dst: "/var/run/docker.sock"},
 		},
 	)
 	cmd := cp.getCommand()
@@ -111,6 +164,7 @@ func dockerPull(executor exec.Interface, imageURL string) error {
 
 	return cmd.Run()
 }
+
 func copyFile(executor exec.Interface, source string, dest string) error {
 	cmd := executor.Command("cp", source, dest)
 
