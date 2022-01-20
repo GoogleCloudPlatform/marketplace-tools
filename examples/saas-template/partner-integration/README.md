@@ -352,7 +352,7 @@ googleapiclient.errors.HttpError: <HttpError 403 when requesting https://service
 
 ### Precondition check failed
 
-This error occurs when the billing account isn’t configured with a 100% discount. To resolve this issue, refer to [Configure a 100% Discount for your billing account](#Configure-a-100%-Discount-for-your-billing-account).
+This error occurs when the billing account isn’t configured with a 100% discount. To resolve this issue, refer to [Configure a 100% Discount for your billing account](#Configure-a-100-Discount-for-your-billing-account).
 
 ```
 Exception in thread "main" com.google.cloud.marketplace.saas.partnerintegration.testrunner.ProductLifecycleTestException: Integration test failed to complete.
