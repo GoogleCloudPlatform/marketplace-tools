@@ -5,7 +5,7 @@ This page describes how to set up a billing account, project, a service account,
 
 
 ### Configure your test billing account
-To run the SaaS Test Framework, you must create a test billing account. Usage with this billing account is 100% discounted to prevent unexpected charges for testing.
+To run the SaaS Test Tool, you must create a test billing account. Usage with this billing account is 100% discounted to prevent unexpected charges for testing.
 
 
 #### Create your billing account
@@ -45,7 +45,7 @@ Please refer to the [backend integration](https://cloud.google.com/marketplace/d
 
 
 ### Configuring your Google Cloud project
-This page details how to create a new Google Cloud project solely for running the SaaS Test Framework.
+This page details how to create a new Google Cloud project solely for running the SaaS Test Tool.
 
 
 #### Create a new Google Cloud project
@@ -142,8 +142,8 @@ To use `mpdev` to run the SaaS Test Tool, you must install both `Docker` and `mp
 After you install all the required dependencies, you must create a working directory that you use to store service account credentials and configuration files.
 
 ```bash
-mkdir -p ~/saas-test-framework-sandbox
-cd ~/saas-test-framework-sandbox
+mkdir -p ~/saas-test-tool-sandbox
+cd ~/saas-test-tool-sandbox
 
 # Pull a sample SaaS Test Tool configuration and place it in your sandbox directory.
 # Include the dot (.) in the end of the command.
@@ -195,7 +195,7 @@ integrationTestConfig:
   approvePlanChangeTimeoutSeconds: 600
   billingMeteringTestConfig:
     - driver:
-        driverCommand: "docker run -v /var/run/docker.sock:/var/run/docker.sock -v ~/saas-test-framework-sandbox/partner-integration:/keys -e GOOGLE_APPLICATION_CREDENTIALS=/keys/cred.json -e GOOGLE_CLOUD_PROJECT=testing-producer-saas-322600 gcr.io/marketplace-saas-tools/billing-metering-driver --service=procurement-ingestion-enabled-tester-with-subscription-usage.endpoints.cloud-marketplace-testing.cloud.goog --metric=procurement-ingestion-enabled-tester-with-subscription-usage.endpoints.cloud-marketplace-testing.cloud.goog/plan_a_metric_1 --consumer_id=project_number:{@USAGE_REPORTING_ID}"
+        driverCommand: "docker run -v /var/run/docker.sock:/var/run/docker.sock -v ~/saas-test-tool-sandbox/partner-integration:/keys -e GOOGLE_APPLICATION_CREDENTIALS=/keys/cred.json -e GOOGLE_CLOUD_PROJECT=testing-producer-saas-322600 gcr.io/marketplace-saas-tools/billing-metering-driver --service=procurement-ingestion-enabled-tester-with-subscription-usage.endpoints.cloud-marketplace-testing.cloud.goog --metric=procurement-ingestion-enabled-tester-with-subscription-usage.endpoints.cloud-marketplace-testing.cloud.goog/plan_a_metric_1 --consumer_id=project_number:{@USAGE_REPORTING_ID}"
         planId: "plan-a"
         connectionInfo:
           project: "projects/testing-producer-saas-322600"
