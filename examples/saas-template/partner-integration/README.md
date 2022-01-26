@@ -131,8 +131,6 @@ To use `mpdev` to run the SaaS Test Tool, you must install both `Docker` and `mp
 
 1. To install Docker for Linux, follow the [Docker installation guide](https://docs.docker.com/engine/install/).
 1. To install mpdev, follow the installation instructions for [marketplace-tools](https://github.com/GoogleCloudPlatform/marketplace-tools#installation).
-1. To verify that docker can be found through your PATH environment variable, run the following command: `which docker`
-1. To verify that mpdev can be found through your PATH environment variable, run the following command: `which mpdev`
 
 
 ### Create your local sandbox
