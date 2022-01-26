@@ -64,8 +64,8 @@ integrationTestConfig:
             currency: "USD"`,
 		expectedRunArgs: [][]string{
 			{"cp", "/docker-volume/cred.json", "/tmp/mp-saas-integ-test\\d+/cred.json"},
-			{"docker", "pull", "gcr.io/marketplace-saas-tools/mp-saas-test-framework"},
-			{"docker", "run", "--rm", "-i", "--mount", "type=bind,src=/tmp/mp-saas-integ-test\\d+,dst=/input", "--mount", "type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock", "-e", "GOOGLE_APPLICATION_CREDENTIALS=/input/cred.json", "gcr.io/marketplace-saas-tools/mp-saas-test-framework", "/input/partner_integration_test_config.json"}},
+			{"docker", "pull", "gcr.io/saas-e2e-product-tester/saas-test-tool"},
+			{"docker", "run", "--rm", "-i", "--mount", "type=bind,src=/tmp/mp-saas-integ-test\\d+,dst=/input", "--mount", "type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock", "-e", "GOOGLE_APPLICATION_CREDENTIALS=/input/cred.json", "gcr.io/saas-e2e-product-tester/saas-test-tool", "/input/partner_integration_test_config.json"}},
 	}}
 
 	for _, tc := range testCases {
