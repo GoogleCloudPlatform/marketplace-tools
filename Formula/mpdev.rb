@@ -19,8 +19,6 @@ class Mpdev < Formula
   url "https://github.com/GoogleCloudPlatform/marketplace-tools/releases/download/v0.1.1/mpdev_darwin_amd64_v0.1.1.tar.gz"
   sha256 "601a04dd5d164ad2c1b8e81d27b94f51cbc49cc1294b2c684807188503416ffe"
 
-  bottle :unneeded
-
   def install
     bin.install "mpdev"
   end
