@@ -44,10 +44,6 @@ spec:
   # for explanation of fields
   deploymentSpec:
     singleVm:
-      applicationStatus:
-        type: WAITER
-        waiter:
-          waiterTimeoutSecs: 300
       bootDisk:
         diskSize:
           defaultSizeGb: 10
