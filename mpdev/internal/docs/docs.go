@@ -75,3 +75,40 @@ for list of resources that can be tested.
 // TestExamples contains examples for test command.
 // TODO(willtang): add examples to docstring
 const TestExamples = ``
+
+// TfShort contains short help text for tf command
+const TfShort = `Commands for manipulating Terraform modules`
+
+// TfLong contains long help text for tf command
+const TfLong = `Commands for manipulating Terraform modules
+
+Currently, only used internally by Google Marketplace and not useful for Marketplace partners
+`
+
+// OverwriteShort contains short help text for tf overwrite command
+const OverwriteShort = `Overwrites variable values in a Terraform module`
+
+// OverwriteLong contains long help text for tf overwrite command
+const OverwriteLong = `Overwrites variable values in a Terraform module
+
+Used internally by Google Marketplace to replace references to Partner owned images
+with Marketplace owned images
+`
+
+// OverwriteExamples contains examples for tf overwrite command
+const OverwriteExamples = `
+cat > /tmp/overwrites.json << EOF
+{
+  "variables": [
+    "dbImage",
+    "webImage"
+  ],
+  "replacements: {
+    "projects/partner-project/global/images/db-image": "projects/mpi-partner/global/images/db-image"
+    "projects/partner-project/global/images/web-image": "projects/mpi-partner/global/images/web-image"
+  }
+}
+EOF
+
+cat /tmp/overwrites.json | mpdev tf overwrite
+`
