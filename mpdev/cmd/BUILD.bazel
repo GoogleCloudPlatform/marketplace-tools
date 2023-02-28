@@ -7,6 +7,7 @@ go_library(
         "commands.go",
         "rootcmd.go",
         "testcmd.go",
+        "tfcmd.go",
     ],
     importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/cmd",
     visibility = ["//visibility:public"],
@@ -15,6 +16,7 @@ go_library(
         "gitCommit": "{STABLE_GIT_COMMIT}",
     },
     deps = [
+        "//mpdev/cmd/tf:go_default_library",
         "//mpdev/internal/docs:go_default_library",
         "//mpdev/internal/resources:go_default_library",
         "@com_github_googlecontainertools_kpt//commands:go_default_library",

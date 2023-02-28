@@ -47,15 +47,15 @@ jsonschema:
 	./scripts/generate-jsonschema.sh
 
 lint:
-	( [ -f $(GOBIN)/golangci-lint ] || go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.27.0)
+	( [ -f $(GOBIN)/golangci-lint ] || go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.2)
 	$(GOBIN)/golangci-lint run ./...
 
 license:
-	( [ -f $(GOBIN)/addlicense ] || go get github.com/google/addlicense)
+	( [ -f $(GOBIN)/addlicense ] || go install github.com/google/addlicense)@v1.1.1
 	$(GOBIN)/addlicense -y 2020 -l apache *
 
 license-check:
-	( [ -f $(GOBIN)/go-licenses ] || go get github.com/google/go-licenses)
+	( [ -f $(GOBIN)/go-licenses ] || go install github.com/google/go-licenses@v1.2.0)
 	$(GOBIN)/go-licenses check $(PKG)
 
 test:
