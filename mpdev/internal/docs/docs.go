@@ -103,8 +103,8 @@ cat > /tmp/overwrites.json << EOF
     "dbImage",
     "webImage"
   ],
-  "replacements: {
-    "projects/partner-project/global/images/db-image": "projects/mpi-partner/global/images/db-image"
+  "replacements": {
+    "projects/partner-project/global/images/db-image": "projects/mpi-partner/global/images/db-image",
     "projects/partner-project/global/images/web-image": "projects/mpi-partner/global/images/web-image"
   }
 }
