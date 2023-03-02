@@ -18,6 +18,8 @@ import (
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/docs"
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/tf"
 	"github.com/spf13/cobra"
+	"io"
+	"os"
 )
 
 // GetOverwriteCommand returns `overwrite` command used to create mpdev resources.
@@ -29,11 +31,22 @@ func GetOverwriteCommand() *cobra.Command {
 		Example: docs.OverwriteExamples,
 		RunE:    overwriteRunE,
 	}
+	cmd.SilenceUsage = true
 
 	return cmd
 }
 
 func overwriteRunE(_ *cobra.Command, _ []string) (err error) {
-	err = tf.Overwrite()
+	dir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	bytes, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		return err
+	}
+
+	err = tf.Overwrite(bytes, dir)
 	return err
 }
