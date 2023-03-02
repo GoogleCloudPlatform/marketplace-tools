@@ -93,6 +93,8 @@ func getVarInfo(varname string, dir string) (*tfconfig.Variable, error) {
 }
 
 func getAttributeValueTokens(value string) hclwrite.Tokens {
+	// Use logic similar to https://github.com/hashicorp/hcl/blob/4679383728fe331fc8a6b46036a27b8f818d9bc0/hclwrite/generate.go#L217-L234
+	// for writing string values
 	return hclwrite.Tokens{
 		{
 			Type:         hclsyntax.TokenOQuote,
@@ -104,7 +106,7 @@ func getAttributeValueTokens(value string) hclwrite.Tokens {
 			Bytes: []byte(value),
 		},
 		{
-			Type:  hclsyntax.TokenOQuote,
+			Type:  hclsyntax.TokenCQuote,
 			Bytes: []byte(`"`),
 		},
 	}
