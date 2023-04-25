@@ -22,3 +22,5 @@ zip terraform.zip * -r
 gsutil cp terraform.zip gs://<YOUR-BUCKET>/<FOLDER>/terraform.zip
 ```
 
+Additionally, Partners should include a README.md containing instructions on how
+to deploy their product.
