@@ -206,6 +206,7 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 		return err
 	}
 
+	fmt.Printf("Successfully replaced default values in %s\n", metadataFile)
 	return nil
 }
 
