@@ -198,8 +198,7 @@ func TestOverwriteMetadata(t *testing.T) {
 	}, {
 		name:             "Fail when metadata is invalid yaml",
 		originalMetadata: "- not validyaml\ninvalid-",
-		errorContains: "failure parsing metadata.yaml",
-
+		errorContains:    "failure parsing metadata.yaml",
 	}, {
 		name:             "Fail when variable not present in Metadata",
 		originalMetadata: metadata,
