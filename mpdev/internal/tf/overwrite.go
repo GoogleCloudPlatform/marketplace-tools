@@ -169,16 +169,15 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 		}
 	}
 
-	jsonBytes, err := yaml.YAMLToJSON(data)
+	json, err := yaml.YAMLToJSON(data)
 	if err != nil {
 		return fmt.Errorf("failure parsing %s error: %w", metadataFile, err)
 
 	}
-	json := string(jsonBytes)
 
 	for _, variable := range config.Variables {
 		query := fmt.Sprintf(`spec.interfaces.variables.#(name=="%s").defaultValue`, variable)
-		defaultVal := gjson.Get(json, query).String()
+		defaultVal := gjson.GetBytes(json, query).String()
 		if defaultVal == "" {
 			return fmt.Errorf("Missing valid default value for variable: %s in %s",
 				variable, metadataFile)
@@ -189,7 +188,7 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 				" in replacements", defaultVal, variable, metadataFile)
 		}
 
-		json, err = sjson.Set(json, query, replaceVal)
+		json, err = sjson.SetBytes(json, query, replaceVal)
 		if err != nil {
 			return fmt.Errorf("Error setting default value of variable: %s. error: %w",
 				variable, err)
