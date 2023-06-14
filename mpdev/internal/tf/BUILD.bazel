@@ -10,6 +10,9 @@ go_library(
         "@com_github_hashicorp_hcl_v2//hclsyntax:go_default_library",
         "@com_github_hashicorp_hcl_v2//hclwrite:go_default_library",
         "@com_github_hashicorp_terraform_config_inspect//tfconfig:go_default_library",
+        "@com_github_tidwall_gjson//:go_default_library",
+        "@com_github_tidwall_sjson//:go_default_library",
+        "@io_k8s_sigs_yaml//:go_default_library",
     ],
 )
 
@@ -18,5 +21,8 @@ go_test(
     srcs = ["overwrite_test.go"],
     data = glob(["testdata/**"]),
     embed = [":go_default_library"],
-    deps = ["@com_github_stretchr_testify//assert:go_default_library"],
+    deps = [
+        "@com_github_stretchr_testify//assert:go_default_library",
+        "@in_gopkg_yaml_v3//:go_default_library",
+    ],
 )

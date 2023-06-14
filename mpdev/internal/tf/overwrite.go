@@ -21,21 +21,23 @@ import (
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-config-inspect/tfconfig"
+	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
+	"sigs.k8s.io/yaml"
+
 	"os"
+	"path"
 )
+
+const metadataFile = "metadata.yaml"
 
 type overwriteConfig struct {
 	Variables    []string
 	Replacements map[string]string
 }
 
-// Overwrite replaces variable values in Terraform modules
-func Overwrite(configBytes []byte, dir string) error {
-	config, err := getOverwriteConfig(configBytes)
-
-	if err != nil {
-		return fmt.Errorf("failure parsing overwrite config: %s error: %w", string(configBytes), err)
-	}
+// OverwriteTf replaces default variable values in Terraform modules
+func OverwriteTf(config *overwriteConfig, dir string) error {
 	fmt.Printf("Replacing the default values of the variables: %s\n", config.Variables)
 	fmt.Printf("Mapping of values to replace: %s\n", config.Replacements)
 
@@ -65,14 +67,17 @@ func Overwrite(configBytes []byte, dir string) error {
 			return err
 		}
 	}
+
+	fmt.Println("Successfully replaced default values in tf files")
 	return nil
 }
 
-func getOverwriteConfig(b []byte) (*overwriteConfig, error) {
+// GetOverwriteConfig parses overwriteConfig from a byte array
+func GetOverwriteConfig(b []byte) (*overwriteConfig, error) {
 	var config overwriteConfig
 	err := json.Unmarshal(b, &config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failure parsing overwrite config: %s error: %w", string(b), err)
 	}
 
 	return &config, nil
@@ -141,4 +146,65 @@ func overwriteFile(filename string, varname string, value string) error {
 
 	_, err = f.Write(file.BuildTokens(nil).Bytes())
 	return err
+}
+
+// OverwriteMetadata replaces default values for variables in Blueprints Metadata
+//
+// This overwrite rearranges the order of keys in the YAML, since we are not using the
+// definition in
+// https://github.com/GoogleCloudPlatform/cloud-foundation-toolkit/blob/master/cli/bpmetadata/types.go
+//
+// We are not using this definition because
+// 1. There are version compatiblilty issues with Kpt and cloud-foundation-toolkit to resolve
+// 2. We will avoid dropping fields if mpdev is using an out-of-date version of cloud-foundation-toolkit
+func OverwriteMetadata(config *overwriteConfig, dir string) error {
+	fmt.Printf("Replacing the default values of the variables: %s in %s\n",
+		config.Variables, metadataFile)
+
+	data, err := os.ReadFile(path.Join(dir, metadataFile))
+	if err != nil {
+		// CLI only modules will not have a metadata file. Ignore file not found errors
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+
+	json, err := yaml.YAMLToJSON(data)
+	if err != nil {
+		return fmt.Errorf("failure parsing %s error: %w", metadataFile, err)
+	}
+
+	for _, variable := range config.Variables {
+		query := fmt.Sprintf(`spec.interfaces.variables.#(name=="%s").defaultValue`, variable)
+		defaultVal := gjson.GetBytes(json, query).String()
+		if defaultVal == "" {
+			return fmt.Errorf("Missing valid default value for variable: %s in %s",
+				variable, metadataFile)
+		}
+		replaceVal, ok := config.Replacements[defaultVal]
+		if !ok {
+			return fmt.Errorf("default value: %s of variable: %s in %s not found"+
+				" in replacements", defaultVal, variable, metadataFile)
+		}
+
+		json, err = sjson.SetBytes(json, query, replaceVal)
+		if err != nil {
+			return fmt.Errorf("Error setting default value of variable: %s. error: %w",
+				variable, err)
+		}
+	}
+
+	modifiedYaml, err := yaml.JSONToYAML([]byte(json))
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(path.Join(dir, metadataFile), modifiedYaml, 0644)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Successfully replaced default values in %s\n", metadataFile)
+	return nil
 }

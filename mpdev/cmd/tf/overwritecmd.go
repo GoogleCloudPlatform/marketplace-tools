@@ -47,6 +47,15 @@ func overwriteRunE(_ *cobra.Command, _ []string) (err error) {
 		return err
 	}
 
-	err = tf.Overwrite(bytes, dir)
-	return err
+	config, err := tf.GetOverwriteConfig(bytes)
+	if err != nil {
+		return err
+	}
+
+	err = tf.OverwriteTf(config, dir)
+	if err != nil {
+		return err
+	}
+
+	return tf.OverwriteMetadata(config, dir)
 }
