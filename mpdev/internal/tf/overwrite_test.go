@@ -44,8 +44,8 @@ func TestOverwriteTf(t *testing.T) {
 			Variables: []string{"value_to_replace", "other_value_to_replace", "another_variable"},
 			Replacements: map[string]string{
 				"original-value": "new-value",
-				"old-value": "newer-value",
-				"oldest-value": "newest-value",
+				"old-value":      "newer-value",
+				"oldest-value":   "newest-value",
 			},
 		},
 	}, {
@@ -139,15 +139,15 @@ func TestOverwriteTf(t *testing.T) {
 
 func TestGetOverwriteConfig(t *testing.T) {
 	testcases := []struct {
-		name            string
-		configBytes     []byte
+		name           string
+		configBytes    []byte
 		expectedConfig overwriteConfig
-		errorContains   string
+		errorContains  string
 	}{{
-		name: "Invalid overwrite config shows parsing error",
-		configBytes: []byte("not valid json"),
-		errorContains:   "failure parsing overwrite config",
-	},{
+		name:          "Invalid overwrite config shows parsing error",
+		configBytes:   []byte("not valid json"),
+		errorContains: "failure parsing overwrite config",
+	}, {
 		name: "Parses overwrite config",
 		configBytes: []byte(`
 {
@@ -185,48 +185,48 @@ func TestOverwriteMetadata(t *testing.T) {
 		overwriteConfig  overwriteConfig
 		errorContains    string
 	}{{
-		name: "Overwrite multiple variables",
+		name:             "Overwrite multiple variables",
 		originalMetadata: metadata,
 		expectedMetadata: metadataReplaced,
 		overwriteConfig: overwriteConfig{
 			Variables: []string{"source_image", "another_image"},
 			Replacements: map[string]string{
-				"old-image": "new-image",
+				"old-image":   "new-image",
 				"older-image": "newer-image",
 			},
 		},
 	},
 		{
-		name: "Fail when variable not present in Metadata",
-		originalMetadata: metadata,
-		overwriteConfig: overwriteConfig{
-			Variables: []string{"missing_variable"},
-			Replacements: map[string]string{
-				"original-value": "new-value",
+			name:             "Fail when variable not present in Metadata",
+			originalMetadata: metadata,
+			overwriteConfig: overwriteConfig{
+				Variables: []string{"missing_variable"},
+				Replacements: map[string]string{
+					"original-value": "new-value",
+				},
 			},
-		},
-		errorContains: "Missing valid default value for variable: missing_variable",
-	}, {
-		name: "Fail when variable has no default value set",
-		originalMetadata: metadataNoDefault,
-		overwriteConfig: overwriteConfig{
-			Variables: []string{"source_image"},
-			Replacements: map[string]string{
-				"original-value": "new-value",
+			errorContains: "Missing valid default value for variable: missing_variable",
+		}, {
+			name:             "Fail when variable has no default value set",
+			originalMetadata: metadataNoDefault,
+			overwriteConfig: overwriteConfig{
+				Variables: []string{"source_image"},
+				Replacements: map[string]string{
+					"original-value": "new-value",
+				},
 			},
-		},
-		errorContains: "Missing valid default value for variable: source_image",
-	}, {
-		name: "Fail when variable default value is not in replacements",
-		originalMetadata: metadata,
-		overwriteConfig: overwriteConfig{
-			Variables: []string{"source_image"},
-			Replacements: map[string]string{
-				"non-existent": "new-value",
+			errorContains: "Missing valid default value for variable: source_image",
+		}, {
+			name:             "Fail when variable default value is not in replacements",
+			originalMetadata: metadata,
+			overwriteConfig: overwriteConfig{
+				Variables: []string{"source_image"},
+				Replacements: map[string]string{
+					"non-existent": "new-value",
+				},
 			},
-		},
-		errorContains: "default value: old-image of variable: source_image in metadata.yaml not found in replacements",
-	}}
+			errorContains: "default value: old-image of variable: source_image in metadata.yaml not found in replacements",
+		}}
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {

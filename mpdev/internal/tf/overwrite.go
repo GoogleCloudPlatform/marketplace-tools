@@ -25,8 +25,8 @@ import (
 	"github.com/tidwall/sjson"
 	"sigs.k8s.io/yaml"
 
-	"path"
 	"os"
+	"path"
 )
 
 const metadataFile = "metadata.yaml"
@@ -177,7 +177,7 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 	json := string(jsonBytes)
 
 	for _, variable := range config.Variables {
-		query :=  fmt.Sprintf(`spec.interfaces.variables.#(name=="%s").defaultValue`, variable)
+		query := fmt.Sprintf(`spec.interfaces.variables.#(name=="%s").defaultValue`, variable)
 		defaultVal := gjson.Get(json, query).String()
 		if defaultVal == "" {
 			return fmt.Errorf("Missing valid default value for variable: %s in %s",
@@ -185,9 +185,9 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 		}
 		replaceVal, ok := config.Replacements[defaultVal]
 		if !ok {
-                        return fmt.Errorf("default value: %s of variable: %s in %s not found" +
+			return fmt.Errorf("default value: %s of variable: %s in %s not found"+
 				" in replacements", defaultVal, variable, metadataFile)
-                }
+		}
 
 		json, err = sjson.Set(json, query, replaceVal)
 		if err != nil {
@@ -209,4 +209,3 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 	fmt.Printf("Successfully replaced default values in %s\n", metadataFile)
 	return nil
 }
-
