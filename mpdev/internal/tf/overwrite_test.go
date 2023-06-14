@@ -195,38 +195,42 @@ func TestOverwriteMetadata(t *testing.T) {
 				"older-image": "newer-image",
 			},
 		},
-	},
-		{
-			name:             "Fail when variable not present in Metadata",
-			originalMetadata: metadata,
-			overwriteConfig: overwriteConfig{
-				Variables: []string{"missing_variable"},
-				Replacements: map[string]string{
-					"original-value": "new-value",
-				},
+	}, {
+		name:             "Fail when metadata is invalid yaml",
+		originalMetadata: "- not validyaml\ninvalid-",
+		errorContains: "failure parsing metadata.yaml",
+
+	}, {
+		name:             "Fail when variable not present in Metadata",
+		originalMetadata: metadata,
+		overwriteConfig: overwriteConfig{
+			Variables: []string{"missing_variable"},
+			Replacements: map[string]string{
+				"original-value": "new-value",
 			},
-			errorContains: "Missing valid default value for variable: missing_variable",
-		}, {
-			name:             "Fail when variable has no default value set",
-			originalMetadata: metadataNoDefault,
-			overwriteConfig: overwriteConfig{
-				Variables: []string{"source_image"},
-				Replacements: map[string]string{
-					"original-value": "new-value",
-				},
+		},
+		errorContains: "Missing valid default value for variable: missing_variable",
+	}, {
+		name:             "Fail when variable has no default value set",
+		originalMetadata: metadataNoDefault,
+		overwriteConfig: overwriteConfig{
+			Variables: []string{"source_image"},
+			Replacements: map[string]string{
+				"original-value": "new-value",
 			},
-			errorContains: "Missing valid default value for variable: source_image",
-		}, {
-			name:             "Fail when variable default value is not in replacements",
-			originalMetadata: metadata,
-			overwriteConfig: overwriteConfig{
-				Variables: []string{"source_image"},
-				Replacements: map[string]string{
-					"non-existent": "new-value",
-				},
+		},
+		errorContains: "Missing valid default value for variable: source_image",
+	}, {
+		name:             "Fail when variable default value is not in replacements",
+		originalMetadata: metadata,
+		overwriteConfig: overwriteConfig{
+			Variables: []string{"source_image"},
+			Replacements: map[string]string{
+				"non-existent": "new-value",
 			},
-			errorContains: "default value: old-image of variable: source_image in metadata.yaml not found in replacements",
-		}}
+		},
+		errorContains: "default value: old-image of variable: source_image in metadata.yaml not found in replacements",
+	}}
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -261,6 +265,28 @@ func TestOverwriteMetadata(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestOverwriteMetadataNoFile(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "tftest")
+	assert.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
+	err = OverwriteMetadata(&overwriteConfig{}, tmpDir)
+	assert.NoError(t, err)
+}
+
+func TestOverwiteMetadataPermissionError(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "tftest")
+	assert.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
+	err = os.WriteFile(path.Join(tmpDir, "metadata.yaml"), []byte("file"), 0111)
+	assert.NoError(t, err)
+
+	err = OverwriteMetadata(&overwriteConfig{}, tmpDir)
+	assert.Error(t, err)
+	assert.True(t, os.IsPermission(err))
 }
 
 func getDirContents(dir string) (map[string]string, error) {

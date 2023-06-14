@@ -167,12 +167,12 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 		if os.IsNotExist(err) {
 			return nil
 		}
+		return err
 	}
 
 	json, err := yaml.YAMLToJSON(data)
 	if err != nil {
 		return fmt.Errorf("failure parsing %s error: %w", metadataFile, err)
-
 	}
 
 	for _, variable := range config.Variables {
