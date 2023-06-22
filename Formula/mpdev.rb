@@ -16,8 +16,8 @@
 class Mpdev < Formula
   desc "Toolkit to both configure and construct artifacts needed for publishing to the Google Cloud Marketplace."
   homepage "https://github.com/GoogleCloudPlatform/marketplace-tools"
-  url "https://github.com/GoogleCloudPlatform/marketplace-tools/releases/download/v0.1.1/mpdev_darwin_amd64_v0.1.1.tar.gz"
-  sha256 "601a04dd5d164ad2c1b8e81d27b94f51cbc49cc1294b2c684807188503416ffe"
+  url "https://github.com/GoogleCloudPlatform/marketplace-tools/releases/download/v0.3.0/mpdev_darwin_amd64_v0.3.0.tar.gz"
+  sha256 "7aab230f2dbeeb15d20d82687b3ab2106b81f328ad6a533677d569914276da35"
 
   def install
     bin.install "mpdev"
