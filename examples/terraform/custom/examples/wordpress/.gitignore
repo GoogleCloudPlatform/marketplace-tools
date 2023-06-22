@@ -1,0 +1,43 @@
+# OSX leaves these everywhere on SMB shares
+._*
+
+# OSX trash
+.DS_Store
+
+# Python
+*.pyc
+
+# Emacs save files
+*~
+\#*\#
+.\#*
+
+# Vim-related files
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+
+### https://raw.github.com/github/gitignore/90f149de451a5433aebd94d02d11b0e28843a1af/Terraform.gitignore
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+
+# Kitchen files
+**/inspec.lock
+**/.kitchen
+**/kitchen.local.yml
+**/Gemfile.lock
+
+credentials.json
+
+# tf lock file
+.terraform.lock.hcl
