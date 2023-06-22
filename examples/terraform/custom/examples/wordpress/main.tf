@@ -73,7 +73,7 @@ resource "google_compute_instance" "default" {
     initialize_params {
       size  = var.boot_disk_size
       type  = var.boot_disk_type
-      image = "${var.source_image}"
+      image = var.source_image
     }
   }
 

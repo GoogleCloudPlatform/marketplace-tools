@@ -48,8 +48,8 @@ Deployment: 5 mins
 | project\_id | The ID of the project in which to provision resources. | `string` | n/a | yes |
 | source\_image | The image name for the disk for the VM instance. | `string` | `"projects/click-to-deploy-images/global/images/wordpress-v20220821"` | no |
 | sub\_networks | The sub network name to attach the VM instance. | `list(string)` | <pre>[<br>  "default"<br>]</pre> | no |
-| tcp\_443\_ip\_source\_ranges | A comma seperated string of source IP ranges for accessing the VM instance over HTTPS port 443. | `string` | n/a | yes |
-| tcp\_80\_ip\_source\_ranges | A comma seperated string of source IP ranges for accessing the VM instance over HTTP port 80. | `string` | n/a | yes |
+| tcp\_443\_ip\_source\_ranges | A comma separated string of source IP ranges for accessing the VM instance over HTTPS port 443. | `string` | n/a | yes |
+| tcp\_80\_ip\_source\_ranges | A comma separated string of source IP ranges for accessing the VM instance over HTTP port 80. | `string` | n/a | yes |
 | wp\_admin\_email | The email address for Wordpress admin. | `string` | n/a | yes |
 | zone | The zone for the solution to be deployed. | `string` | `"us-west1-a"` | no |
 
