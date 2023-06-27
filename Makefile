@@ -51,8 +51,8 @@ lint:
 	$(GOBIN)/golangci-lint run ./...
 
 license:
-	( [ -f $(GOBIN)/addlicense ] || go install github.com/google/addlicense)@v1.1.1
-	$(GOBIN)/addlicense -y 2020 -l apache *
+	( [ -f $(GOBIN)/addlicense ] || go install github.com/google/addlicense@v1.1.1)
+	$(GOBIN)/addlicense -y 2023 -l apache *
 
 license-check:
 	( [ -f $(GOBIN)/go-licenses ] || go install github.com/google/go-licenses@v1.2.0)
