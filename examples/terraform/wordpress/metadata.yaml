@@ -70,7 +70,7 @@ spec:
         version: 5.0.2
   content:
     architecture:
-      diagramUrl: assets/architecture.png
+      diagramUrl: assets/wp-architecture.png
       description:
       - 1. Clients request content by querying the web url.
       - 2. Requests reach GCP via a public IP and are evaluated by the firewall.
