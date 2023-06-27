@@ -84,9 +84,9 @@ resource "google_compute_instance" "default" {
       subnetwork = network_interface.value.subnetwork
 
       dynamic "access_config" {
-        for_each = compact([network_interface.value.external_ip == "None" ? null : 1])
+        for_each = compact([network_interface.value.external_ip == "NONE" ? null : 1])
         content {
-          nat_ip = network_interface.value.external_ip == "Ephemeral" ? null : network_interface.value.external_ip
+          nat_ip = network_interface.value.external_ip == "EPHEMERAL" ? null : network_interface.value.external_ip
         }
       }
     }

@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+locals {
+  network_interface = google_compute_instance.default.network_interface[0]
+}
+
 output "instance_self_link" {
   description = "Self-link for the Wordpress compute instance"
   value       = google_compute_instance.default.self_link
@@ -30,17 +34,17 @@ output "instance_machine_type" {
 
 output "instance_nat_ip" {
   description = "Machine type for the wordpress compute instance"
-  value       = google_compute_instance.default.network_interface[0].access_config[0].nat_ip
+  value       = length(local.network_interface.access_config) > 0 ? local.network_interface.access_config[0].nat_ip : null
 }
 
 output "has_external_ip" {
   description = "Flag to indicate if the wordpress machine has an external IP"
-  value       = google_compute_instance.default.network_interface[0].access_config[0].nat_ip != null ? true : false
+  value       = length(compact(local.network_interface.access_config[*].nat_ip)) > 0 ? true : false
 }
 
 output "instance_network" {
   description = "Machine type for the wordpress compute instance"
-  value       = google_compute_instance.default.network_interface[0]
+  value       = local.network_interface
 }
 
 output "mysql_password" {
