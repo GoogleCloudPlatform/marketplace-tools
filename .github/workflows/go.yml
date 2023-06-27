@@ -25,8 +25,8 @@ jobs:
     - name: Check tidy go modules
       run: |-
          make fmt tidy license
-         [ -z "$(git status --porcelain)" ]
-         || (echo "git status shows difference after make commands" && exit 1)
+         [ -z "$(git status --porcelain)" ] ||
+         (echo "git status shows difference after make commands" && exit 1)
 
     - name: Lint, Build, and Test
       run: make lint vet license-check build test
