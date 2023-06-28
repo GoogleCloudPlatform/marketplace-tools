@@ -1,4 +1,6 @@
-This example meets the Marketplace requirements for a Terraform module
+This example meets the
+[Marketplace requirements](https://cloud.google.com/marketplace/docs/partners/vm/configure-terraform-deployment#requirements_for_custom_terraform_modules)
+for a Terraform **CLI Only** module
 
 To validate your module, Marketplace will execute:
 
