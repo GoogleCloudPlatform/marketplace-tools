@@ -5,11 +5,11 @@ for a Terraform **CLI Only** module
 To validate your module, Marketplace will execute:
 
 ```
-terraform -chdir=examples/marketplace-test init
-terraform -chdir=examples/marketplace-test plan -var project=<test-project>
+terraform -chdir=examples/marketplace_test init
+terraform -chdir=examples/marketplace_test plan -var project=<test-project>
 ```
 
-The module in examples/marketplace-test must reference your root module (i.e.
+The module in examples/marketplace_test must reference your root module (i.e.
 the module in the root directory)
 
 For a Marketplace Partner to reuse this module, they must:
