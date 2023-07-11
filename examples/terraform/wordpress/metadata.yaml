@@ -83,7 +83,7 @@ spec:
     - name: boot_disk_size
       description: The boot disk size for the VM instance in GBs
       varType: string
-      defaultValue: "10"
+      defaultValue: "20"
     - name: boot_disk_type
       description: The boot disk type for the VM instance.
       varType: string

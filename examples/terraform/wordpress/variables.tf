@@ -57,7 +57,7 @@ variable "boot_disk_type" {
 variable "boot_disk_size" {
   description = "The boot disk size for the VM instance in GBs"
   type        = string
-  default     = "10"
+  default     = "20"
 }
 
 variable "enable_logging" {
