@@ -51,14 +51,14 @@ spec:
           title: Enable Https
         enable_logging:
           name: enable_logging
-          title: Enable Stackdriver Logging
-          tooltip: Stackdriver Logging allows you to store, search, analyze, monitor, and alert on log data and events. <a href="https://cloud.google.com/logging/">Learn more</a>
-          section: stackdriver
+          title: Enable Cloud Logging
+          tooltip: Cloud Logging allows you to store, search, analyze, monitor, and alert on log data and events. <a href="https://cloud.google.com/logging/">Learn more</a>
+          section: operations
         enable_monitoring:
           name: enable_monitoring
-          title: Enable Stackdriver Monitoring
-          tooltip: Stackdriver Monitoring provides visibility into the performance, uptime, and overall health of cloud-powered applications. <a href="https://cloud.google.com/monitoring/">Learn more</a>
-          section: stackdriver
+          title: Enable Cloud Monitoring
+          tooltip: Cloud Monitoring provides visibility into the performance, uptime, and overall health of cloud-powered applications. <a href="https://cloud.google.com/monitoring/">Learn more</a>
+          section: operations
         enable_tcp_80:
           name: enable_tcp_80
           title: Allow HTTP traffic from the Internet
@@ -166,8 +166,8 @@ spec:
         tooltip: Each instance requires a disk to boot from.
       - name: networking
         title: Networking
-      - name: stackdriver
-        title: Stackdriver
+      - name: operations
+        title: Operations
         subtext: Monitoring and management for services, containers, applications, and infrastructure
     runtime:
       outputMessage: Deployment can take several minutes to complete.
