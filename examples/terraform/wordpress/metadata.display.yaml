@@ -20,7 +20,7 @@ metadata:
     config.kubernetes.io/local-config: "true"
 spec:
   info:
-    title: terraform-google-canonical-mp
+    title: Wordpress
     source:
       repo: https://github.com/GoogleCloudPlatform/marketplace-tools.git
       sourceType: git
@@ -169,18 +169,3 @@ spec:
       - name: operations
         title: Operations
         subtext: Monitoring and management for services, containers, applications, and infrastructure
-    runtime:
-      outputMessage: Deployment can take several minutes to complete.
-      suggestedActions:
-      - heading: No external IP configured
-        description: "The VM instance has been configured with no external IP or internet access. Connecting \nto it directly may not be possible. Consider using a <a href=\"https://cloud.google.com/compute/docs/instances/connecting-advanced#bastion_host\">bastion host</a> \nto access this VM."
-        showIf: '!outputs.has_external_ip'
-      - heading: Access the phpMyAdmin web interface
-        description: Visit <a href="http://outputs.instance_self_link/phpmyadmin">http://outputs.instance_self_link/phpmyadmin</a>
-        showIf: variables.install_phpmyadmin
-      - heading: Change the temporary passwords
-        description: For additional security, it is recommended that you change the passwords.
-      - heading: Open HTTPS traffic
-        description: "'This firewall rule is not enabled. To allow specific network traffic from the Internet, \ncreate a firewall rule to open HTTPS traffic for target tag \"variables.name-deployment\". \n<a href=\"https://cloud.google.com/compute/docs/networking\">Learn more</a><br> If you are \nusing Google Cloud SDK, type the following command in the terminal:'"
-        snippet: "gcloud --project=variables.project_id compute firewall-rules create \"variables.name-tcp-443\" \n--network outputs.instance_network \n--allow tcp:443 \n--target-tags \"variables.name-deployment\""
-        showIf: '!variables.enableTcp443'
