@@ -1,34 +1,7 @@
-# terraform-google-canonical-mp
+# Wordpress
 
 This module deploys a [WordPress Google Click to Deploy Solution](https://console.cloud.google.com/marketplace/product/click-to-deploy-images/wordpress) from Marketplace.
 
-## Description
-### Tagline
-WordPress Google Click to Deploy Solution
-
-### Detailed
-This module deploys a WordPress Google Click to Deploy Solution from Marketplace.
-
-### PreDeploy
-To deploy this blueprint you must have an active billing account and billing permissions.
-
-## Architecture
-![Wordpress Architecture](assets/wp-architecture.png)
-1. Clients request content by querying the web url.
-2. Requests reach GCP via a public IP and are evaluated by the firewall.
-3. Valid requests pass through the firewall and reach the wordpress GCE instance to serve content.
-
-## Documentation
-- [Hosting a Static Website](https://cloud.google.com/storage/docs/hosting-static-website)
-
-## Deployment Duration
-Configuration: 1 mins
-Deployment: 5 mins
-
-## Cost
-[Wordpress cost details](https://cloud.google.com/products/calculator#id=d2a82f67-ff05-4179-9e15-9682ef77a663)
-
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -68,29 +41,3 @@ Deployment: 5 mins
 | mysql\_password | Password for the MySql user |
 | root\_password | Password for the root user |
 
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-
-## Requirements
-
-These sections describe requirements for using this module.
-
-### Software
-
-The following dependencies must be available:
-
-- [Terraform][terraform] v0.13
-- [Terraform Provider for GCP][terraform-provider-gcp] plugin v3.0
-
-### Service Account
-
-A service account with the following roles must be used to provision
-the resources of this module:
-
-- Storage Admin: `roles/compute.admin`
-
-### APIs
-
-A project with the following APIs enabled must be used to host the
-resources of this module:
-
-- Google Compute API: `compute.googleapis.com`
