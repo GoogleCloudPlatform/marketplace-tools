@@ -117,7 +117,8 @@ spec:
         source_image:
           name: source_image
           title: Source Image
-          invisible: true
+          xGoogleProperty:
+            type: ET_GCE_DISK_IMAGE
         sub_networks:
           name: sub_networks
           title: Subnetwork name
