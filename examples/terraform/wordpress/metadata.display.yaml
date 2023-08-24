@@ -93,6 +93,7 @@ spec:
         install_phpmyadmin:
           name: install_phpmyadmin
           title: Install phpMyAdmin
+          subtext: phpMyAdmin is an open source tool to administer MySQL databases with the use of a web browser.
         machine_type:
           name: machine_type
           title: Machine type
@@ -117,6 +118,13 @@ spec:
         source_image:
           name: source_image
           title: Source Image
+          enumValueLabels:
+            [
+              {
+                label: 'wordpress-v20220821',
+                value: 'projects/click-to-deploy-images/global/images/wordpress-v20220821'
+              }
+            ]
           xGoogleProperty:
             type: ET_GCE_DISK_IMAGE
         sub_networks:
