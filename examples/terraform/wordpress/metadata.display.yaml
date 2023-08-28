@@ -100,6 +100,8 @@ spec:
           xGoogleProperty:
             type: ET_GCE_MACHINE_TYPE
             zoneProperty: zone
+            gceMachineType:
+              diskImageProperty: source_image
         networks:
           name: networks
           title: Network name
