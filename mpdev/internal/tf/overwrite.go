@@ -17,6 +17,7 @@ package tf
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -30,10 +31,16 @@ import (
 )
 
 const metadataFile = "metadata.yaml"
+const metadataDisplayFile = "metadata.display.yaml"
 
 type overwriteConfig struct {
 	Variables    []string
 	Replacements map[string]string
+}
+
+type EnumValueLabel struct {
+	Label string `json:"label"`
+	Value string `json:"value"`
 }
 
 // OverwriteTf replaces default variable values in Terraform modules
@@ -206,5 +213,74 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 	}
 
 	fmt.Printf("Successfully replaced default values in %s\n", metadataFile)
+	return nil
+}
+
+// OverwriteDisplay replaces variable values in Blueprint metadata display file.
+func OverwriteDisplay(config *overwriteConfig, dir string) error {
+	fmt.Printf("Replacing the values of the display variables: %s in %s\n",
+		config.Variables, metadataDisplayFile)
+
+	data, err := os.ReadFile(path.Join(dir, metadataDisplayFile))
+	if err != nil {
+		// CLI only modules will not have a metadata display file. Ignore file not found errors
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+
+	json, err := yaml.YAMLToJSON(data)
+	if err != nil {
+		return fmt.Errorf("failure parsing %s error: %w", metadataDisplayFile, err)
+	}
+
+	for _, variable := range config.Variables {
+		variableQuery := fmt.Sprintf(`spec.ui.input.variables.%s`, variable)
+		variableInfo := gjson.GetBytes(json, variableQuery).String()
+		if variableInfo == "" {
+			return fmt.Errorf("missing valid display info for variable: %s in %s",
+				variable, metadataDisplayFile)
+		}
+
+		enumValueLabels := gjson.Get(variableInfo, "enumValueLabels").Array()
+		if len(enumValueLabels) == 0 {
+			fmt.Printf("No enum value labels for display variable: %s in %s\n",
+				variable, metadataDisplayFile)
+			continue
+		}
+
+		var replacementEnumValueLabels []EnumValueLabel
+		for _, enumValueLabel := range enumValueLabels {
+			currValue := enumValueLabel.Get("value").String()
+			currLabel := enumValueLabel.Get("label").String()
+			replaceVal, ok := config.Replacements[currValue]
+			if !ok {
+				return fmt.Errorf("enum value: %s of variable: %s in %s not found"+
+					" in replacements", currValue, variable, metadataDisplayFile)
+			}
+			replacementEnumValueLabels = append(replacementEnumValueLabels, EnumValueLabel{Label: currLabel, Value: replaceVal})
+		}
+
+		enumQuery := fmt.Sprintf(`spec.ui.input.variables.%s.enumValueLabels`, variable)
+		json, err = sjson.SetBytes(json, enumQuery, replacementEnumValueLabels)
+		if err != nil {
+			return fmt.Errorf("error setting default value of variable: %s. error: %w",
+				variable, err)
+		}
+
+	}
+
+	modifiedYaml, err := yaml.JSONToYAML([]byte(json))
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(path.Join(dir, metadataDisplayFile), modifiedYaml, 0644)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Successfully replaced display values in %s\n", metadataDisplayFile)
 	return nil
 }
