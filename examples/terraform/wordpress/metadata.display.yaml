@@ -121,12 +121,10 @@ spec:
           name: source_image
           title: Source Image
           enumValueLabels:
-            [
-              {
-                label: 'wordpress-v20220821',
-                value: 'projects/click-to-deploy-images/global/images/wordpress-v20220821'
-              }
-            ]
+            - label: wordpress-v20220821
+              value: projects/click-to-deploy-images/global/images/wordpress-v20220821
+            - label: wordpress-123
+              value: projects/click-to-deploy-images/global/images/wordpress-123
           xGoogleProperty:
             type: ET_GCE_DISK_IMAGE
         sub_networks:
