@@ -15,11 +15,12 @@
 package tf
 
 import (
+	"io"
+	"os"
+
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/docs"
 	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/tf"
 	"github.com/spf13/cobra"
-	"io"
-	"os"
 )
 
 // GetOverwriteCommand returns `overwrite` command used to create mpdev resources.
@@ -57,5 +58,10 @@ func overwriteRunE(_ *cobra.Command, _ []string) (err error) {
 		return err
 	}
 
-	return tf.OverwriteMetadata(config, dir)
+	err = tf.OverwriteMetadata(config, dir)
+	if err != nil {
+		return err
+	}
+
+	return tf.OverwriteDisplay(config, dir)
 }

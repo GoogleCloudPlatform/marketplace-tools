@@ -14,12 +14,13 @@
 package tf
 
 import (
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v3"
 	"os"
 	"path"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v3"
 )
 
 func TestOverwriteTf(t *testing.T) {
@@ -308,6 +309,107 @@ func getDirContents(dir string) (map[string]string, error) {
 	return fileContents, err
 }
 
+func TestOverwriteDisplay(t *testing.T) {
+	testcases := []struct {
+		name                    string
+		originalMetadataDisplay string
+		expectedMetadataDisplay string
+		overwriteConfig         overwriteConfig
+		errorContains           string
+	}{
+		{
+			name:                    "Overwrite single display variable enum values",
+			originalMetadataDisplay: metadataDisplayWithEnumsSingle,
+			expectedMetadataDisplay: metadataDisplayWithEnumsSingleReplaced,
+			overwriteConfig: overwriteConfig{
+				Variables: []string{"source_image"},
+				Replacements: map[string]string{
+					"projects/click-to-deploy-images/global/images/wordpress-1": "projects/replacement/global/images/wordpress-1-new",
+				},
+			},
+		},
+		{
+			name:                    "Overwrite multiple display variable enum values",
+			originalMetadataDisplay: metadataDisplayWithEnumsDouble,
+			expectedMetadataDisplay: metadataDisplayWithEnumsDoubleReplaced,
+			overwriteConfig: overwriteConfig{
+				Variables: []string{"source_image", "another_image"},
+				Replacements: map[string]string{
+					"projects/click-to-deploy-images/global/images/wordpress-1": "projects/replacement/global/images/wordpress-1-new",
+					"projects/click-to-deploy-images/global/images/wordpress-2": "projects/replacement/global/images/wordpress-2-new",
+					"projects/click-to-deploy-images/global/images/wordpress-3": "projects/replacement/global/images/wordpress-3-new",
+				},
+			},
+		},
+		{
+			name:                    "No changes if no display variable enum value labels",
+			originalMetadataDisplay: metadataDisplayNoEnums,
+			expectedMetadataDisplay: metadataDisplayNoEnums,
+			overwriteConfig: overwriteConfig{
+				Variables:    []string{"source_image"},
+				Replacements: map[string]string{},
+			},
+		}, {
+			name:                    "Fail when metadata display is invalid yaml",
+			originalMetadataDisplay: "- not validyaml\ninvalid-",
+			errorContains:           "failure parsing metadata.display.yaml",
+		}, {
+			name:                    "Fail when display variable not present in Metadata display",
+			originalMetadataDisplay: metadata,
+			overwriteConfig: overwriteConfig{
+				Variables: []string{"missing_variable"},
+				Replacements: map[string]string{
+					"original-value": "new-value",
+				},
+			},
+			errorContains: "missing valid display info for variable: missing_variable",
+		}, {
+			name:                    "Fail when display variable enum value is not in replacements",
+			originalMetadataDisplay: metadataDisplayWithEnumsSingle,
+			overwriteConfig: overwriteConfig{
+				Variables: []string{"source_image"},
+				Replacements: map[string]string{
+					"non-existent": "new-value",
+				},
+			},
+			errorContains: "enum value: projects/click-to-deploy-images/global/images/wordpress-1 of variable: source_image in metadata.display.yaml not found in replacements",
+		}}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			tmpDir, err := os.MkdirTemp("", "tftest")
+			assert.NoError(t, err)
+			defer os.RemoveAll(tmpDir)
+
+			err = os.WriteFile(path.Join(tmpDir, "metadata.display.yaml"),
+				[]byte(tc.originalMetadataDisplay), 0600)
+			assert.NoError(t, err)
+
+			err = OverwriteDisplay(&tc.overwriteConfig, tmpDir)
+
+			if tc.errorContains == "" {
+				assert.NoError(t, err)
+
+				metadataDisplayBytes, err := os.ReadFile(path.Join(tmpDir, "metadata.display.yaml"))
+				assert.NoError(t, err)
+				actualMetadataDisplay := make(map[interface{}]interface{})
+				expectedMetadataDisplay := make(map[interface{}]interface{})
+
+				err = yaml.Unmarshal(metadataDisplayBytes, &actualMetadataDisplay)
+				assert.NoError(t, err)
+
+				err = yaml.Unmarshal([]byte(tc.expectedMetadataDisplay), expectedMetadataDisplay)
+				assert.NoError(t, err)
+
+				assert.Equal(t, expectedMetadataDisplay, actualMetadataDisplay)
+			} else {
+				assert.Error(t, err)
+				assert.ErrorContains(t, err, tc.errorContains)
+			}
+		})
+	}
+}
+
 var mainTf string = `
 resource "google_compute_instance_template" "template" {
   name = "template"
@@ -405,4 +507,96 @@ spec:
     - name: source_image
       description: The image name for the disk for the VM instance.
       varType: string
+`
+
+var metadataDisplayWithEnumsSingle string = `
+spec:
+  ui:
+    input:
+      variables:
+        source_image:
+          name: source_image
+          title: Source Image
+          enumValueLabels:
+            - label: wordpress-1
+              value: projects/click-to-deploy-images/global/images/wordpress-1
+          xGoogleProperty:
+            type: ET_GCE_DISK_IMAGE
+`
+
+var metadataDisplayWithEnumsSingleReplaced string = `
+spec:
+  ui:
+    input:
+      variables:
+        source_image:
+          name: source_image
+          title: Source Image
+          enumValueLabels:
+            - label: wordpress-1
+              value: projects/replacement/global/images/wordpress-1-new
+          xGoogleProperty:
+            type: ET_GCE_DISK_IMAGE
+`
+
+var metadataDisplayWithEnumsDouble string = `
+spec:
+  ui:
+    input:
+      variables:
+        source_image:
+          name: source_image
+          title: Source Image
+          enumValueLabels:
+            - label: wordpress-1
+              value: projects/click-to-deploy-images/global/images/wordpress-1
+            - label: wordpress-2
+              value: projects/click-to-deploy-images/global/images/wordpress-2
+          xGoogleProperty:
+            type: ET_GCE_DISK_IMAGE
+        another_image:
+          name: another_image
+          title: Another Image
+          enumValueLabels:
+            - label: wordpress-3
+              value: projects/click-to-deploy-images/global/images/wordpress-3
+          xGoogleProperty:
+            type: ET_GCE_DISK_IMAGE
+`
+
+var metadataDisplayWithEnumsDoubleReplaced string = `
+spec:
+  ui:
+    input:
+      variables:
+        source_image:
+          name: source_image
+          title: Source Image
+          enumValueLabels:
+            - label: wordpress-1
+              value: projects/replacement/global/images/wordpress-1-new
+            - label: wordpress-2
+              value: projects/replacement/global/images/wordpress-2-new
+          xGoogleProperty:
+            type: ET_GCE_DISK_IMAGE
+        another_image:
+          name: another_image
+          title: Another Image
+          enumValueLabels:
+            - label: wordpress-3
+              value: projects/replacement/global/images/wordpress-3-new
+          xGoogleProperty:
+            type: ET_GCE_DISK_IMAGE
+`
+
+var metadataDisplayNoEnums string = `
+spec:
+  ui:
+    input:
+      variables:
+        source_image:
+          name: source_image
+          title: Source Image
+          xGoogleProperty:
+            type: ET_GCE_DISK_IMAGE
 `
