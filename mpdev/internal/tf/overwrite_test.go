@@ -518,12 +518,8 @@ spec:
           name: source_image
           title: Source Image
           enumValueLabels:
-            [
-              {
-                label: 'wordpress-1',
-                value: 'projects/click-to-deploy-images/global/images/wordpress-1'
-              }
-            ]
+            - label: wordpress-1
+              value: projects/click-to-deploy-images/global/images/wordpress-1
           xGoogleProperty:
             type: ET_GCE_DISK_IMAGE
 `
@@ -537,12 +533,8 @@ spec:
           name: source_image
           title: Source Image
           enumValueLabels:
-            [
-              {
-                label: 'wordpress-1',
-                value: 'projects/replacement/global/images/wordpress-1-new'
-              }
-            ]
+            - label: wordpress-1
+              value: projects/replacement/global/images/wordpress-1-new
           xGoogleProperty:
             type: ET_GCE_DISK_IMAGE
 `
@@ -556,28 +548,18 @@ spec:
           name: source_image
           title: Source Image
           enumValueLabels:
-            [
-              {
-                label: 'wordpress-1',
-                value: 'projects/click-to-deploy-images/global/images/wordpress-1'
-              },
-							{
-                label: 'wordpress-2',
-                value: 'projects/click-to-deploy-images/global/images/wordpress-2'
-              }
-            ]
+            - label: wordpress-1
+              value: projects/click-to-deploy-images/global/images/wordpress-1
+            - label: wordpress-2
+              value: projects/click-to-deploy-images/global/images/wordpress-2
           xGoogleProperty:
             type: ET_GCE_DISK_IMAGE
         another_image:
           name: another_image
           title: Another Image
           enumValueLabels:
-            [
-              {
-                label: 'wordpress-3',
-                value: 'projects/click-to-deploy-images/global/images/wordpress-3'
-              }
-            ]
+            - label: wordpress-3
+              value: projects/click-to-deploy-images/global/images/wordpress-3
           xGoogleProperty:
             type: ET_GCE_DISK_IMAGE
 `
@@ -591,28 +573,18 @@ spec:
           name: source_image
           title: Source Image
           enumValueLabels:
-            [
-              {
-                label: 'wordpress-1',
-                value: 'projects/replacement/global/images/wordpress-1-new'
-              },
-							{
-                label: 'wordpress-2',
-                value: 'projects/replacement/global/images/wordpress-2-new'
-              }
-            ]
+            - label: wordpress-1
+              value: projects/replacement/global/images/wordpress-1-new
+            - label: wordpress-2
+              value: projects/replacement/global/images/wordpress-2-new
           xGoogleProperty:
             type: ET_GCE_DISK_IMAGE
         another_image:
           name: another_image
           title: Another Image
           enumValueLabels:
-            [
-              {
-                label: 'wordpress-3',
-                value: 'projects/replacement/global/images/wordpress-3-new'
-              }
-            ]
+            - label: wordpress-3
+              value: projects/replacement/global/images/wordpress-3-new
           xGoogleProperty:
             type: ET_GCE_DISK_IMAGE
 `
