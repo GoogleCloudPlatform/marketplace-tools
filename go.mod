@@ -13,7 +13,7 @@ require (
 	github.com/tidwall/gjson v1.14.2
 	github.com/tidwall/sjson v1.2.5
 	gonum.org/v1/gonum v0.7.0
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.0
 	k8s.io/utils v0.0.0-20191114184206-e782cd3c129f
 	sigs.k8s.io/kustomize/cmd/config v0.6.0
 	sigs.k8s.io/yaml v1.2.0
