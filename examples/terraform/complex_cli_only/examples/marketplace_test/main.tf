@@ -23,6 +23,8 @@ module "test" {
   other_nic = google_compute_network.new_nic.name
 }
 
+# Create a network interface in the test module. The Marketplace validation project
+# may not have a resource that your module in the root directory expects to exist.
 resource "google_compute_network" "new_nic" {
   name = "new-test-nic"
 }
