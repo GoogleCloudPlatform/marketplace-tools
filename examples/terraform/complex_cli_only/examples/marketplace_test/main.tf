@@ -13,17 +13,23 @@
 # limitations under the License.
 
 provider "google" {
-  project = var.project
+  project = var.project_id
 }
 
 # The test module references the module in the root directory
 module "test" {
   source = "../.."
+
+  other_nic = google_compute_network.new_nic.name
+}
+
+resource "google_compute_network" "new_nic" {
+  name = "new-test-nic"
 }
 
 # The module must declare a project variable that Marketplace can
 # set for validation
-variable "project" {
+variable "project_id" {
   type = string
 }
 

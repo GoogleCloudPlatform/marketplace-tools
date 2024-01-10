@@ -12,19 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The variable "image" is declared in Producer Portal
-variable "image" {
-  type = string
-  # Set the default value to your image. Marketplace will overwrite this value
-  # to a Marketplace owned image on publishing the product
-  default = "projects/<partner-project>/global/images/<image-name>"
+resource "google_compute_instance" "default" {
+  name         = "example"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      # The boot disk must be set to the variable declared in Producer Portal
+      image = var.image
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  network_interface {
+    network = var.other_nic
+  }
 }
 
-# Project Id is required for Marketplace validation
-variable "project_id" {
-  type = string
-}
-
-variable "zone" {
-  type = string
-}

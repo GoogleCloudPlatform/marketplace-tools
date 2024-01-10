@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+provider "google" {
+  project = var.project_id
+}
+
 resource "google_compute_instance" "default" {
   name         = "example"
   machine_type = "e2-medium"
@@ -19,8 +23,8 @@ resource "google_compute_instance" "default" {
 
   boot_disk {
     initialize_params {
-       # The boot disk must be set to the variable declared in Producer Portal
-       image = var.image
+      # The boot disk must be set to the variable declared in Producer Portal
+      image = var.image
     }
   }
 
