@@ -14,17 +14,13 @@
 
 # The variable "image" is declared in Producer Portal
 variable "image" {
-  type = string
   # Set the default value to your image. Marketplace will overwrite this value
   # to a Marketplace owned image on publishing the product
   default = "projects/<partner-project>/global/images/<image-name>"
 }
 
-# Project Id is required for Marketplace validation
-variable "project_id" {
+# Specifies a network interface that this module assumes already exists
+variable "other_nic" {
   type = string
 }
 
-variable "zone" {
-  type = string
-}

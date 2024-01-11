@@ -12,18 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-provider "google" {
-  project = var.project
-}
+resource "google_compute_instance" "default" {
+  name         = "example"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
 
-# The test module references the module in the root directory
-module "test" {
-  source = "../.."
-}
+  boot_disk {
+    initialize_params {
+      # The boot disk must be set to the variable declared in Producer Portal
+      image = var.image
+    }
+  }
 
-# The module must declare a project variable that Marketplace can
-# set for validation
-variable "project" {
-  type = string
+  network_interface {
+    network = "default"
+  }
+
+  network_interface {
+    network = var.other_nic
+  }
 }
 

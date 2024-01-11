@@ -5,12 +5,12 @@ for a Terraform **CLI Only** module
 To validate your module, Marketplace will execute:
 
 ```
-terraform -chdir=examples/marketplace_test init
-terraform -chdir=examples/marketplace_test plan -var project=<test-project>
+terraform init
+terraform plan -var-file=marketplace_test.tfvars -var project_id=<test-project>
 ```
 
-The module in examples/marketplace_test must reference your root module (i.e.
-the module in the root directory)
+The `marketplace_test.tfvars` can be used to set variables to default values for
+testing only purposes.
 
 For a Marketplace Partner to reuse this module, they must:
 

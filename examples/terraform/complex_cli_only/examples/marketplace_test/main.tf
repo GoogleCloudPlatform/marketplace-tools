@@ -12,19 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The variable "image" is declared in Producer Portal
-variable "image" {
-  type = string
-  # Set the default value to your image. Marketplace will overwrite this value
-  # to a Marketplace owned image on publishing the product
-  default = "projects/<partner-project>/global/images/<image-name>"
+provider "google" {
+  project = var.project_id
 }
 
-# Project Id is required for Marketplace validation
+# The test module references the module in the root directory
+module "test" {
+  source = "../.."
+
+  other_nic = google_compute_network.new_nic.name
+}
+
+# Create a network interface in the test module. The Marketplace validation project
+# may not have a resource that your module in the root directory expects to exist.
+resource "google_compute_network" "new_nic" {
+  name = "new-test-nic"
+}
+
+# The module must declare a project variable that Marketplace can
+# set for validation
 variable "project_id" {
   type = string
 }
 
-variable "zone" {
-  type = string
-}
