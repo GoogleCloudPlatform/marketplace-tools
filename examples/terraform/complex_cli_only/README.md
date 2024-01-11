@@ -6,7 +6,7 @@ This example meets the
 for a Terraform **CLI Only** module
 
 If the `examples/marketplace_test` folder exists, marketplace will validate your
-module by executng:
+module by executing:
 
 ```
 terraform -chdir=examples/marketplace_test init
@@ -14,9 +14,19 @@ terraform -chdir=examples/marketplace_test plan -var project_id=<test-project>
 ```
 
 The module in `examples/marketplace_test` must reference your module in the root
-directory. This test module can be used to create resources that
-the module in your root directory assume already exists. For instance, this example creates a
-second network interface that is passed as an argument to the module in the root directory.
+directory as shown below:
+
+```
+# The test module references the module in the root directory
+module "test" {
+  source = "../.."
+}
+```
+
+This test module can be used to create resources that the module in your root
+directory assumes already exists. For instance, this example creates a second
+network interface that is passed as an argument to the module in the root
+directory.
 
 For a Marketplace Partner to reuse this module, they must:
 
