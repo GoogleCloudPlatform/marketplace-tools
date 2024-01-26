@@ -123,9 +123,6 @@ spec:
       actionItems:
       - heading: Access the phpMyAdmin web interface
         description: Visit phpMyAdmin at http://{vmIp}/phpmyadmin
-        showIf:
-          booleanDeployInputField:
-            name: installphpmyadmin
     stackdriver:
       logging:
         defaultOn: false
