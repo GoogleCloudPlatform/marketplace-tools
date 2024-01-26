@@ -1,0 +1,108 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+partnerId: "click-to-deploy-images"
+solutionId: "mariadb"
+solutionInfo:
+  name: "mariadb"
+  version: 10.11.6
+  packagedSoftwareGroups:
+  - components:
+    - name: Debian
+      version: '11.8'
+    type: SOFTWARE_GROUP_OS
+  - components:
+    - name: MariaDB
+      version: 10.11.6
+spec:
+  deploymentTool: TERRAFORM
+  multiVm:
+    tiers:
+    - name: mariadb
+      title: MariaDBCluster
+      bootDisk:
+        diskSize:
+          defaultSizeGb: 20
+          minSizeGb: 20
+        diskType:
+          defaultType: pd-standard
+      gceMetadataItems:
+      - key: ENV_MARIADB_NODE_HOSTNAMES
+        tierVmNames:
+          tier: mariadb
+          allVms:
+            delimiter: '|'
+      - key: MYSQL_ROOT_ANYWHERE_ALLOW
+        valueFromDeployInputField: rootFromAnywhere
+      - key: MYSQL_DATABASE
+        valueFromDeployInputField: databaseName
+      firewallRules:
+      - port: '3306'
+        protocol: TCP
+      - port: '22'
+        protocol: TCP
+      - protocol: ICMP
+      images:
+      - name: mariadb-v20240121
+        project: click-to-deploy-images
+      instanceCount:
+        defaultValue: 3
+        range:
+          startValue: 1
+          endValue: 10
+      machineType:
+        defaultMachineType:
+          gceMachineType: e2-standard-2
+        minimum:
+          cpu: 1
+          ramGb: 1.69
+      networkInterfaces:
+        minCount: 1
+        maxCount: 8
+        externalIp:
+          defaultType: EPHEMERAL
+    deployInput:
+      sections:
+      - placement: MAIN
+        fields:
+        - name: databaseName
+          title: Database Name
+          tooltip: Initial replicated database created during deployment.
+          required: true
+          stringBox:
+            placeholder: example_database
+            defaultValue: example_database
+        - name: rootFromAnywhere
+          title: Root from anywhere
+          tooltip: Allow root user authorization from anywhere. By default it possible
+            only from localhost
+          required: true
+          booleanCheckbox: {}
+
+    passwords:
+    - allowSpecialChars: true
+      displayLabel: MariaDB
+      length: 14
+      metadataKey: MYSQL_ROOT_PASSWORD
+      username: root
+    - allowSpecialChars: true
+      displayLabel: MariaDB replication
+      length: 14
+      metadataKey: MYSQL_REPLICATION_PASSWORD
+      username: replication
+
+    stackdriver:
+      logging:
+        defaultOn: false
+      monitoring:
+        defaultOn: false
