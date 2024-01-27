@@ -7,9 +7,16 @@ tool, with [autogen.yaml](./autogen.yaml) used as an input.
 
 > [!IMPORTANT]
 > Consider using the [Guided Configuration](https://cloud.google.com/marketplace/docs/partners/vm/configure-terraform-deployment#simple-deployment)
-> in Producer Portal instead if you have a simple VM product.
+> in Producer Portal instead if you have a simple VM product. This Terraform
+> module offers a comprehensive example with advanced configurations, if you're
+> interested in creating a customized Terraform module via
+> [Manual Configuration](https://cloud.google.com/marketplace/docs/partners/vm/configure-terraform-deployment#complex-deployment)
 
-Marketplace Autogen can be a good starting point for partners since it also generates the UI metadata used to actuate the Marketplace deployment UI. The UI metadata is structured as [`BlueprintMetadata`](https://pkg.go.dev/github.com/GoogleCloudPlatform/cloud-foundation-toolkit/cli/bpmetadata#BlueprintMetadata)
+Marketplace Autogen generates fully functional Terraform modules from simplified
+YAML configuration files. It currently supports single-VM and multi-VM
+configurations, and can be a good starting point for partners since it also
+generates the UI metadata used to actuate the Marketplace deployment UI. The UI
+metadata is structured as [`BlueprintMetadata`](https://pkg.go.dev/github.com/GoogleCloudPlatform/cloud-foundation-toolkit/cli/bpmetadata#BlueprintMetadata).
 
 ## Usage
 The provided test configuration can be used by executing:
