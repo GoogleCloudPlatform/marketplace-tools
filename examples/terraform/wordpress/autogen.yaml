@@ -1,0 +1,130 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# BEGIN legacy field, required but will be removed in the future
+partnerId: partner
+solutionId: solution
+# END legacy field, required but will be removed in the future
+solutionInfo:
+  name: solution
+  version: 6.4.2
+  packagedSoftwareGroups:
+  - components:
+    - name: Debian
+      version: '11.8'
+    type: SOFTWARE_GROUP_OS
+  - components:
+    - name: Apache2
+      version: 2.4.56
+    - name: MySQL-Client
+      version: 8.0.35
+    - name: MySQL-Community-Client
+      version: 8.0.35
+    - name: MySQL-Community-Server
+      version: 8.0.35
+    - name: MySQL-Server
+      version: 8.0.35
+    - name: PHP
+      version: 8.1.27
+    - name: WP-CLI
+      version: 2.9.0
+    - name: WordPress
+      version: 6.4.2
+    - name: phpMyAdmin
+      version: 5.2.1
+spec:
+  deploymentTool: TERRAFORM
+  singleVm:
+    adminUrl:
+      path: wp-admin
+      scheme: HTTPS
+    bootDisk:
+      diskSize:
+        defaultSizeGb: 20
+        minSizeGb: 20
+      diskType:
+        defaultType: pd-standard
+    gceMetadataItems:
+    - key: installphpmyadmin
+      valueFromDeployInputField: installphpmyadmin
+    - key: wordpress-admin-email
+      valueFromDeployInputField: adminEmailAddress
+    - key: wordpress-enable-https
+      valueFromDeployInputField: httpsEnabled
+    - key: enable-os-login
+      value: 'TRUE'
+    deployInput:
+      sections:
+      - placement: MAIN
+        fields:
+        - name: adminEmailAddress
+          required: true
+          emailBox:
+            validation:
+              regex: ^[a-zA-Z0-9!#$%&\'*+\/=?^_`{|}~\.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9]?[.-]?[a-zA-Z0-9]+)+[[a-zA-Z0-9]{1}$
+          title: Administrator e-mail address
+          tooltip: The e-mail address used to create the administrator account for
+            WordPress.
+        - name: installphpmyadmin
+          title: Install phpMyAdmin
+          description: phpMyAdmin is an open source tool to administer MySQL databases
+            with the use of a web browser.
+          booleanCheckbox:
+            default_value: true
+        - name: httpsEnabled
+          title: HTTPS Enabled
+          description: Enabled HTTPS communication.
+          booleanCheckbox:
+            default_value: true
+    firewallRules:
+    - port: '80'
+      protocol: TCP
+    - port: '443'
+      protocol: TCP
+    images:
+    - name: wordpress-v20240121
+      project: click-to-deploy-images
+    machineType:
+      defaultMachineType:
+        gceMachineType: e2-small
+    networkInterfaces:
+      minCount: 1
+      maxCount: 8
+    passwords:
+    - allowSpecialChars: false
+      displayLabel: WordPress MySQL
+      length: 8
+      metadataKey: wordpress-mysql-password
+      username: wordpress
+    - allowSpecialChars: false
+      displayLabel: MySQL root
+      length: 14
+      metadataKey: mysql-root-password
+      username: root
+    - allowSpecialChars: true
+      displayLabel: WordPress Admin
+      length: 8
+      metadataKey: wordpress-admin-password
+      usernameFromDeployInputField: adminEmailAddress
+    siteUrl:
+      scheme: HTTPS
+    postDeploy:
+      actionItems:
+      - heading: Access the phpMyAdmin web interface
+        description: Visit phpMyAdmin at http://{vmIp}/phpmyadmin
+    stackdriver:
+      logging:
+        defaultOn: false
+      monitoring:
+        defaultOn: false
