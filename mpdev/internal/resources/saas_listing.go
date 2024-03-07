@@ -113,7 +113,7 @@ func (template *SaasListingTestTemplate) Test(registry Registry, dryRun bool) er
 		return err
 	}
 
-	testImg := "gcr.io/saas-e2e-product-tester/saas-test-tool"
+	testImg := "gcr.io/marketplace-saas-tools/mp-saas-test-framework"
 
 	err = dockerPull(registry.GetExecutor(), testImg)
 	if err != nil {
