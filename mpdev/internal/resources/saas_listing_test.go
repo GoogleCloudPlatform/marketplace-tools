@@ -39,33 +39,16 @@ apiVersion: dev.marketplace.cloud.google.com/v1alpha1
 kind: SaasListingTemplate
 credFilePath: /docker-volume/cred.json
 integrationTestConfig:
-  provider: "providers/e2e-testing"
-  productExternalName: "procurement-ingestion-enabled-tester-with-subscription-usage.endpoints.cloud-marketplace-testing.cloud.goog"
-  billingAccount: "billingAccounts/017778-0B6CC1-FB92E9"
-  plans: ["plan-a", "plan-d"]
-  approveEntitlementTimeoutSeconds: 600
-  approvePlanChangeTimeoutSeconds: 600
-  billingMeteringTestConfig:
-    - driver:
-        driverCommand: "docker run -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/saas:/keys -e GOOGLE_APPLICATION_CREDENTIALS=/keys/cred.json -e GOOGLE_CLOUD_PROJECT=testing-producer-saas gcr.io/marketplace-saas-tools/billing-metering-driver --service=procurement-ingestion-enabled-tester-with-subscription-usage.endpoints.cloud-marketplace-testing.cloud.goog --metric=procurement-ingestion-enabled-tester-with-subscription-usage.endpoints.cloud-marketplace-testing.cloud.goog/plan_a_metric_1 --consumer_id=project_number:{@USAGE_REPORTING_ID}"
-        planId: "plan-a"
-        connectionInfo:
-          project: "projects/testing-producer-saas-322600"
-          tableName: "testing-producer-saas-322600.testing_producer_saas_billing_export.gcp_billing_export_resource_v1_017778_0B6CC1_FB92E9"
-        expectation:
-          skuId: "0D8F-CA36-DD7A"
-          usageExpectation:
-            min: 150
-            max: 200
-            baseUnits: "requests"
-          costExpectation:
-            min: 800
-            max: 1000
-            currency: "USD"`,
+  provider: providers/e2e-testing
+  productExternalName: procurement-ingestion-enabled-tester-with-subscription-usage.endpoints.cloud-marketplace-testing.cloud.goog
+  billingAccount: billingAccounts/014E03-1FB93C-054E24
+  plans: [plan-a, plan-d]
+  approveEntitlementTimeoutSeconds: 1500
+  approvePlanChangeTimeoutSeconds: 1500`,
 		expectedRunArgs: [][]string{
 			{"cp", "/docker-volume/cred.json", "/tmp/mp-saas-integ-test\\d+/cred.json"},
-			{"docker", "pull", "gcr.io/marketplace-saas-tools/mp-saas-test-framework"},
-			{"docker", "run", "--rm", "-i", "--mount", "type=bind,src=/tmp/mp-saas-integ-test\\d+,dst=/input", "--mount", "type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock", "-e", "GOOGLE_APPLICATION_CREDENTIALS=/input/cred.json", "gcr.io/marketplace-saas-tools/mp-saas-test-framework", "/input/partner_integration_test_config.json"}},
+			{"docker", "pull", "gcr.io/marketplace-saas-tools/mp-saas-partner-integ-test"},
+			{"docker", "run", "--rm", "-i", "--mount", "type=bind,src=/tmp/mp-saas-integ-test\\d+,dst=/input", "-e", "GOOGLE_APPLICATION_CREDENTIALS=/input/cred.json", "gcr.io/marketplace-saas-tools/mp-saas-partner-integ-test", "/input/partner_integration_test_config.json"}},
 	}}
 
 	for _, tc := range testCases {
