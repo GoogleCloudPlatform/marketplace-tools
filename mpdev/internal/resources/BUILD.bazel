@@ -8,7 +8,6 @@ go_library(
         "image.go",
         "registry.go",
         "resource.go",
-        "saas_listing.go",
         "types.go",
     ],
     importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/resources",
@@ -30,7 +29,6 @@ go_test(
         "deployment_manager_test.go",
         "registry_test.go",
         "resource_test.go",
-        "saas_listing_test.go",
     ],
     embed = [":go_default_library"],
     deps = [
