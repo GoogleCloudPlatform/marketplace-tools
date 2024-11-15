@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM gcr.io/cloud-builders/bazel AS builder
+FROM gcr.io/cloud-builders/bazel:7.3.2 AS builder
 COPY . .
 RUN bazel build --stamp --workspace_status_command="./scripts/workspace-status.sh" //mpdev:mpdev
 
