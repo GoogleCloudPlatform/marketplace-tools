@@ -34,6 +34,9 @@ const metadataFile = "metadata.yaml"
 const metadataDisplayFile = "metadata.display.yaml"
 
 type overwriteConfig struct {
+	NewValues map[string]string
+
+	// Deprecated. If NewValues is specified, the following have no effect.
 	Variables    []string
 	Replacements map[string]string
 }
@@ -48,30 +51,48 @@ func OverwriteTf(config *overwriteConfig, dir string) error {
 	fmt.Printf("Replacing the default values of the variables: %s\n", config.Variables)
 	fmt.Printf("Mapping of values to replace: %s\n", config.Replacements)
 
-	for _, varname := range config.Variables {
-		varInfo, err := getVarInfo(varname, dir)
-		if err != nil {
-			return err
-		}
+	if config.NewValues != nil {
+		for varName, newValue := range config.NewValues {
+			varInfo, err := getVarInfo(varName, dir)
+			if err != nil {
+				return err
+			}
 
-		if varInfo.Default == nil {
-			return fmt.Errorf("image variable: %s must have default value", varname)
-		}
+			if varInfo.Type != "string" {
+				return fmt.Errorf("image variable: %s must be type string", varName)
+			}
 
-		defaultVal, ok := varInfo.Default.(string)
-		if !ok {
-			return fmt.Errorf("image variable: %s must be type string", varname)
+			err = overwriteFile(varInfo.Pos.Filename, varName, newValue)
+			if err != nil {
+				return err
+			}
 		}
+	} else {
+		for _, varname := range config.Variables {
+			varInfo, err := getVarInfo(varname, dir)
+			if err != nil {
+				return err
+			}
 
-		replaceVal, ok := config.Replacements[defaultVal]
-		if !ok {
-			return fmt.Errorf("default value: %s of variable: %s not found in replacements",
-				defaultVal, varname)
-		}
+			if varInfo.Default == nil {
+				return fmt.Errorf("image variable: %s must have default value", varname)
+			}
 
-		err = overwriteFile(varInfo.Pos.Filename, varname, replaceVal)
-		if err != nil {
-			return err
+			defaultVal, ok := varInfo.Default.(string)
+			if !ok {
+				return fmt.Errorf("image variable: %s must be type string", varname)
+			}
+
+			replaceVal, ok := config.Replacements[defaultVal]
+			if !ok {
+				return fmt.Errorf("default value: %s of variable: %s not found in replacements",
+					defaultVal, varname)
+			}
+
+			err = overwriteFile(varInfo.Pos.Filename, varname, replaceVal)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -182,34 +203,45 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 		return fmt.Errorf("failure parsing %s error: %w", metadataFile, err)
 	}
 
-	for _, variable := range config.Variables {
-		query := fmt.Sprintf(`spec.interfaces.variables.#(name=="%s").defaultValue`, variable)
-		defaultVal := gjson.GetBytes(json, query).String()
-		if defaultVal == "" {
-			return fmt.Errorf("Missing valid default value for variable: %s in %s",
-				variable, metadataFile)
+	if config.NewValues != nil {
+		for varName, newValue := range config.NewValues {
+			query := fmt.Sprintf(`spec.interfaces.variables.#(name=="%s").defaultValue`, varName)
+			json, err = sjson.SetBytes(json, query, newValue)
+			if err != nil {
+				return fmt.Errorf("Error setting default value of variable: %s. error: %w",
+					varName, err)
+			}
 		}
-		replaceVal, ok := config.Replacements[defaultVal]
-		if !ok {
-			return fmt.Errorf("default value: %s of variable: %s in %s not found"+
-				" in replacements", defaultVal, variable, metadataFile)
+	} else {
+		for _, variable := range config.Variables {
+			query := fmt.Sprintf(`spec.interfaces.variables.#(name=="%s").defaultValue`, variable)
+			defaultVal := gjson.GetBytes(json, query).String()
+			if defaultVal == "" {
+				return fmt.Errorf("Missing valid default value for variable: %s in %s",
+					variable, metadataFile)
+			}
+			replaceVal, ok := config.Replacements[defaultVal]
+			if !ok {
+				return fmt.Errorf("default value: %s of variable: %s in %s not found"+
+					" in replacements", defaultVal, variable, metadataFile)
+			}
+
+			json, err = sjson.SetBytes(json, query, replaceVal)
+			if err != nil {
+				return fmt.Errorf("Error setting default value of variable: %s. error: %w",
+					variable, err)
+			}
 		}
 
-		json, err = sjson.SetBytes(json, query, replaceVal)
+		modifiedYaml, err := yaml.JSONToYAML([]byte(json))
 		if err != nil {
-			return fmt.Errorf("Error setting default value of variable: %s. error: %w",
-				variable, err)
+			return err
 		}
-	}
 
-	modifiedYaml, err := yaml.JSONToYAML([]byte(json))
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(path.Join(dir, metadataFile), modifiedYaml, 0644)
-	if err != nil {
-		return err
+		err = os.WriteFile(path.Join(dir, metadataFile), modifiedYaml, 0644)
+		if err != nil {
+			return err
+		}
 	}
 
 	fmt.Printf("Successfully replaced default values in %s\n", metadataFile)
@@ -235,40 +267,69 @@ func OverwriteDisplay(config *overwriteConfig, dir string) error {
 		return fmt.Errorf("failure parsing %s error: %w", metadataDisplayFile, err)
 	}
 
-	for _, variable := range config.Variables {
-		variableQuery := fmt.Sprintf(`spec.ui.input.variables.%s`, variable)
-		variableInfo := gjson.GetBytes(json, variableQuery).String()
-		if variableInfo == "" {
-			return fmt.Errorf("missing valid display info for variable: %s in %s",
-				variable, metadataDisplayFile)
-		}
-
-		enumValueLabels := gjson.Get(variableInfo, "enumValueLabels").Array()
-		if len(enumValueLabels) == 0 {
-			fmt.Printf("No enum value labels for display variable: %s in %s\n",
-				variable, metadataDisplayFile)
-			continue
-		}
-
-		var replacementEnumValueLabels []EnumValueLabel
-		for _, enumValueLabel := range enumValueLabels {
-			currValue := enumValueLabel.Get("value").String()
-			currLabel := enumValueLabel.Get("label").String()
-			replaceVal, ok := config.Replacements[currValue]
-			if !ok {
-				return fmt.Errorf("enum value: %s of variable: %s in %s not found"+
-					" in replacements", currValue, variable, metadataDisplayFile)
+	if config.NewValues != nil {
+		for varName, newValue := range config.NewValues {
+			variableQuery := fmt.Sprintf(`spec.ui.input.variables.%s`, varName)
+			variableInfo := gjson.GetBytes(json, variableQuery).String()
+			if variableInfo == "" {
+				return fmt.Errorf("missing valid display info for variable: %s in %s",
+					varName, metadataDisplayFile)
 			}
-			replacementEnumValueLabels = append(replacementEnumValueLabels, EnumValueLabel{Label: currLabel, Value: replaceVal})
-		}
+			enumValueLabels := gjson.Get(variableInfo, "enumValueLabels").Array()
+			if len(enumValueLabels) == 0 {
+				fmt.Printf("No enum value labels for display variable: %s in %s\n",
+					varName, metadataDisplayFile)
+				continue
+			}
 
-		enumQuery := fmt.Sprintf(`spec.ui.input.variables.%s.enumValueLabels`, variable)
-		json, err = sjson.SetBytes(json, enumQuery, replacementEnumValueLabels)
-		if err != nil {
-			return fmt.Errorf("error setting default value of variable: %s. error: %w",
-				variable, err)
-		}
+			var replacementEnumValueLabels []EnumValueLabel
+			for _, enumValueLabel := range enumValueLabels {
+				currLabel := enumValueLabel.Get("label").String()
+				replacementEnumValueLabels = append(replacementEnumValueLabels, EnumValueLabel{Label: currLabel, Value: newValue})
+			}
 
+			enumQuery := fmt.Sprintf(`spec.ui.input.variables.%s.enumValueLabels`, varName)
+			json, err = sjson.SetBytes(json, enumQuery, replacementEnumValueLabels)
+			if err != nil {
+				return fmt.Errorf("error setting default value of variable: %s. error: %w",
+					varName, err)
+			}
+		}
+	} else {
+		for _, variable := range config.Variables {
+			variableQuery := fmt.Sprintf(`spec.ui.input.variables.%s`, variable)
+			variableInfo := gjson.GetBytes(json, variableQuery).String()
+			if variableInfo == "" {
+				return fmt.Errorf("missing valid display info for variable: %s in %s",
+					variable, metadataDisplayFile)
+			}
+
+			enumValueLabels := gjson.Get(variableInfo, "enumValueLabels").Array()
+			if len(enumValueLabels) == 0 {
+				fmt.Printf("No enum value labels for display variable: %s in %s\n",
+					variable, metadataDisplayFile)
+				continue
+			}
+
+			var replacementEnumValueLabels []EnumValueLabel
+			for _, enumValueLabel := range enumValueLabels {
+				currValue := enumValueLabel.Get("value").String()
+				currLabel := enumValueLabel.Get("label").String()
+				replaceVal, ok := config.Replacements[currValue]
+				if !ok {
+					return fmt.Errorf("enum value: %s of variable: %s in %s not found"+
+						" in replacements", currValue, variable, metadataDisplayFile)
+				}
+				replacementEnumValueLabels = append(replacementEnumValueLabels, EnumValueLabel{Label: currLabel, Value: replaceVal})
+			}
+
+			enumQuery := fmt.Sprintf(`spec.ui.input.variables.%s.enumValueLabels`, variable)
+			json, err = sjson.SetBytes(json, enumQuery, replacementEnumValueLabels)
+			if err != nil {
+				return fmt.Errorf("error setting default value of variable: %s. error: %w",
+					variable, err)
+			}
+		}
 	}
 
 	modifiedYaml, err := yaml.JSONToYAML([]byte(json))

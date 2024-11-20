@@ -109,7 +109,48 @@ func TestOverwriteTf(t *testing.T) {
 			},
 		},
 		errorContains: "default value: original-value of variable: value_to_replace not found in replacements",
-	}}
+	}, {
+		name: "Use NewValues for replacements",
+		tfFiles: map[string]string{
+			"main.tf":        mainTf,
+			"anyfilename.tf": otherTf,
+		},
+		expectedTfFiles: map[string]string{
+			"main.tf":        mainTfReplaced,
+			"anyfilename.tf": otherTfReplaced,
+		},
+		overwriteConfig: overwriteConfig{
+			NewValues: map[string]string{
+				"value_to_replace": "new-value",
+				"other_value_to_replace": "newer-value",
+				"another_variable": "newest-value",
+			},
+		},
+	}, {
+			name: "Ignores Variables and Replacements when NewValues is provided",
+			tfFiles: map[string]string{
+				"main.tf":        mainTf,
+				"anyfilename.tf": otherTf,
+			},
+			expectedTfFiles: map[string]string{
+				"main.tf":        mainTfReplaced,
+				"anyfilename.tf": otherTfReplaced,
+			},
+			overwriteConfig: overwriteConfig{
+				NewValues: map[string]string{
+					"value_to_replace": "new-value",
+					"other_value_to_replace": "newer-value",
+					"another_variable": "newest-value",
+				},
+				Variables: []string{"value_to_replace", "other_value_to_replace", "another_variable"},
+				Replacements: map[string]string{
+					"original-value": "new-value-unused",
+					"old-value":      "newer-value-unused",
+					"oldest-value":   "newest-value-unused",
+				},
+			},
+		},
+	}
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
