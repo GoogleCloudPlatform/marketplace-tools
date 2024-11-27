@@ -109,7 +109,73 @@ func TestOverwriteTf(t *testing.T) {
 			},
 		},
 		errorContains: "default value: original-value of variable: value_to_replace not found in replacements",
-	}}
+	}, {
+		name: "With NewValues, overwrite multiple variables and files",
+		tfFiles: map[string]string{
+			"main.tf":        mainTf,
+			"anyfilename.tf": otherTf,
+		},
+		expectedTfFiles: map[string]string{
+			"main.tf":        mainTfReplaced,
+			"anyfilename.tf": otherTfReplaced,
+		},
+		overwriteConfig: overwriteConfig{
+			NewValues: map[string]string{
+				"value_to_replace":       "new-value",
+				"other_value_to_replace": "newer-value",
+				"another_variable":       "newest-value",
+			},
+		},
+	},
+		{
+			name: "With NewValues, ignores Variables and Replacements",
+			tfFiles: map[string]string{
+				"main.tf":        mainTf,
+				"anyfilename.tf": otherTf,
+			},
+			expectedTfFiles: map[string]string{
+				"main.tf":        mainTfReplaced,
+				"anyfilename.tf": otherTfReplaced,
+			},
+			overwriteConfig: overwriteConfig{
+				NewValues: map[string]string{
+					"value_to_replace":       "new-value",
+					"other_value_to_replace": "newer-value",
+					"another_variable":       "newest-value",
+				},
+				Variables: []string{"value_to_replace", "other_value_to_replace", "another_variable"},
+				Replacements: map[string]string{
+					"original-value": "new-value-unused",
+					"old-value":      "newer-value-unused",
+					"oldest-value":   "newest-value-unused",
+				},
+			},
+		}, {
+			name: "With NewValues, adds default value when variable has no default value set",
+			tfFiles: map[string]string{
+				"main.tf": tfNoDefault,
+			},
+			expectedTfFiles: map[string]string{
+				"main.tf": tfDefaultAdded,
+			},
+			overwriteConfig: overwriteConfig{
+				NewValues: map[string]string{
+					"value_to_replace": "new-value",
+				},
+			},
+		}, {
+			name: "With NewValues, fail when variable default value is not a string",
+			tfFiles: map[string]string{
+				"main.tf": tfNoDefaultWrongType,
+			},
+			overwriteConfig: overwriteConfig{
+				NewValues: map[string]string{
+					"value_to_replace": "new-value",
+				},
+			},
+			errorContains: "image variable: value_to_replace must be type string",
+		},
+	}
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -153,7 +219,10 @@ func TestGetOverwriteConfig(t *testing.T) {
 		configBytes: []byte(`
 {
 	"variables": ["source_image"],
-	"replacements": {"old_image": "new_image" }
+	"replacements": {"old_image": "new_image" },
+	"newValues": {
+		"source_image": "new_image"
+	}
 }
 `),
 		expectedConfig: overwriteConfig{
@@ -161,8 +230,12 @@ func TestGetOverwriteConfig(t *testing.T) {
 			Replacements: map[string]string{
 				"old_image": "new_image",
 			},
+			NewValues: map[string]string{
+				"source_image": "new_image",
+			},
 		},
-	}}
+	},
+	}
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -230,7 +303,51 @@ func TestOverwriteMetadata(t *testing.T) {
 			},
 		},
 		errorContains: "default value: old-image of variable: source_image in metadata.yaml not found in replacements",
-	}}
+	}, {
+		name:             "With NewValues, overwrite multiple variables",
+		originalMetadata: metadata,
+		expectedMetadata: metadataReplaced,
+		overwriteConfig: overwriteConfig{
+			NewValues: map[string]string{
+				"source_image":  "new-image",
+				"another_image": "newer-image",
+			},
+		},
+	}, {
+		name:             "With NewValues, ignores Variables and Replacements",
+		originalMetadata: metadata,
+		expectedMetadata: metadataReplaced,
+		overwriteConfig: overwriteConfig{
+			NewValues: map[string]string{
+				"source_image":  "new-image",
+				"another_image": "newer-image",
+			},
+			Variables: []string{"source_image", "another_image"},
+			Replacements: map[string]string{
+				"old-image":   "new-image-unused",
+				"older-image": "newer-image-unused",
+			},
+		},
+	}, {
+		name:             "With NewValues, fail when variable is not present in Metadata",
+		originalMetadata: metadata,
+		overwriteConfig: overwriteConfig{
+			NewValues: map[string]string{
+				"missing_variable": "new-value",
+			},
+		},
+		errorContains: "missing variable entry for variable: missing_variable",
+	}, {
+		name:             "With NewValues, adds default value when variable has no default value set",
+		originalMetadata: metadataNoDefault,
+		expectedMetadata: metadataDefaultAdded,
+		overwriteConfig: overwriteConfig{
+			NewValues: map[string]string{
+				"source_image": "new-value",
+			},
+		},
+	},
+	}
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -416,12 +533,12 @@ resource "google_compute_instance_template" "template" {
 }
 
 variable "value_to_replace" {
-  type = string
+  type    = string
   default = "original-value"
 }
 
 variable "other_value_to_replace" {
-  type = string
+  type    = string
   default = "old-value"
 }
 `
@@ -432,12 +549,12 @@ resource "google_compute_instance_template" "template" {
 }
 
 variable "value_to_replace" {
-  type = string
+  type    = string
   default = "new-value"
 }
 
 variable "other_value_to_replace" {
-  type = string
+  type    = string
   default = "newer-value"
 }
 `
@@ -451,7 +568,7 @@ variable "another_variable" {
 
 var otherTfReplaced string = `
 variable "another_variable" {
-  type = string
+  type    = string
   default = "newest-value"
 }
 `
@@ -462,6 +579,13 @@ variable "value_to_replace" {
 }
 `
 
+var tfDefaultAdded string = `
+variable "value_to_replace" {
+  type    = string
+  default = "new-value"
+}
+`
+
 var tfDefaultWrongType string = `
 variable "value_to_replace" {
   type = map(number)
@@ -469,6 +593,11 @@ variable "value_to_replace" {
     foo = 2
     bar = 4
   }
+}
+`
+var tfNoDefaultWrongType string = `
+variable "value_to_replace" {
+  type = map(number)
 }
 `
 
@@ -507,6 +636,16 @@ spec:
     - name: source_image
       description: The image name for the disk for the VM instance.
       varType: string
+`
+
+var metadataDefaultAdded string = `
+spec:
+  interfaces:
+    variables:
+    - name: source_image
+      description: The image name for the disk for the VM instance.
+      varType: string
+      defaultValue: new-value
 `
 
 var metadataDisplayWithEnumsSingle string = `
