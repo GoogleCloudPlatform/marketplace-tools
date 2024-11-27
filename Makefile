@@ -47,7 +47,7 @@ jsonschema:
 	./scripts/generate-jsonschema.sh
 
 lint:
-	( [ -f $(GOBIN)/golangci-lint ] || go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.2)
+	( [ -f $(GOBIN)/golangci-lint ] || go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62)
 	$(GOBIN)/golangci-lint run ./...
 
 license:
