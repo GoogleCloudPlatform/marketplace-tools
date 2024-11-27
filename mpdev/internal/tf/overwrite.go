@@ -48,10 +48,10 @@ type EnumValueLabel struct {
 
 // OverwriteTf replaces default variable values in Terraform modules
 func OverwriteTf(config *overwriteConfig, dir string) error {
-	fmt.Printf("Replacing the default values of the variables: %s\n", config.Variables)
-	fmt.Printf("Mapping of values to replace: %s\n", config.Replacements)
 
 	if config.NewValues != nil {
+		fmt.Printf("Replacing the default values of the variables: %s\n", config.NewValues)
+
 		for varName, newValue := range config.NewValues {
 			varInfo, err := getVarInfo(varName, dir)
 			if err != nil {
@@ -68,6 +68,9 @@ func OverwriteTf(config *overwriteConfig, dir string) error {
 			}
 		}
 	} else {
+		fmt.Printf("Replacing the default values of the variables: %s\n", config.Variables)
+		fmt.Printf("Mapping of values to replace: %s\n", config.Replacements)
+
 		for _, varname := range config.Variables {
 			varInfo, err := getVarInfo(varname, dir)
 			if err != nil {
@@ -172,7 +175,9 @@ func overwriteFile(filename string, varname string, value string) error {
 	}
 	defer f.Close()
 
-	_, err = f.Write(file.BuildTokens(nil).Bytes())
+	rawBytes := file.BuildTokens(nil).Bytes()
+	formattedBytes := hclwrite.Format(rawBytes)
+	_, err = f.Write(formattedBytes)
 	return err
 }
 
@@ -186,9 +191,6 @@ func overwriteFile(filename string, varname string, value string) error {
 // 1. There are version compatiblilty issues with Kpt and cloud-foundation-toolkit to resolve
 // 2. We will avoid dropping fields if mpdev is using an out-of-date version of cloud-foundation-toolkit
 func OverwriteMetadata(config *overwriteConfig, dir string) error {
-	fmt.Printf("Replacing the default values of the variables: %s in %s\n",
-		config.Variables, metadataFile)
-
 	data, err := os.ReadFile(path.Join(dir, metadataFile))
 	if err != nil {
 		// CLI only modules will not have a metadata file. Ignore file not found errors
@@ -204,15 +206,31 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 	}
 
 	if config.NewValues != nil {
+		fmt.Printf("Replacing the default values of the variables: %s in %s\n",
+			config.NewValues, metadataFile)
+
 		for varName, newValue := range config.NewValues {
-			query := fmt.Sprintf(`spec.interfaces.variables.#(name=="%s").defaultValue`, varName)
-			json, err = sjson.SetBytes(json, query, newValue)
+			varQuery := fmt.Sprintf(`spec.interfaces.variables.#(name=="%s")`, varName)
+			varEntry := gjson.GetBytes(json, varQuery)
+			if varEntry.Raw == "" {
+				return fmt.Errorf("missing variable entry for variable: %s in %s",
+					varName, metadataFile)
+			}
+			// sjson.SetBytes doesn't work when spec.interfaces.variables.#(name=="%s").defaultValue
+			// doesn't already exist. Retrieving and setting the whole variable entry
+			// as a workaround.
+			varEntryMap := varEntry.Value().(map[string]interface{})
+			varEntryMap["defaultValue"] = newValue
+			json, err = sjson.SetBytes(json, varQuery, varEntryMap)
 			if err != nil {
-				return fmt.Errorf("Error setting default value of variable: %s. error: %w",
+				return fmt.Errorf("error setting the updated entry for variable: %s. error: %w",
 					varName, err)
 			}
 		}
 	} else {
+		fmt.Printf("Replacing the default values of the variables: %s in %s\n",
+			config.Variables, metadataFile)
+
 		for _, variable := range config.Variables {
 			query := fmt.Sprintf(`spec.interfaces.variables.#(name=="%s").defaultValue`, variable)
 			defaultVal := gjson.GetBytes(json, query).String()
@@ -232,16 +250,16 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 					variable, err)
 			}
 		}
+	}
 
-		modifiedYaml, err := yaml.JSONToYAML([]byte(json))
-		if err != nil {
-			return err
-		}
+	modifiedYaml, err := yaml.JSONToYAML([]byte(json))
+	if err != nil {
+		return err
+	}
 
-		err = os.WriteFile(path.Join(dir, metadataFile), modifiedYaml, 0644)
-		if err != nil {
-			return err
-		}
+	err = os.WriteFile(path.Join(dir, metadataFile), modifiedYaml, 0644)
+	if err != nil {
+		return err
 	}
 
 	fmt.Printf("Successfully replaced default values in %s\n", metadataFile)
