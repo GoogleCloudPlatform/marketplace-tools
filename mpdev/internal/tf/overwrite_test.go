@@ -127,55 +127,54 @@ func TestOverwriteTf(t *testing.T) {
 			},
 		},
 	},
-	{
-		name: "With NewValues, ignores Variables and Replacements",
-		tfFiles: map[string]string{
-			"main.tf":        mainTf,
-			"anyfilename.tf": otherTf,
-		},
-		expectedTfFiles: map[string]string{
-			"main.tf":        mainTfReplaced,
-			"anyfilename.tf": otherTfReplaced,
-		},
-		overwriteConfig: overwriteConfig{
-			NewValues: map[string]string{
-				"value_to_replace":       "new-value",
-				"other_value_to_replace": "newer-value",
-				"another_variable":       "newest-value",
+		{
+			name: "With NewValues, ignores Variables and Replacements",
+			tfFiles: map[string]string{
+				"main.tf":        mainTf,
+				"anyfilename.tf": otherTf,
 			},
-			Variables: []string{"value_to_replace", "other_value_to_replace", "another_variable"},
-			Replacements: map[string]string{
-				"original-value": "new-value-unused",
-				"old-value":      "newer-value-unused",
-				"oldest-value":   "newest-value-unused",
+			expectedTfFiles: map[string]string{
+				"main.tf":        mainTfReplaced,
+				"anyfilename.tf": otherTfReplaced,
 			},
-		},
-	}, {
-		name: "With NewValues, adds default value when variable has no default value set",
-		tfFiles: map[string]string{
-			"main.tf": tfNoDefault,
-		},
-		expectedTfFiles: map[string]string{
-			"main.tf": tfDefaultAdded,
-		},
-		overwriteConfig: overwriteConfig{
-			NewValues: map[string]string{
-				"value_to_replace": "new-value",
+			overwriteConfig: overwriteConfig{
+				NewValues: map[string]string{
+					"value_to_replace":       "new-value",
+					"other_value_to_replace": "newer-value",
+					"another_variable":       "newest-value",
+				},
+				Variables: []string{"value_to_replace", "other_value_to_replace", "another_variable"},
+				Replacements: map[string]string{
+					"original-value": "new-value-unused",
+					"old-value":      "newer-value-unused",
+					"oldest-value":   "newest-value-unused",
+				},
 			},
-		},
-
-	}, {
-		name: "With NewValues, fail when variable default value is not a string",
-		tfFiles: map[string]string{
-			"main.tf": tfNoDefaultWrongType,
-		},
-		overwriteConfig: overwriteConfig{
-			NewValues: map[string]string{
-				"value_to_replace": "new-value",
+		}, {
+			name: "With NewValues, adds default value when variable has no default value set",
+			tfFiles: map[string]string{
+				"main.tf": tfNoDefault,
 			},
+			expectedTfFiles: map[string]string{
+				"main.tf": tfDefaultAdded,
+			},
+			overwriteConfig: overwriteConfig{
+				NewValues: map[string]string{
+					"value_to_replace": "new-value",
+				},
+			},
+		}, {
+			name: "With NewValues, fail when variable default value is not a string",
+			tfFiles: map[string]string{
+				"main.tf": tfNoDefaultWrongType,
+			},
+			overwriteConfig: overwriteConfig{
+				NewValues: map[string]string{
+					"value_to_replace": "new-value",
+				},
+			},
+			errorContains: "image variable: value_to_replace must be type string",
 		},
-		errorContains: "image variable: value_to_replace must be type string",
-	},
 	}
 
 	for _, tc := range testcases {
@@ -310,7 +309,7 @@ func TestOverwriteMetadata(t *testing.T) {
 		expectedMetadata: metadataReplaced,
 		overwriteConfig: overwriteConfig{
 			NewValues: map[string]string{
-				"source_image":   "new-image",
+				"source_image":  "new-image",
 				"another_image": "newer-image",
 			},
 		},
@@ -320,8 +319,8 @@ func TestOverwriteMetadata(t *testing.T) {
 		expectedMetadata: metadataReplaced,
 		overwriteConfig: overwriteConfig{
 			NewValues: map[string]string{
-				"source_image":   "new-image",
-				"another_image": 	"newer-image",
+				"source_image":  "new-image",
+				"another_image": "newer-image",
 			},
 			Variables: []string{"source_image", "another_image"},
 			Replacements: map[string]string{
@@ -338,7 +337,7 @@ func TestOverwriteMetadata(t *testing.T) {
 			},
 		},
 		errorContains: "missing variable entry for variable: missing_variable",
-	},  {
+	}, {
 		name:             "With NewValues, adds default value when variable has no default value set",
 		originalMetadata: metadataNoDefault,
 		expectedMetadata: metadataDefaultAdded,
