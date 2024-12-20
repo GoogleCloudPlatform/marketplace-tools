@@ -1,6 +1,6 @@
 module github.com/GoogleCloudPlatform/marketplace-tools
 
-go 1.16
+go 1.23
 
 require (
 	github.com/GoogleContainerTools/kpt v0.33.0
@@ -17,4 +17,5 @@ require (
 	k8s.io/utils v0.0.0-20191114184206-e782cd3c129f
 	sigs.k8s.io/kustomize/cmd/config v0.6.0
 	sigs.k8s.io/yaml v1.2.0
+	golang.org/x/crypto v0.31.0 // indirect
 )
