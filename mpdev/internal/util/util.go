@@ -16,7 +16,6 @@ package util
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -66,7 +65,7 @@ func CreateTmpDir(prefix string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fullPath, err := ioutil.TempDir(systemTempDir, prefix)
+	fullPath, err := os.MkdirTemp(systemTempDir, prefix)
 	if err != nil {
 		return "", err
 	}
