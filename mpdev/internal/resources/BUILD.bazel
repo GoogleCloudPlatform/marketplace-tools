@@ -31,7 +31,6 @@ go_test(
         "resource_test.go",
     ],
     embed = [":go_default_library"],
-    size = "small",
     deps = [
         "@com_github_hashicorp_go_multierror//:go_default_library",
         "@com_github_stretchr_testify//assert:go_default_library",

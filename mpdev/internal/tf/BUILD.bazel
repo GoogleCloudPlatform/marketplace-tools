@@ -21,7 +21,6 @@ go_test(
     srcs = ["overwrite_test.go"],
     data = glob(["testdata/**"]),
     embed = [":go_default_library"],
-    size = "small",
     deps = [
         "@com_github_stretchr_testify//assert:go_default_library",
         "@in_gopkg_yaml_v3//:go_default_library",
