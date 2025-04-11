@@ -129,10 +129,10 @@ func TestOverwriteTf(t *testing.T) {
 	}, {
 		name: "With NewValues, overwrite multiple variables and files. Add consumer label",
 		tfFiles: map[string]string{
-			"main.tf":        mainTfNoLabel,
+			"main.tf": mainTfNoLabel,
 		},
 		expectedTfFiles: map[string]string{
-			"main.tf":        mainTfLabelUpserted,
+			"main.tf": mainTfLabelUpserted,
 		},
 		overwriteConfig: overwriteConfig{
 			ConsumerLabel: "new-consumer-label",
@@ -140,22 +140,22 @@ func TestOverwriteTf(t *testing.T) {
 				"value_to_replace": "new-value",
 			},
 		},
-		}, {
-			name: "With NewValues, overwrite multiple variables and files. Do not replace existing consumer label",
-			tfFiles: map[string]string{
-				"main.tf":        mainTfProvidedLabel,
-			},
-			expectedTfFiles: map[string]string{
-				"main.tf":        mainTfLabelUpserted,
-			},
-			overwriteConfig: overwriteConfig{
-				ConsumerLabel: "even-newer-consumer-label",
-				NewValues: map[string]string{
-					"value_to_replace": "new-value",
-				},
+	}, {
+		name: "With NewValues, overwrite multiple variables and files. Do not replace existing consumer label",
+		tfFiles: map[string]string{
+			"main.tf": mainTfProvidedLabel,
+		},
+		expectedTfFiles: map[string]string{
+			"main.tf": mainTfLabelUpserted,
+		},
+		overwriteConfig: overwriteConfig{
+			ConsumerLabel: "even-newer-consumer-label",
+			NewValues: map[string]string{
+				"value_to_replace": "new-value",
 			},
 		},
-			{
+	},
+		{
 			name: "With NewValues, ignores Variables and Replacements",
 			tfFiles: map[string]string{
 				"main.tf":        mainTf,
