@@ -30,10 +30,16 @@ import (
 	"path"
 )
 
+const mainTfFile = "main.tf"
 const metadataFile = "metadata.yaml"
 const metadataDisplayFile = "metadata.display.yaml"
 
+const defaultLabelsConst = "default_labels"
+const consumerLabelConst = "goog-partner-solution"
+
 type overwriteConfig struct {
+	ConsumerLabel string
+
 	NewValues map[string]string
 
 	// Deprecated. If NewValues is specified, the following have no effect.
@@ -48,6 +54,11 @@ type EnumValueLabel struct {
 
 // OverwriteTf replaces default variable values in Terraform modules
 func OverwriteTf(config *overwriteConfig, dir string) error {
+
+	upsertErr := upsertConsumerLabel(dir, config.ConsumerLabel)
+	if upsertErr != nil {
+		return upsertErr
+	}
 
 	if config.NewValues != nil {
 		fmt.Printf("Replacing the default values of the variables: %s\n", config.NewValues)
@@ -179,6 +190,72 @@ func overwriteFile(filename string, varname string, value string) error {
 	formattedBytes := hclwrite.Format(rawBytes)
 	_, err = f.Write(formattedBytes)
 	return err
+}
+
+func upsertConsumerLabel(dir string, label string) error {
+	// If the parameter is not provided, do nothing.
+	// This is for backward-compatibility purpose.
+	if len(label) == 0 {
+		fmt.Printf("No consumber label was passed as a parameter.\n")
+		return nil
+	}
+
+	fmt.Printf("Inserting the '%s' consumber label.\n", label)
+
+	mainTfFullPath := path.Join(dir, mainTfFile)
+	b, err := os.ReadFile(mainTfFullPath)
+	if err != nil {
+		return err
+	}
+	mainTfParsedFile, diag := hclwrite.ParseConfig(b, "", hcl.Pos{Line: 1, Column: 1})
+	if diag.HasErrors() {
+		return diag
+	}
+
+	// the `provider` section is expected in the main config file
+	providerBlock := mainTfParsedFile.Body().FirstMatchingBlock("provider", []string{"google"})
+	if providerBlock == nil {
+		// We always expect a `provider` block in the main config
+		return fmt.Errorf("'provider \"google\"' block not found in %s", mainTfFullPath)
+	} else {
+		fmt.Printf("'provider \"google\"' block detected in %s\n", mainTfFullPath)
+
+		defaultLabelsBlock := providerBlock.Body().FirstMatchingBlock(defaultLabelsConst, []string{})
+		if defaultLabelsBlock == nil {
+			fmt.Printf("'%s' block not found in %s. Appending.\n", defaultLabelsConst, mainTfFullPath)
+
+			defaultLabelsBlock =
+				providerBlock.Body().AppendBlock(
+					hclwrite.NewBlock(defaultLabelsConst, []string{}))
+		} else {
+			fmt.Printf("'%s' block detected in %s\n", defaultLabelsConst, mainTfFullPath)
+		}
+
+		labelAttribute := defaultLabelsBlock.Body().GetAttribute(consumerLabelConst)
+		if labelAttribute == nil {
+			// SetAttributeValue() is cleaner to overwrite values, however SetAttributeRaw gives more
+			// control over formatting. SetAttributeValue() and File.WriteTo() would overwrite all
+			// formatting. See: https://github.com/hashicorp/hcl/issues/316
+			defaultLabelsBlock.Body().SetAttributeRaw(consumerLabelConst, getAttributeValueTokens(label))
+
+			f, err := os.OpenFile(mainTfFullPath, os.O_WRONLY|os.O_TRUNC, 0000)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+
+			rawBytes := mainTfParsedFile.BuildTokens(nil).Bytes()
+			formattedBytes := hclwrite.Format(rawBytes)
+			_, err = f.Write(formattedBytes)
+
+			fmt.Printf("Successfully upserted consumber label in %s\n", mainTfFullPath)
+			return err
+		} else {
+			fmt.Printf("Consumer label already exists in %s. Not overwriting.\n", mainTfFullPath)
+		}
+	}
+
+	return nil
 }
 
 // OverwriteMetadata replaces default values for variables in Blueprints Metadata
