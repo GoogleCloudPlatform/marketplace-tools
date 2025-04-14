@@ -192,6 +192,10 @@ func overwriteFile(filename string, varname string, value string) error {
 	return err
 }
 
+// Inserts a consumer label under the `provider "google"` block it does
+// not exist.
+// The `dir` parameter is the path to the TF main file.
+// The `label` parameter is the label value.
 func upsertConsumerLabel(dir string, label string) error {
 	// If the parameter is not provided, do nothing.
 	// This is for backward-compatibility purpose.
