@@ -59,7 +59,7 @@ license-check:
 	$(GOBIN)/go-licenses check $(PKG)
 
 test:
-	bazel test //... --test_output=errors --stamp --workspace_status_command="./scripts/workspace-status.sh"
+	bazel test //... --test_output=errors --test_summary=detailed --cache_test_results=no --test_verbose_timeout_warnings --stamp --workspace_status_command="./scripts/workspace-status.sh"
 
 bazel-build-gen:
 	bazel run :gazelle -- update-repos -from_file=go.mod -build_file_proto_mode disable --to_macro=repos.bzl%go_repositories --prune

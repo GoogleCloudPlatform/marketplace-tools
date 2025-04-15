@@ -126,6 +126,34 @@ func TestOverwriteTf(t *testing.T) {
 				"another_variable":       "newest-value",
 			},
 		},
+	}, {
+		name: "With NewValues, overwrite multiple variables and files. Add consumer label",
+		tfFiles: map[string]string{
+			"main.tf": mainTfNoLabel,
+		},
+		expectedTfFiles: map[string]string{
+			"main.tf": mainTfLabelUpserted,
+		},
+		overwriteConfig: overwriteConfig{
+			ConsumerLabel: "new-consumer-label",
+			NewValues: map[string]string{
+				"value_to_replace": "new-value",
+			},
+		},
+	}, {
+		name: "With NewValues, overwrite multiple variables and files. Do not replace existing consumer label",
+		tfFiles: map[string]string{
+			"main.tf": mainTfProvidedLabel,
+		},
+		expectedTfFiles: map[string]string{
+			"main.tf": mainTfLabelUpserted,
+		},
+		overwriteConfig: overwriteConfig{
+			ConsumerLabel: "even-newer-consumer-label",
+			NewValues: map[string]string{
+				"value_to_replace": "new-value",
+			},
+		},
 	},
 		{
 			name: "With NewValues, ignores Variables and Replacements",
@@ -556,6 +584,57 @@ variable "value_to_replace" {
 variable "other_value_to_replace" {
   type    = string
   default = "newer-value"
+}
+`
+
+var mainTfNoLabel string = `
+provider "google" {
+  project = var.project_id
+}
+
+resource "google_compute_instance_template" "template" {
+  name = "template"
+}
+
+variable "value_to_replace" {
+  type    = string
+  default = "original-value"
+}
+`
+
+var mainTfProvidedLabel string = `
+provider "google" {
+  project = var.project_id
+  default_labels {
+    goog-partner-solution = "new-consumer-label"
+  }
+}
+
+resource "google_compute_instance_template" "template" {
+  name = "template"
+}
+
+variable "value_to_replace" {
+  type    = string
+  default = "original-value"
+}
+`
+
+var mainTfLabelUpserted string = `
+provider "google" {
+  project = var.project_id
+  default_labels {
+    goog-partner-solution = "new-consumer-label"
+  }
+}
+
+resource "google_compute_instance_template" "template" {
+  name = "template"
+}
+
+variable "value_to_replace" {
+  type    = string
+  default = "new-value"
 }
 `
 
