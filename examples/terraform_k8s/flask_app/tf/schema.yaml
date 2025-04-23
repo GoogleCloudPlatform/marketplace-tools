@@ -1,5 +1,5 @@
 images:
-  image:
+  flask-app-demo/flask-app-image:
     variables:
       image_repo:
         type: REPO_WITH_REGISTRY_WITH_NAME
