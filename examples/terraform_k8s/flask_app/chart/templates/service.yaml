@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-flask-app-service
+spec:
+  type: {{ .Values.service.type }} # Use LoadBalancer for external access (if your cluster supports it)
+  selector:
+    app: 
+  ports:
+  - protocol: TCP
+    port: {{ .Values.service.port }} # The port you access from outside the cluster
+    targetPort: {{ .Values.service.targetPort }} # The port your app is listening on in the container

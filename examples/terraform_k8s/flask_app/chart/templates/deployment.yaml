@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-flask-app-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: flask-app-demo
+  template:
+    metadata:
+      labels:
+        app: flask-app-demo
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}  # Link KSA for Vertex AI access
+      containers:
+      - name: flask-app-container
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.containerPort}} # The port your app listens on INSIDE the container

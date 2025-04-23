@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  repository: us-docker.pkg.dev/example-project/example-repo/flask-app-demo
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.1.0"
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 5000
+
+containerPort: 5000
