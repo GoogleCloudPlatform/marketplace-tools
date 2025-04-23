@@ -1,0 +1,7 @@
+images:
+  image:
+    variables:
+      image_repo:
+        type: REPO_WITH_REGISTRY_WITH_NAME
+      image_tag:
+        type: TAG
