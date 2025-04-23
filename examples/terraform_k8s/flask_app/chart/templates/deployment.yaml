@@ -12,7 +12,6 @@ spec:
       labels:
         app: flask-app-demo
     spec:
-      serviceAccountName: {{ .Values.serviceAccount.name }}  # Link KSA for Vertex AI access
       containers:
       - name: flask-app-container
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
