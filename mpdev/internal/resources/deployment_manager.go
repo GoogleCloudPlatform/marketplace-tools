@@ -113,7 +113,7 @@ func (dm *DeploymentManagerAutogenTemplate) Test(registry Registry, dryRun bool)
 }
 
 func (dm *DeploymentManagerAutogenTemplate) runAutogen(registry Registry, inputDir string) error {
-	autogenImg := "gcr.io/cloud-marketplace-tools/dm/autogen"
+	autogenImg := "$ARTIFACT_REGISTRY/cloud-marketplace-tools/dm/autogen"
 	args := []string{"--input_type", "YAML", "--single_input", "/autogen/autogen.yaml",
 		"--output_type", "PACKAGE", "--output", "/tmp/out"}
 
