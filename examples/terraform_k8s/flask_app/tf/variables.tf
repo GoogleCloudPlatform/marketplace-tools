@@ -18,7 +18,7 @@ variable "project_id" {
 }
 
 variable "goog_cm_deployment_name" {
-  type    = string
+  type = string
 }
 
 variable "create_cluster_service_account" {
@@ -35,11 +35,6 @@ variable "cluster_service_account" {
 
 variable "helm_release_name" {
   type = string
-}
-
-variable "helm_release_namespace" {
-  type    = string
-  default = "default"
 }
 
 variable "helm_chart_repo" {
