@@ -33,6 +33,15 @@ variable "cluster_service_account" {
 
 # Helm
 
+variable "helm_release_name" {
+  type = string
+}
+
+variable "helm_release_namespace" {
+  type    = string
+  default = "default"
+}
+
 variable "helm_chart_repo" {
   type = string
 }
