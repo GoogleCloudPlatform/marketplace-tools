@@ -16,7 +16,7 @@ locals {
   endpoint       = var.create_cluster ? "https://${module.gke[0].endpoint}" : "https://${data.google_container_cluster.default[0].endpoint}"
   ca_certificate = var.create_cluster ? base64decode(module.gke[0].ca_certificate) : base64decode(data.google_container_cluster.default[0].master_auth[0].cluster_ca_certificate)
   host           = local.endpoint
-  cluster_name   = var.goog_cm_deployment_name != "" ? "${var.goog_cm_deployment_name}-${var.cluster_name}" : var.cluster_name
+  cluster_name   = var.cluster_name
 }
 
 locals {
