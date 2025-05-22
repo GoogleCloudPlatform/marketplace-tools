@@ -17,10 +17,6 @@ variable "project_id" {
   description = "GCP project id"
 }
 
-variable "goog_cm_deployment_name" {
-  type    = string
-}
-
 variable "create_cluster_service_account" {
   type    = bool
   default = false
