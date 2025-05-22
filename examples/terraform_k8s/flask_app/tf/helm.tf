@@ -21,27 +21,31 @@ provider "helm" {
   }
 }
 
+locals {
+  helm_release_name = var.helm_release_name ? var.helm_release_name : "flask-app-" + random_string.helm_release_name_suffix.value
+}
+
 resource "helm_release" "flask_demo_app" {
   provider = helm.app
 
-  name = "flask_demo_app"
+  name = local.helm_release_name
 
   repository = var.helm_chart_repo
   chart      = var.helm_chart_name
   version    = var.helm_chart_version
 
   set {
-    name = "image.repository"
+    name  = "image.repository"
     value = var.image_repo
   }
 
   set {
-    name = "image.tag"
+    name  = "image.tag"
     value = var.image_tag
   }
 
   set {
-    name = "replicaCount"
+    name  = "replicaCount"
     value = var.replica_count
   }
 }
