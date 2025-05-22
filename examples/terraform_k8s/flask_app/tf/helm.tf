@@ -22,7 +22,7 @@ provider "helm" {
 }
 
 locals {
-  helm_release_name = var.helm_release_name ? var.helm_release_name : "flask-app-" + random_string.helm_release_name_suffix.value
+  helm_release_name = var.helm_release_name != "" ? var.helm_release_name : "flask-app-${random_string.suffix.result}"
 }
 
 resource "helm_release" "flask_demo_app" {

@@ -42,3 +42,9 @@ module "project-services" {
     # TODO: Add your app's required APIs here
   ])
 }
+
+resource "random_string" "suffix" {
+  length  = 4
+  special = false
+  upper   = false
+}
