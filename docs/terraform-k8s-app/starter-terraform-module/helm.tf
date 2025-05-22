@@ -38,6 +38,6 @@ resource "helm_release" "primary" {
   # TODO: Add set blocks for your Helm Chart
   # set {
   #   name = "helm.chart.value"
-  #.  value = var.some_var
+  #.  value = jsonencode(var.some_var)
   # }
 }
