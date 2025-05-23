@@ -337,7 +337,10 @@ packageInfo:
 
 				expectedArgs := []string{
 					"docker", "run", "--rm", "-i", "--mount", fmt.Sprintf("type=bind,src=%s,dst=/tmp/out", autogen.outDir),
-					"--mount", fcmd.RunLog[0][mountIdx], "gcr.io/cloud-marketplace-tools/dm/autogen",
+					"--mount", fcmd.RunLog[0][mountIdx],
+					// NOTE: this container repo is not going to be updated with new images
+					// anymore because DM is being phased out.
+					"gcr.io/cloud-marketplace-tools/dm/autogen",
 					"--input_type", "YAML", "--single_input", "/autogen/autogen.yaml",
 					"--output_type", "PACKAGE", "--output", "/tmp/out",
 				}
