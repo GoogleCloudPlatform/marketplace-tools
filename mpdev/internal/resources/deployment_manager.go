@@ -113,6 +113,8 @@ func (dm *DeploymentManagerAutogenTemplate) Test(registry Registry, dryRun bool)
 }
 
 func (dm *DeploymentManagerAutogenTemplate) runAutogen(registry Registry, inputDir string) error {
+	// NOTE: this container repo is not going to be updated with new images
+	// anymore because DM is being phased out.
 	autogenImg := "gcr.io/cloud-marketplace-tools/dm/autogen"
 	args := []string{"--input_type", "YAML", "--single_input", "/autogen/autogen.yaml",
 		"--output_type", "PACKAGE", "--output", "/tmp/out"}
