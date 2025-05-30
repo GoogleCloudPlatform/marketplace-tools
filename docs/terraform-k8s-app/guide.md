@@ -1,13 +1,10 @@
 # Preparing a Terraform K8s App Package
 
-
 ## Prerequisites
 
 You have an existing K8s App packaged as a Helm Chart. You should have a values.yaml file that parametrizes the deployment.
 
 Some requirements regarding to Charts and Docker Images:
-
-
 
 *   Only one chart is allowed, all dependency charts need to be downloaded under the same folder.  Marketplace does not download charts from remote locations.
 *   All Docker Images need to be included in the solution.  Marketplace does not pull Docker Images outside your GCP projects. 
@@ -15,17 +12,17 @@ Some requirements regarding to Charts and Docker Images:
 
 ## Step 1: Push Your Chart and Images to AR
 
-If you don’t have one yet, create an Artifact Registry Repo in your Producer project. You can create a single repo for all of your Marketplace Terraform K8s App products, or have individual repositories.  \
- \
-If you choose to place your images across multiple products in a single repository, it is recommended that you place all images and charts for each product under its own “folder”. \
- \
+If you don’t have one yet, create an Artifact Registry Repo in your Producer project. You can create a single repo for all of your Marketplace Terraform K8s App products, or have individual repositories.
+
+If you choose to place your images across multiple products in a single repository, it is recommended that you place all images and charts for each product under its own "folder".
+
 Your Artifact Registry repo may look like this: 
 
 
 ```
 us-docker.pkg.dev/[partner-project]/[repo-name]
 # example:
-us-docker.pkg.dev/acme-ai-studio/gcloud-marketplace-repo/
+# us-docker.pkg.dev/acme-ai-studio/gcloud-marketplace-repo/
 ```
 
 Assuming you have a product to provide booking service as TravelAgent, and you the following assets locally
@@ -37,7 +34,8 @@ Assuming you already tested out deploying this to a GKE cluster, everything work
 
 **Push the Docker Image to AR:**
 
-**NOTE: **Make sure you put the Marketplace annotation into your image: [Migrate to annotating container images with their service name | Google Cloud Marketplace Partners](https://cloud.google.com/marketplace/docs/partners/migrations/container-image-annotations) 
+> [!NOTE]
+> Make sure you put the Marketplace annotation into your image: [Migrate to annotating container images with their service name | Google Cloud Marketplace Partners](https://cloud.google.com/marketplace/docs/partners/migrations/container-image-annotations) 
 
 example:
 
@@ -62,17 +60,16 @@ docker push us-docker.pkg.dev/[you-gcp-project-id]/[your-repo]/travel-agent:1.0
 gcloud artifacts docker images list
 ```
 
-
 At the minimum, your image should be tagged with a semantic version of MAJOR.MINOR. You can add other tags (MAJOR.MINOR.PATCH) as you like, but the MAJOR.MINOR version must exist and be the same across all images and Helm Charts used in this version of your app.
 
 For details about how to push Docker Images to AR, reference public doc: [Push and pull images | Artifact Registry documentation | Google Cloud](https://cloud.google.com/artifact-registry/docs/docker/pushing-and-pulling#pushing). 
 
-NOTE: you can add multiple images.
+> [!NOTE]
+> You can add multiple images.
 
 **Push the Helm Chart to AR:**
 
 Assume your helm chart is under folder **_~/dist/travel-agent-chart,_** and the version is 1.0 in Chart.yaml,
-
 
 ```sh
 # this will create a travel-agent-chart-1.0.tgz file
@@ -93,7 +90,8 @@ helm push travel-agent-chart-1.0.tgz oci://us-docker.pkg.dev/[your-gcp-project-i
 
 Now you have your Docker Images and Chart on AR.
 
-NOTE: for simplicity, Marketplace requires the tag for the Chart and Docker Images it refers to to have the same MAJOR.MINOR version tag.  In the example, all Charts and container images should have the tag “1.0”.  Later, if you have a major upgrade, you can bump the Chart version to _2.0_, then all Docker Images it refers to also need to have tags as _2.0_.  For minor changes, update the MINOR part.  Besides the MAJOR.MINOR tag, you can have other tags (e.g., 1.0.2, 1.0.2+patch1) as you like for version management.
+> [!NOTE]
+> For simplicity, Marketplace requires the tag for the Chart and Docker Images it refers to to have the same MAJOR.MINOR version tag.  In the example, all Charts and container images should have the tag "1.0".  Later, if you have a major upgrade, you can bump the Chart version to _2.0_, then all Docker Images it refers to also need to have tags as _2.0_.  For minor changes, update the MINOR part.  Besides the MAJOR.MINOR tag, you can have other tags (e.g., 1.0.2, 1.0.2+patch1) as you like for version management.
 
 
 ## Step 2: Create a Terraform Wrapper Module for your Helm Chart.
@@ -111,7 +109,6 @@ Terraform takes input from consumers through Terraform Variables. It then passes
 You can use `set` blocks to override individual values in the Chart’s values.yaml. This is equivalent to running `helm install --set name1=value1 --set name2=value2`...
 
 Let’s say you have a values.yaml in your Helm Chart like this:
-
 
 ```yaml
 # Default values for travel-agent-chart.
@@ -191,17 +188,6 @@ resource "helm_release" "my_app" {
 
 You can customize other parts of the Terraform module as you like.
 
-NOTE:
-
-
-```
-  repository = var.helm_chart_repo
-  chart      = var.helm_chart_name
-  version    = var.helm_chart_version
-```
-
-
-
 ## Step 3: Create a schema YAML file for your package
 
 When you publish your solution, Marketplace will copy your Helm Chart and Docker Images to the Google owned repository for availability and security reasons.  Customers will deploy your solution based on the copy in the Google owned repository.
@@ -240,8 +226,6 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
 ```
 
-
- \
 Another popular way to define the Docker Image related variables could be:
 
 
@@ -260,8 +244,7 @@ image:
   tag: 1.13.0
 ```
 
-Instructions to create the **_schema.yaml_**: 
-
+Instructions to create **_schema.yaml_**: 
 
 1. Create a YAML file named schema.yaml in the Terraform module folder.  The starter zip has one similar to this:
 
@@ -278,64 +261,26 @@ images:
 
 2. For each Docker Image, add one entry under the **_images_**, the value is the part after the AR repo name.  In this example, for the AR URL: <code>us-docker.pkg.dev/your-proj-id/your-repo/<strong>travel-agent</strong>, </code>the image key is <code>travel-agent</code>.  If you have a Docker Image URL as <code>us-docker.pkg.dev/your-proj-id/your-repo/<strong>my-product-A/webserver-image</strong>, </code>then the image key is <code>my-product-A/webserver-image</code>.
 3. Note the URIs to your Docker Images, which might resemble us-docker.pkg.dev/project-id/repo-name/path/to/chart:tag. We will call
-    1. the “us-docker.pkg.dev” part as the <strong>registry</strong>
-    2. the “project-id/repo-name” part as the <strong>repo</strong>
-    3. the “path/to/chart” part as the <strong>name</strong>. 
+    1. the "us-docker.pkg.dev" part as the <strong>registry</strong>
+    2. the "project-id/repo-name" part as the <strong>repo</strong>
+    3. the "path/to/chart" part as the <strong>name</strong>. 
     4. the tag part as the <strong>tag</strong>.
 4. For each Terraform Variable that references a segment of this URI, declare it under <code>variables</code> with a <code>type</code> sub-property.  This will tell our system to set the corresponding value to the Terraform var.
 5. Figure out the type for each variable you created. The type indicates which part of the Docker Image URI that your variable is supposed to represent. Take <code>us-docker.pkg.dev/project-id/repo-name/path/to/chart:tag</code> as an example.
 
-<table>
-  <tr>
-   <td>
-<strong>Type</strong>
-   </td>
-   <td><strong>Corresponding Value</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>REGISTRY
-   </td>
-   <td>us-docker.pkg.dev
-   </td>
-  </tr>
-  <tr>
-   <td>REPO_WITHOUT_REGISTRY_WITHOUT_NAME
-   </td>
-   <td>project-id/repo-name
-   </td>
-  </tr>
-  <tr>
-   <td>REPO_WITHOUT_REGISTRY_WITH_NAME
-   </td>
-   <td>project-id/repo-name/path/to/chart
-   </td>
-  </tr>
-  <tr>
-   <td>REPO_WITH_REGISTRY_WITHOUT_NAME
-   </td>
-   <td>us-docker.pkg.dev/project-id/repo-name
-   </td>
-  </tr>
-  <tr>
-   <td>REPO_WITH_REGISTRY_WITH_NAME
-   </td>
-   <td>us-docker.pkg.dev/project-id/repo-name/path/to/chart
-   </td>
-  </tr>
-  <tr>
-   <td>NAME
-   </td>
-   <td>path/to/chart
-   </td>
-  </tr>
-  <tr>
-   <td>TAG
-   </td>
-   <td>tag
-   </td>
-  </tr>
-</table>
+Here’s a table summarizing how to map the Docker Image URI to the various variable types:
+
+| Type                               | Corresponding Value                        | Example for `us-docker.pkg.dev/project-id/repo-name/path/to/chart:tag` |
+| :--------------------------------- | :----------------------------------------- | :--------------------------------------------------------------------- |
+| REGISTRY                           | The registry part of the URI               | us-docker.pkg.dev                                                      |
+| REPO_WITHOUT_REGISTRY_WITHOUT_NAME | The repository path, excluding registry and name | project-id/repo-name                                                 |
+| REPO_WITHOUT_REGISTRY_WITH_NAME    | The repository path, excluding registry, and including name | project-id/repo-name/path/to/chart                                     |
+| REPO_WITH_REGISTRY_WITHOUT_NAME    | The registry and repository path, excluding name | us-docker.pkg.dev/project-id/repo-name                                 |
+| REPO_WITH_REGISTRY_WITH_NAME       | The full repository path, including registry and name | us-docker.pkg.dev/project-id/repo-name/path/to/chart                   |
+| NAME                               | The name part of the URI                   | path/to/chart                                                          |
+| TAG                                | The tag part of the URI                    | tag                                                                    |
+
+<br>
 
 
 So let’s revisit the sample **_schema.yaml_**:
@@ -399,9 +344,8 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
 ```
 
-
- \
-NOTE: you can have multiple image records in the **_schema.yaml_**.
+> [!NOTE]
+> You can have multiple image records in **_schema.yaml_**.
 
 
 ## Step 4: Test Deployment Locally
@@ -409,7 +353,7 @@ NOTE: you can have multiple image records in the **_schema.yaml_**.
 With the terraform module ready, please try to deploy your solution into your GCP project, to check if there are any issues.
 
 
-```
+```sh
 # Initialize Terraform
 terraform init
 
@@ -427,10 +371,7 @@ terraform apply \
   -auto-approve
 ```
 
-
- \
 Marketplace will do a verification based on the Terraform modules you provide, and with a set of test variables.  Please provide test variables in **marketplace_test.tfvars**, and put default values there for verification purposes:
-
 
 ```
 cluster_location = us-central-1
@@ -439,15 +380,15 @@ create_cluster   = true
 # make sure no project_id, helm_chart_{repo,name,version} or ANY variable declared in schema.yaml in this file
 ```
 
-
-NOTE: for the variables helm_chart_repo, helm_chart_name, helm_chart_version, please provide the values for local testing either in cli or as default values in variables.tf.
+> [!NOTE]
+> For the variables `helm_chart_repo`, `helm_chart_name`, `helm_chart_version`, please provide the values for local testing either in cli or as default values in variables.tf.
 
 
 ## Step 5: Upload Terraform Module to GCS
 
 Package your Terraform module along with the schema.yaml file into a single zip file. Upload it to a GCS versioned bucket ([how to create a versioned bucket on GCS](https://cloud.google.com/storage/docs/using-object-versioning#set-console)) under your partner project in Google Cloud.  Make sure the bucket supports versioning when it is created.
 
-Assume you have a folder **_travel-agent-terraform, _**and files under the folder, e.g. main.tf, schema.yaml, etc., please make sure when you create the zip file, DO NOT have the _travel-agent-terraform _folder included in the zip file.
+Assume you have a folder **_travel-agent-terraform,_** and files under the folder, e.g. main.tf, schema.yaml, etc., please make sure when you create the zip file, DO NOT have the _travel-agent-terraform_ folder included in the zip file.
 
 
 ```sh
