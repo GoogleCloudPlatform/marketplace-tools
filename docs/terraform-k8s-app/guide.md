@@ -280,8 +280,6 @@ Here’s a table summarizing how to map the Docker Image URI to the various vari
 | NAME                               | The name part of the URI                   | path/to/chart                                                          |
 | TAG                                | The tag part of the URI                    | tag                                                                    |
 
-<br>
-
 
 So let’s revisit the sample **_schema.yaml_**:
 
