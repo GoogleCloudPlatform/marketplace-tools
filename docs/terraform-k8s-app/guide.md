@@ -1,7 +1,7 @@
 # Preparing a Terraform K8s App Package
 
 
-# Prerequisites
+## Prerequisites
 
 You have an existing K8s App packaged as a Helm Chart. You should have a values.yaml file that parametrizes the deployment.
 
@@ -13,7 +13,7 @@ Some requirements regarding to Charts and Docker Images:
 *   All Docker Images need to be included in the solution.  Marketplace does not pull Docker Images outside your GCP projects. 
 
 
-# Step 1: Push Your Chart and Images to AR
+## Step 1: Push Your Chart and Images to AR
 
 If you don’t have one yet, create an Artifact Registry Repo in your Producer project. You can create a single repo for all of your Marketplace Terraform K8s App products, or have individual repositories.  \
  \
@@ -71,7 +71,7 @@ NOTE: you can add multiple images.
 
 **Push the Helm Chart to AR:**
 
-Assume your helm chart is under folder **_~/dist/travel-agent-chart, _**and the version is 1.0 in Chart.yaml
+Assume your helm chart is under folder **_~/dist/travel-agent-chart,_** and the version is 1.0 in Chart.yaml,
 
 
 ```sh
@@ -81,8 +81,8 @@ helm package travel-agent-chart --version 1.0 --app-version 1.0
 
 # push to AR, under [your-repo]
 helm push travel-agent-chart-1.0.tgz oci://us-docker.pkg.dev/[your-gcp-project-id]/[your-repo]
-# example
-helm push travel-agent-chart-1.0.tgz oci://us-docker.pkg.dev/acme-ai-studio/gcloud-marketplace-repo/
+# Example:
+# helm push travel-agent-chart-1.0.tgz oci://us-docker.pkg.dev/acme-ai-studio/gcloud-marketplace-repo/
 
 # this will push the travel-agent-chart to the repo, also add a tag 1.0
 # the 1.0 tag is from the version in Chart.yaml
@@ -96,7 +96,7 @@ Now you have your Docker Images and Chart on AR.
 NOTE: for simplicity, Marketplace requires the tag for the Chart and Docker Images it refers to to have the same MAJOR.MINOR version tag.  In the example, all Charts and container images should have the tag “1.0”.  Later, if you have a major upgrade, you can bump the Chart version to _2.0_, then all Docker Images it refers to also need to have tags as _2.0_.  For minor changes, update the MINOR part.  Besides the MAJOR.MINOR tag, you can have other tags (e.g., 1.0.2, 1.0.2+patch1) as you like for version management.
 
 
-# Step 2: Create a Terraform Wrapper Module for your Helm Chart.
+## Step 2: Create a Terraform Wrapper Module for your Helm Chart.
 
 We will use Terraform to deploy our solution, and in Terraform, we use Helm Provider to deploy Helm Charts. To be specific for Google Cloud, we use InfraManager, a hosted Terraform infrastructure for deployment management.
 
@@ -202,7 +202,7 @@ NOTE:
 
 
 
-# Step 3: Create a schema YAML file for your package
+## Step 3: Create a schema YAML file for your package
 
 When you publish your solution, Marketplace will copy your Helm Chart and Docker Images to the Google owned repository for availability and security reasons.  Customers will deploy your solution based on the copy in the Google owned repository.
 
@@ -404,7 +404,7 @@ spec:
 NOTE: you can have multiple image records in the **_schema.yaml_**.
 
 
-# Step 4: Test Deployment Locally
+## Step 4: Test Deployment Locally
 
 With the terraform module ready, please try to deploy your solution into your GCP project, to check if there are any issues.
 
@@ -443,7 +443,7 @@ create_cluster   = true
 NOTE: for the variables helm_chart_repo, helm_chart_name, helm_chart_version, please provide the values for local testing either in cli or as default values in variables.tf.
 
 
-# Step 5: Upload Terraform Module to GCS
+## Step 5: Upload Terraform Module to GCS
 
 Package your Terraform module along with the schema.yaml file into a single zip file. Upload it to a GCS versioned bucket ([how to create a versioned bucket on GCS](https://cloud.google.com/storage/docs/using-object-versioning#set-console)) under your partner project in Google Cloud.  Make sure the bucket supports versioning when it is created.
 
