@@ -218,7 +218,7 @@ metadata:
 spec:
     ...
     template:
-    ...
+      ...
     spec:
       containers:
       - name: travel-agent-container
@@ -259,14 +259,14 @@ images:
         type: TAG
 ```
 
-2. For each Docker Image, add one entry under the **_images_**, the value is the part after the AR repo name.  In this example, for the AR URL: <code>us-docker.pkg.dev/your-proj-id/your-repo/<strong>travel-agent</strong>, </code>the image key is <code>travel-agent</code>.  If you have a Docker Image URL as <code>us-docker.pkg.dev/your-proj-id/your-repo/<strong>my-product-A/webserver-image</strong>, </code>then the image key is <code>my-product-A/webserver-image</code>.
+2. For each Docker Image, add one entry under the **_images_**, the value is the part after the AR repo name.  In this example, for the AR URL: `us-docker.pkg.dev/your-proj-id/your-repo/**travel-agent**`, the image key is `travel-agent`.  If you have a Docker Image URL as `us-docker.pkg.dev/your-proj-id/your-repo/**my-product-A/webserver-image**, `then the image key is `my-product-A/webserver-image`.
 3. Note the URIs to your Docker Images, which might resemble us-docker.pkg.dev/project-id/repo-name/path/to/chart:tag. We will call
-    1. the "us-docker.pkg.dev" part as the <strong>registry</strong>
-    2. the "project-id/repo-name" part as the <strong>repo</strong>
-    3. the "path/to/chart" part as the <strong>name</strong>. 
-    4. the tag part as the <strong>tag</strong>.
-4. For each Terraform Variable that references a segment of this URI, declare it under <code>variables</code> with a <code>type</code> sub-property.  This will tell our system to set the corresponding value to the Terraform var.
-5. Figure out the type for each variable you created. The type indicates which part of the Docker Image URI that your variable is supposed to represent. Take <code>us-docker.pkg.dev/project-id/repo-name/path/to/chart:tag</code> as an example.
+    1. the "us-docker.pkg.dev" part as the **registry**
+    2. the "project-id/repo-name" part as the **repo**
+    3. the "path/to/chart" part as the **name**. 
+    4. the tag part as the **tag**.
+4. For each Terraform Variable that references a segment of this URI, declare it under `variables` with a `type` sub-property.  This will tell our system to set the corresponding value to the Terraform var.
+5. Figure out the type for each variable you created. The type indicates which part of the Docker Image URI that your variable is supposed to represent. Take `us-docker.pkg.dev/project-id/repo-name/path/to/chart:tag` as an example.
 
 Here’s a table summarizing how to map the Docker Image URI to the various variable types:
 
