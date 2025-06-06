@@ -34,8 +34,7 @@ Assuming you already tested out deploying this to a GKE cluster, everything work
 
 **Push the Docker Image to AR:**
 
-> [!NOTE]
-> Make sure you put the Marketplace annotation into your image: [Migrate to annotating container images with their service name | Google Cloud Marketplace Partners](https://cloud.google.com/marketplace/docs/partners/migrations/container-image-annotations) 
+> [!NOTE] Make sure you put the Marketplace annotation into your image: [Migrate to annotating container images with their service name | Google Cloud Marketplace Partners](https://cloud.google.com/marketplace/docs/partners/migrations/container-image-annotations) 
 
 example:
 
@@ -64,8 +63,7 @@ At the minimum, your image should be tagged with a semantic version of MAJOR.MIN
 
 For details about how to push Docker Images to AR, reference public doc: [Push and pull images | Artifact Registry documentation | Google Cloud](https://cloud.google.com/artifact-registry/docs/docker/pushing-and-pulling#pushing). 
 
-> [!NOTE]
-> You can add multiple images.
+> [!NOTE] You can add multiple images.
 
 **Push the Helm Chart to AR:**
 
@@ -90,8 +88,7 @@ helm push travel-agent-chart-1.0.tgz oci://us-docker.pkg.dev/[your-gcp-project-i
 
 Now you have your Docker Images and Chart on AR.
 
-> [!NOTE]
-> For simplicity, Marketplace requires the tag for the Chart and Docker Images it refers to to have the same MAJOR.MINOR version tag.  In the example, all Charts and container images should have the tag "1.0".  Later, if you have a major upgrade, you can bump the Chart version to _2.0_, then all Docker Images it refers to also need to have tags as _2.0_.  For minor changes, update the MINOR part.  Besides the MAJOR.MINOR tag, you can have other tags (e.g., 1.0.2, 1.0.2+patch1) as you like for version management.
+> [!NOTE] For simplicity, Marketplace requires the tag for the Chart and Docker Images it refers to to have the same MAJOR.MINOR version tag.  In the example, all Charts and container images should have the tag "1.0".  Later, if you have a major upgrade, you can bump the Chart version to _2.0_, then all Docker Images it refers to also need to have tags as _2.0_.  For minor changes, update the MINOR part.  Besides the MAJOR.MINOR tag, you can have other tags (e.g., 1.0.2, 1.0.2+patch1) as you like for version management.
 
 
 ## Step 2: Create a Terraform Wrapper Module for your Helm Chart.
@@ -342,8 +339,7 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
 ```
 
-> [!NOTE]
-> You can have multiple image records in **_schema.yaml_**.
+> [!NOTE] You can have multiple image records in **_schema.yaml_**.
 
 
 ## Step 4: Test Deployment Locally
@@ -378,8 +374,7 @@ create_cluster   = true
 # make sure no project_id, helm_chart_{repo,name,version} or ANY variable declared in schema.yaml in this file
 ```
 
-> [!NOTE]
-> For the variables `helm_chart_repo`, `helm_chart_name`, `helm_chart_version`, please provide the values for local testing either in cli or as default values in variables.tf.
+> [!NOTE] For the variables `helm_chart_repo`, `helm_chart_name`, `helm_chart_version`, please provide the values for local testing either in cli or as default values in variables.tf.
 
 
 ## Step 5: Upload Terraform Module to GCS
