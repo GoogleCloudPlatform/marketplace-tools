@@ -192,7 +192,7 @@ You can customize other parts of the Terraform module as you like.
 
 When you publish your solution, Marketplace will copy your Helm Chart and Docker Images to the Google owned repository for availability and security reasons.  Customers will deploy your solution based on the copy in the Google owned repository.
 
-During publishing, the helm chart location in **_helm.tf_ **will be automatically replaced with that to the Google owned location.
+During publishing, the helm chart location in **helm.tf** will be automatically replaced with that to the Google owned location.
 
 For Docker Images, our goal is that you don’t need to change your existing Helm Chart files. You will need to create a mapping file called **_schema.yaml_** to define Terraform variables for each Docker Image you have, and those Terraform variables will be used to override your Helm Chart variables.  The values of those Terraform variables you defined in **_schema.yaml_** are populated by our system during the publishing process.
 
@@ -259,7 +259,7 @@ images:
         type: TAG
 ```
 
-2. For each Docker Image, add one entry under the **_images_**, the value is the part after the AR repo name.  In this example, for the AR URL: `us-docker.pkg.dev/your-proj-id/your-repo/**travel-agent**`, the image key is `travel-agent`.  If you have a Docker Image URL as `us-docker.pkg.dev/your-proj-id/your-repo/**my-product-A/webserver-image**, `then the image key is `my-product-A/webserver-image`.
+2. For each Docker Image, add one entry under the **_images_**, the value is the part after the AR repo name.  In this example, for the AR URL: <code>us-docker.pkg.dev/your-proj-id/your-repo/**travel-agent**</code>, the image key is `travel-agent`.  If you have a Docker Image URL as <code>us-docker.pkg.dev/your-proj-id/your-repo/**my-product-A/webserver-image**</code>, then the image key is `my-product-A/webserver-image`.
 3. Note the URIs to your Docker Images, which might resemble us-docker.pkg.dev/project-id/repo-name/path/to/chart:tag. We will call
     1. the "us-docker.pkg.dev" part as the **registry**
     2. the "project-id/repo-name" part as the **repo**
@@ -294,9 +294,9 @@ images:
         type: TAG
 ```
 
-This will tell the Marketplace system to populate corresponding values into the two tf variables: **image_repo** and **image_tag**.
+This will tell the Marketplace system to populate corresponding values into the two tf variables: `image_repo` and `image_tag`.
 
-The image_repo and image_tag also need to be defined in the variables.tf as mentioned before: 
+The `image_repo` and `image_tag` also need to be defined in the variables.tf as mentioned before: 
 
 ```hcl
 variable "image_repo" {
