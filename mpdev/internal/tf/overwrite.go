@@ -248,7 +248,7 @@ func upsertConsumerLabel(dir string, mpConsumperlabel string) error {
 			fmt.Printf("Successfully upserted consumber label in %s\n", mainTfFullPath)
 			return err
 		} else {
-			fmt.Printf("'%s' block detected in %s. Not overwriting.\n", defaultLabelsConst, mainTfFullPath)
+			fmt.Printf("'%s' attribute detected in %s. Not overwriting.\n", defaultLabelsConst, mainTfFullPath)
 		}
 	}
 
