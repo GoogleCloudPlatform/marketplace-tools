@@ -197,16 +197,16 @@ func overwriteFile(filename string, varname string, value string) error {
 // Inserts a consumer label under the `provider "google"` block if it does
 // not exist.
 // The `dir` parameter is the path to the TF main file.
-// The `mpConsumperlabel` parameter is the label value.
-func upsertConsumerLabel(dir string, mpConsumperlabel string) error {
+// The `mpConsumerlabel` parameter is the label value.
+func upsertConsumerLabel(dir string, mpConsumerlabel string) error {
 	// If the parameter is not provided, do nothing.
 	// This is for backward-compatibility purpose.
-	if len(mpConsumperlabel) == 0 {
+	if len(mpConsumerlabel) == 0 {
 		fmt.Printf("No consumer label was passed as a parameter.\n")
 		return nil
 	}
 
-	fmt.Printf("Inserting the '%s' consumer label.\n", mpConsumperlabel)
+	fmt.Printf("Inserting the '%s' consumer label.\n", mpConsumerlabel)
 
 	mainTfFullPath := path.Join(dir, mainTfFile)
 	b, err := os.ReadFile(mainTfFullPath)
@@ -232,7 +232,7 @@ func upsertConsumerLabel(dir string, mpConsumperlabel string) error {
 
 			defaultLabelsAttribute =
 				providerGoogleBlock.Body().SetAttributeValue(defaultLabelsConst, cty.MapVal(map[string]cty.Value{
-					consumerLabelConst: cty.StringVal(mpConsumperlabel),
+					consumerLabelConst: cty.StringVal(mpConsumerlabel),
 				}))
 
 			f, err := os.OpenFile(mainTfFullPath, os.O_WRONLY|os.O_TRUNC, 0000)
