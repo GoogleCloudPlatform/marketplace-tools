@@ -230,8 +230,7 @@ func upsertConsumerLabel(dir string, mpConsumerlabel string) error {
 		if defaultLabelsAttribute == nil {
 			fmt.Printf("'%s' attribute not found in %s. Appending.\n", defaultLabelsConst, mainTfFullPath)
 
-			defaultLabelsAttribute =
-				providerGoogleBlock.Body().SetAttributeValue(defaultLabelsConst, cty.MapVal(map[string]cty.Value{
+			providerGoogleBlock.Body().SetAttributeValue(defaultLabelsConst, cty.MapVal(map[string]cty.Value{
 					consumerLabelConst: cty.StringVal(mpConsumerlabel),
 				}))
 
