@@ -12,6 +12,7 @@ require (
 	github.com/stretchr/testify v1.7.1
 	github.com/tidwall/gjson v1.14.2
 	github.com/tidwall/sjson v1.2.5
+	github.com/zclconf/go-cty v1.12.1
 	gonum.org/v1/gonum v0.7.0
 	gopkg.in/yaml.v3 v3.0.0
 	k8s.io/utils v0.0.0-20191114184206-e782cd3c129f
@@ -83,7 +84,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca // indirect
-	github.com/zclconf/go-cty v1.12.1 // indirect
 	go.mongodb.org/mongo-driver v1.1.2 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
