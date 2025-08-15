@@ -26,6 +26,8 @@ import (
 	"github.com/tidwall/sjson"
 	"sigs.k8s.io/yaml"
 
+	"github.com/zclconf/go-cty/cty"
+
 	"os"
 	"path"
 )
@@ -195,16 +197,16 @@ func overwriteFile(filename string, varname string, value string) error {
 // Inserts a consumer label under the `provider "google"` block if it does
 // not exist.
 // The `dir` parameter is the path to the TF main file.
-// The `label` parameter is the label value.
-func upsertConsumerLabel(dir string, label string) error {
+// The `mpConsumerlabel` parameter is the label value.
+func upsertConsumerLabel(dir string, mpConsumerlabel string) error {
 	// If the parameter is not provided, do nothing.
 	// This is for backward-compatibility purpose.
-	if len(label) == 0 {
-		fmt.Printf("No consumber label was passed as a parameter.\n")
+	if len(mpConsumerlabel) == 0 {
+		fmt.Printf("No consumer label was passed as a parameter.\n")
 		return nil
 	}
 
-	fmt.Printf("Inserting the '%s' consumber label.\n", label)
+	fmt.Printf("Inserting the '%s' consumer label.\n", mpConsumerlabel)
 
 	mainTfFullPath := path.Join(dir, mainTfFile)
 	b, err := os.ReadFile(mainTfFullPath)
@@ -217,30 +219,20 @@ func upsertConsumerLabel(dir string, label string) error {
 	}
 
 	// the `provider` section is expected in the main config file
-	providerBlock := mainTfParsedFile.Body().FirstMatchingBlock("provider", []string{"google"})
-	if providerBlock == nil {
+	providerGoogleBlock := mainTfParsedFile.Body().FirstMatchingBlock("provider", []string{"google"})
+	if providerGoogleBlock == nil {
 		// We always expect a `provider` block in the main config
 		return fmt.Errorf("'provider \"google\"' block not found in %s", mainTfFullPath)
 	} else {
 		fmt.Printf("'provider \"google\"' block detected in %s\n", mainTfFullPath)
 
-		defaultLabelsBlock := providerBlock.Body().FirstMatchingBlock(defaultLabelsConst, []string{})
-		if defaultLabelsBlock == nil {
-			fmt.Printf("'%s' block not found in %s. Appending.\n", defaultLabelsConst, mainTfFullPath)
+		defaultLabelsAttribute := providerGoogleBlock.Body().GetAttribute(defaultLabelsConst)
+		if defaultLabelsAttribute == nil {
+			fmt.Printf("'%s' attribute not found in %s. Appending.\n", defaultLabelsConst, mainTfFullPath)
 
-			defaultLabelsBlock =
-				providerBlock.Body().AppendBlock(
-					hclwrite.NewBlock(defaultLabelsConst, []string{}))
-		} else {
-			fmt.Printf("'%s' block detected in %s\n", defaultLabelsConst, mainTfFullPath)
-		}
-
-		labelAttribute := defaultLabelsBlock.Body().GetAttribute(consumerLabelConst)
-		if labelAttribute == nil {
-			// SetAttributeValue() is cleaner to overwrite values, however SetAttributeRaw gives more
-			// control over formatting. SetAttributeValue() and File.WriteTo() would overwrite all
-			// formatting. See: https://github.com/hashicorp/hcl/issues/316
-			defaultLabelsBlock.Body().SetAttributeRaw(consumerLabelConst, getAttributeValueTokens(label))
+			providerGoogleBlock.Body().SetAttributeValue(defaultLabelsConst, cty.MapVal(map[string]cty.Value{
+				consumerLabelConst: cty.StringVal(mpConsumerlabel),
+			}))
 
 			f, err := os.OpenFile(mainTfFullPath, os.O_WRONLY|os.O_TRUNC, 0000)
 			if err != nil {
@@ -255,7 +247,7 @@ func upsertConsumerLabel(dir string, label string) error {
 			fmt.Printf("Successfully upserted consumber label in %s\n", mainTfFullPath)
 			return err
 		} else {
-			fmt.Printf("Consumer label already exists in %s. Not overwriting.\n", mainTfFullPath)
+			fmt.Printf("'%s' attribute detected in %s. Not overwriting.\n", defaultLabelsConst, mainTfFullPath)
 		}
 	}
 

@@ -605,7 +605,7 @@ variable "value_to_replace" {
 var mainTfProvidedLabel string = `
 provider "google" {
   project = var.project_id
-  default_labels {
+  default_labels = {
     goog-partner-solution = "new-consumer-label"
   }
 }
@@ -623,7 +623,7 @@ variable "value_to_replace" {
 var mainTfLabelUpserted string = `
 provider "google" {
   project = var.project_id
-  default_labels {
+  default_labels = {
     goog-partner-solution = "new-consumer-label"
   }
 }

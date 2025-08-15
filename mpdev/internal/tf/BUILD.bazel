@@ -12,6 +12,7 @@ go_library(
         "@com_github_hashicorp_terraform_config_inspect//tfconfig:go_default_library",
         "@com_github_tidwall_gjson//:go_default_library",
         "@com_github_tidwall_sjson//:go_default_library",
+        "@com_github_zclconf_go_cty//cty:go_default_library",
         "@io_k8s_sigs_yaml//:go_default_library",
     ],
 )
