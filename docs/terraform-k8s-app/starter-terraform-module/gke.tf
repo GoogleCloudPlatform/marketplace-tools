@@ -74,7 +74,7 @@ data "google_compute_subnetwork" "subnetwork" {
 module "gke" {
   count   = var.create_cluster ? 1 : 0
   source  = "terraform-google-modules/kubernetes-engine/google"
-  version = "~> 27.0"
+  version = ">= 29.0"
 
   project_id             = var.project_id
   create_service_account = var.create_cluster_service_account
