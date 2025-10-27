@@ -50,7 +50,7 @@ variable "helm_chart_version" {
 
 variable "kubernetes_version" {
   type    = string
-  default = "1.30"
+  default = "1.32"
 }
 
 variable "cluster_name" {
