@@ -13,7 +13,7 @@
 # limitations under the License.
 
 apiVersion: v2
-name: flask-app
+name: chart
 description: A Helm chart for a simple Python Flask application
 type: application
 version: "0.1"
