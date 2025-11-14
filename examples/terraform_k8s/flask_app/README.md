@@ -1,12 +1,17 @@
 # How to Use the Terraform K8s App Example
 
-After cloning the repo, cd into this directory (examples/terraform\_k8s/flask\_app).
+This guide walks through how to use the example Kubernetes app package in this directory. To use this example, first create a Kubernetes App (using Terraform) Listing in Producer Portal.
+
+Clone this repository and cd into this directory (examples/terraform\_k8s/flask\_app).
 
 ## Preparing Artifact Registry Assets
 
+If you haven't yet, [enable the Artifact Registry API](https://cloud.google.com/artifact-registry/docs/enable-service) for your project, and create
+a **multi-region** repository in the ``us'' multi-region. The repo must be under the us-docker.pkg.dev host.
+
 ### Build and upload container image
 
-Use podman or docker, build the Flask App container image and push it to :
+Use docker (or podman), build the Flask App container image and push it to the AR repo:
 
 ```shell
 AR_REPO="us-docker.pkg.dev/your-project/your-repo"
@@ -15,11 +20,11 @@ AR_IMAGE_NAME="app"
 TAG="1.0"
 APP_IMAGE_FULL_URI="${AR_REPO}/${AR_PATH_PREFIX}/${AR_IMAGE_NAME}:${TAG}"
 
-podman build . -t "$APP_IMAGE_FULL_URI"
-podman push "$APP_IMAGE_FULL_URI"
+docker build . -t "$APP_IMAGE_FULL_URI"
+docker push "$APP_IMAGE_FULL_URI"
 ```
 
-Set the required service name annotation using crane or gcrane:
+Set the required [service name annotation](https://cloud.google.com/marketplace/docs/partners/migrations/container-image-annotations) using crane or gcrane:
 
 ```shell
 SERVICE_NAME="your-listing.endpoints.your-project.cloud.goog"
