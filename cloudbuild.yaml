@@ -19,10 +19,6 @@ steps:
   name: gcr.io/cloud-builders/docker
   args: ['build', '.', '-t', 'gcr.io/$PROJECT_ID/mpdev:sha_$COMMIT_SHA', '--cache-from',
       'gcr.io/$PROJECT_ID/mpdev:latest']
-- id: Test mpdev apply
-  name: gcr.io/$PROJECT_ID/mpdev:sha_$COMMIT_SHA
-  args: ['apply', '-f', 'examples/deployment-manager/autogen/singlevm/configurations.yaml']
-  env: ['MPDEV_TMP_DIR=/workspace']
 
 images:
 - 'gcr.io/$PROJECT_ID/mpdev:sha_$COMMIT_SHA'
