@@ -1,0 +1,121 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: BlueprintMetadata
+metadata:
+  name: todo-display
+  annotations:
+    config.kubernetes.io/local-config: "true"
+spec:
+  info:
+    title: TODO
+    source: {}
+  ui:
+    input:
+      variables:
+        project_id:
+          name: project_id
+          title: Project Id
+          invisible: true
+        create_cluster:
+          name: create_cluster
+          title: Create Cluster
+          xGoogleProperty:
+            type: ET_CREATE_RESOURCE
+        cluster_location:
+          name: cluster_location
+          title: Cluster Location
+          xGoogleProperty:
+            type: ET_GCE_LOCATION
+        cluster_name:
+          name: cluster_name
+          title: Cluster Name
+          xGoogleProperty:
+            type: ET_GKE_CLUSTER
+            gkeCluster:
+              locationVariable: cluster_location
+              clusterCreationVariable: create_cluster
+        cluster_service_account:
+          name: cluster_service_account
+          title: Cluster Service Account
+        cpu_pools:
+          name: cpu_pools
+          title: Cpu Pools
+        create_cluster_service_account:
+          name: create_cluster_service_account
+          title: Create Cluster Service Account
+        enable_gpu:
+          name: enable_gpu
+          title: Enable Gpu
+        enable_tpu:
+          name: enable_tpu
+          title: Enable Tpu
+        gpu_pools:
+          name: gpu_pools
+          title: Gpu Pools
+        helm_chart_name:
+          name: helm_chart_name
+          title: Helm Chart Name
+          invisible: true
+        helm_chart_repo:
+          name: helm_chart_repo
+          title: Helm Chart Repo
+          invisible: true
+        helm_chart_version:
+          name: helm_chart_version
+          title: Helm Chart Version
+          invisible: true
+        helm_release_name:
+          name: helm_release_name
+          title: Helm Release Name
+        image_repo:
+          name: image_repo
+          title: Image Repo
+          invisible: true
+        image_tag:
+          name: image_tag
+          title: Image Tag
+          invisible: true
+        ip_range_pods:
+          name: ip_range_pods
+          title: Ip Range Pods
+        ip_range_services:
+          name: ip_range_services
+          title: Ip Range Services
+        kubernetes_version:
+          name: kubernetes_version
+          title: Kubernetes Version
+        namespace:
+          name: namespace
+          title: Namespace
+        network_name:
+          name: network_name
+          title: Network Name
+        project_id:
+          name: project_id
+          title: Project Id
+        replica_count:
+          name: replica_count
+          title: Replica Count
+          level: 1
+        subnetwork_name:
+          name: subnetwork_name
+          title: Subnetwork Name
+        subnetwork_region:
+          name: subnetwork_region
+          title: Subnetwork Region
+        tpu_pools:
+          name: tpu_pools
+          title: Tpu Pools

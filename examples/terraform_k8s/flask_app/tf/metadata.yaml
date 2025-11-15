@@ -1,0 +1,108 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: BlueprintMetadata
+metadata:
+  name: todo
+  annotations:
+    config.kubernetes.io/local-config: "true"
+spec:
+  info:
+    title: TODO
+    source: {}
+    actuationTool:
+      flavor: Terraform
+    description: {}
+  content: {}
+  interfaces:
+    variables:
+      - name: project_id
+        description: GCP project id
+        varType: string
+        required: true
+      - name: create_cluster_service_account
+        varType: bool
+        defaultValue: false
+      - name: cluster_service_account
+        varType: string
+        defaultValue: ""
+      - name: helm_release_name
+        varType: string
+        defaultValue: ""
+      - name: helm_chart_repo
+        varType: string
+        required: true
+      - name: helm_chart_name
+        varType: string
+        required: true
+      - name: helm_chart_version
+        varType: string
+        required: true
+      - name: kubernetes_version
+        varType: string
+        defaultValue: "1.30"
+      - name: cluster_name
+        varType: string
+        required: true
+      - name: cluster_location
+        varType: string
+        required: true
+      - name: create_cluster
+        varType: bool
+        defaultValue: false
+      - name: namespace
+        varType: string
+        defaultValue: default
+      - name: enable_gpu
+        description: Set to true to create GPU node pool
+        varType: bool
+        defaultValue: false
+      - name: enable_tpu
+        description: Set to true to create TPU node pool
+        varType: bool
+        defaultValue: false
+      - name: ip_range_pods
+        varType: string
+        defaultValue: ""
+      - name: ip_range_services
+        varType: string
+        defaultValue: ""
+      - name: network_name
+        varType: string
+        defaultValue: default
+      - name: subnetwork_name
+        varType: string
+        defaultValue: default
+      - name: subnetwork_region
+        varType: string
+        defaultValue: us-central1
+      - name: image_repo
+        varType: string
+        required: true
+      - name: image_tag
+        varType: string
+        required: true
+      - name: replica_count
+        varType: number
+        required: true
+    outputs:
+      - name: gke_cluster_location
+        description: GKE cluster location
+      - name: gke_cluster_name
+        description: GKE cluster name
+      - name: gke_cluster_service_account
+        description: Service account
+      - name: project_id
+        description: GCP project ID
