@@ -9,7 +9,7 @@ This repository contains the `mpdev` tool supporting the development of VMs depl
 
 The following tools must be installed before using `mpdev`.
 * [docker](https://docs.docker.com/get-docker/)
-* [gsutil](https://cloud.google.com/storage/docs/gsutil_install)
+* [gcloud CLI](https://cloud.google.com/storage/docs/gsutil_install)
 * zip `sudo apt-get install zip`
 
 ## Options

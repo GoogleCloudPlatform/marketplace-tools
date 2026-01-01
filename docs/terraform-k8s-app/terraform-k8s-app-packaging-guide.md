@@ -392,6 +392,5 @@ Assume you have a folder **_travel-agent-terraform,_** and files under the folde
 ```sh
 cd travel-agent-terraform
 zip -r ../travel-agent-tf.zip *
-gsutil cp ../travel-agent-tf.zip gs://your-bucket/
+gcloud storage cp ../travel-agent-tf.zip gs://your-bucket/
 ```
-
