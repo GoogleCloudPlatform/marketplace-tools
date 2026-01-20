@@ -242,7 +242,7 @@ func (dm *DeploymentManagerTemplate) Apply(registry Registry, dryRun bool) error
 	fmt.Printf("DM template zipped to %s\n", localZipPath)
 
 	if isGCSUpload {
-		cmd := executor.Command("gsutil", "cp", localZipPath, dm.ZipFilePath)
+		cmd := executor.Command("gcloud", "storage", "cp", localZipPath, dm.ZipFilePath)
 		cmd.SetStdout(os.Stdout)
 		cmd.SetStderr(os.Stderr)
 

@@ -68,7 +68,7 @@ Now you can zip the module and upload it to GCS with gsutil:
 
 ```shell
 zip -r ../tf.zip .
-gsutil cp ../tf.zip gs://your-bucket/tf.zip
+gcloud storage cp ../tf.zip gs://your-bucket/tf.zip
 ```
 
 ## Proceed to set up in Producer Portal

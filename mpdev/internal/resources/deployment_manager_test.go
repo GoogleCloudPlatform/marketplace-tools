@@ -42,7 +42,7 @@ func TestDeploymentManager(t *testing.T) {
 		name: "Deployment Manager GCS",
 		expectedRunArgs: [][]string{
 			{"zip", "-r", "/tmp/outdir/dm_template.zip", "."},
-			{"gsutil", "cp", "/tmp/outdir/dm_template.zip", "gs://project/dmtemppath.zip"},
+			{"gcloud", "storage", "cp", "/tmp/outdir/dm_template.zip", "gs://project/dmtemppath.zip"},
 		},
 		zipFilePath: "gs://project/dmtemppath.zip",
 	}, {
