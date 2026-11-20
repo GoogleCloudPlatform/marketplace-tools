@@ -1,0 +1,29 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["pkgget.go"],
+    importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/pkgget",
+    visibility = ["//mpdev:__subpackages__"],
+    deps = [
+        "//mpdev/internal/fsutil:go_default_library",
+        "@io_k8s_sigs_kustomize_kyaml//fieldmeta:go_default_library",
+        "@io_k8s_sigs_kustomize_kyaml//kio:go_default_library",
+        "@io_k8s_sigs_kustomize_kyaml//kio/filters:go_default_library",
+        "@io_k8s_sigs_kustomize_kyaml//kio/kioutil:go_default_library",
+        "@io_k8s_sigs_kustomize_kyaml//setters:go_default_library",
+        "@io_k8s_sigs_kustomize_kyaml//setters2/settersutil:go_default_library",
+        "@io_k8s_sigs_kustomize_kyaml//yaml:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["pkgget_test.go"],
+    embed = [":go_default_library"],
+    deps = [
+        "//mpdev/internal/fsutil:go_default_library",
+        "@com_github_stretchr_testify//assert:go_default_library",
+        "@com_github_stretchr_testify//require:go_default_library",
+    ],
+)

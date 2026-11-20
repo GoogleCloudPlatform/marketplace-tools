@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["fsutil.go"],
+    importpath = "github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/fsutil",
+    visibility = ["//mpdev:__subpackages__"],
+)
+
+go_test(
+    name = "go_default_test",
+    size = "small",
+    srcs = ["fsutil_test.go"],
+    embed = [":go_default_library"],
+)

@@ -14,11 +14,14 @@
 package tf
 
 import (
+	"errors"
 	"os"
 	"path"
 	"path/filepath"
+	"syscall"
 	"testing"
 
+	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/fsutil"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 )
@@ -818,3 +821,192 @@ spec:
           xGoogleProperty:
             type: ET_GCE_DISK_IMAGE
 `
+
+func TestOverwriteRejectsSymlinksAndPreservesCanaries(t *testing.T) {
+	t.Run("variables_tf_absolute_and_relative_symlinks_rejected_for_new_values_and_replacements", func(t *testing.T) {
+		outsideDir := t.TempDir()
+		canaryTf := filepath.Join(outsideDir, "canary.tf")
+		const canaryBody = `variable "value_to_replace" {
+  type    = string
+  default = "CANARY_SECRET_VALUE"
+}
+`
+		assert.NoError(t, os.WriteFile(canaryTf, []byte(canaryBody), 0600))
+
+		for _, useRel := range []bool{false, true} {
+			modDir := filepath.Join(outsideDir, "mod")
+			assert.NoError(t, os.RemoveAll(modDir))
+			assert.NoError(t, os.MkdirAll(modDir, 0755))
+			assert.NoError(t, os.WriteFile(filepath.Join(modDir, "main.tf"), []byte(`provider "google" {}`+"\n"), 0644))
+
+			target := canaryTf
+			if useRel {
+				var err error
+				target, err = filepath.Rel(modDir, canaryTf)
+				assert.NoError(t, err)
+			}
+			assert.NoError(t, os.Symlink(target, filepath.Join(modDir, "variables.tf")))
+
+			errNew := OverwriteTf(&overwriteConfig{
+				NewValues: map[string]string{"value_to_replace": "pwned"},
+			}, modDir)
+			assert.ErrorIs(t, errNew, fsutil.ErrSymlink)
+			assert.NotContains(t, errNew.Error(), "CANARY_SECRET_VALUE")
+
+			errLegacy := OverwriteTf(&overwriteConfig{
+				Variables:    []string{"value_to_replace"},
+				Replacements: map[string]string{"CANARY_SECRET_VALUE": "pwned"},
+			}, modDir)
+			assert.ErrorIs(t, errLegacy, fsutil.ErrSymlink)
+
+			gotCanary, err := os.ReadFile(canaryTf)
+			assert.NoError(t, err)
+			assert.Equal(t, canaryBody, string(gotCanary))
+		}
+	})
+
+	t.Run("main_tf_consumer_label_symlink_rejected", func(t *testing.T) {
+		outsideDir := t.TempDir()
+		canaryMain := filepath.Join(outsideDir, "canary_main.tf")
+		assert.NoError(t, os.WriteFile(canaryMain, []byte(mainTfNoLabel), 0600))
+
+		modDir := t.TempDir()
+		assert.NoError(t, os.Symlink(canaryMain, filepath.Join(modDir, "main.tf")))
+
+		err := OverwriteTf(&overwriteConfig{ConsumerLabel: "injected-label"}, modDir)
+		assert.ErrorIs(t, err, fsutil.ErrSymlink)
+
+		gotCanary, readErr := os.ReadFile(canaryMain)
+		assert.NoError(t, readErr)
+		assert.Equal(t, mainTfNoLabel, string(gotCanary))
+	})
+
+	t.Run("metadata_and_display_symlinks_rejected_preserving_canaries", func(t *testing.T) {
+		outsideDir := t.TempDir()
+		canaryMeta := filepath.Join(outsideDir, "canary_metadata.yaml")
+		canaryDisp := filepath.Join(outsideDir, "canary_display.yaml")
+		assert.NoError(t, os.WriteFile(canaryMeta, []byte(metadata), 0600))
+		assert.NoError(t, os.WriteFile(canaryDisp, []byte(metadataDisplayWithEnumsSingle), 0600))
+
+		modDir := t.TempDir()
+		assert.NoError(t, os.Symlink(canaryMeta, filepath.Join(modDir, "metadata.yaml")))
+		err := OverwriteMetadata(&overwriteConfig{
+			NewValues: map[string]string{"source_image": "pwned"},
+		}, modDir)
+		assert.ErrorIs(t, err, fsutil.ErrSymlink)
+
+		dispDir := t.TempDir()
+		assert.NoError(t, os.Symlink(canaryDisp, filepath.Join(dispDir, "metadata.display.yaml")))
+		err = OverwriteDisplay(&overwriteConfig{
+			NewValues: map[string]string{"source_image": "pwned"},
+		}, dispDir)
+		assert.ErrorIs(t, err, fsutil.ErrSymlink)
+
+		gotMeta, err := os.ReadFile(canaryMeta)
+		assert.NoError(t, err)
+		assert.Equal(t, metadata, string(gotMeta))
+
+		gotDisp, err := os.ReadFile(canaryDisp)
+		assert.NoError(t, err)
+		assert.Equal(t, metadataDisplayWithEnumsSingle, string(gotDisp))
+	})
+
+	t.Run("chained_symlinks_and_tf_json_symlinks_rejected", func(t *testing.T) {
+		outsideDir := t.TempDir()
+		canaryJSON := filepath.Join(outsideDir, "canary.tf.json")
+		const tfJSON = `{"variable":{"value_to_replace":{"type":"string","default":"secret"}}}`
+		assert.NoError(t, os.WriteFile(canaryJSON, []byte(tfJSON), 0600))
+		hop1 := filepath.Join(outsideDir, "hop1.tf.json")
+		assert.NoError(t, os.Symlink(canaryJSON, hop1))
+
+		modDir := t.TempDir()
+		assert.NoError(t, os.Symlink(hop1, filepath.Join(modDir, "vars.tf.json")))
+
+		err := OverwriteTf(&overwriteConfig{
+			NewValues: map[string]string{"value_to_replace": "pwned"},
+		}, modDir)
+		assert.ErrorIs(t, err, fsutil.ErrSymlink)
+
+		gotJSON, readErr := os.ReadFile(canaryJSON)
+		assert.NoError(t, readErr)
+		assert.Equal(t, tfJSON, string(gotJSON))
+	})
+
+	t.Run("dangling_symlinks_fail_closed_and_do_not_create_targets", func(t *testing.T) {
+		missingTarget := filepath.Join(t.TempDir(), "does_not_exist.yaml")
+
+		metaDir := t.TempDir()
+		assert.NoError(t, os.Symlink(missingTarget, filepath.Join(metaDir, "metadata.yaml")))
+		err := OverwriteMetadata(&overwriteConfig{}, metaDir)
+		assert.ErrorIs(t, err, fsutil.ErrSymlink)
+		_, statErr := os.Lstat(missingTarget)
+		assert.True(t, errors.Is(statErr, os.ErrNotExist))
+
+		dispDir := t.TempDir()
+		assert.NoError(t, os.Symlink(missingTarget, filepath.Join(dispDir, "metadata.display.yaml")))
+		err = OverwriteDisplay(&overwriteConfig{}, dispDir)
+		assert.ErrorIs(t, err, fsutil.ErrSymlink)
+
+		tfDir := t.TempDir()
+		assert.NoError(t, os.Symlink(missingTarget, filepath.Join(tfDir, "variables.tf")))
+		err = OverwriteTf(&overwriteConfig{}, tfDir)
+		assert.ErrorIs(t, err, fsutil.ErrSymlink)
+	})
+
+	t.Run("unreferenced_and_nested_symlinks_and_special_files_in_tree_rejected", func(t *testing.T) {
+		canary := filepath.Join(t.TempDir(), "docker_config.json")
+		assert.NoError(t, os.WriteFile(canary, []byte(`{"auths":{}}`), 0600))
+
+		modDir := t.TempDir()
+		assert.NoError(t, os.WriteFile(filepath.Join(modDir, "main.tf"), []byte(mainTf), 0644))
+		assert.NoError(t, os.MkdirAll(filepath.Join(modDir, "subdir"), 0755))
+		assert.NoError(t, os.Symlink(canary, filepath.Join(modDir, "subdir", "unused_leak.txt")))
+
+		err := OverwriteTf(&overwriteConfig{
+			NewValues: map[string]string{"value_to_replace": "new-value"},
+		}, modDir)
+		assert.ErrorIs(t, err, fsutil.ErrSymlink)
+
+		fifoDir := t.TempDir()
+		assert.NoError(t, os.WriteFile(filepath.Join(fifoDir, "main.tf"), []byte(mainTf), 0644))
+		assert.NoError(t, syscall.Mkfifo(filepath.Join(fifoDir, "named.pipe"), 0600))
+		err = OverwriteTf(&overwriteConfig{}, fifoDir)
+		assert.ErrorIs(t, err, fsutil.ErrSpecialFile)
+	})
+
+	t.Run("module_inside_symlinked_parent_directory_succeeds_for_regular_files", func(t *testing.T) {
+		base := t.TempDir()
+		realMod := filepath.Join(base, "private_var", "workspace")
+		assert.NoError(t, os.MkdirAll(realMod, 0755))
+		assert.NoError(t, os.WriteFile(filepath.Join(realMod, "main.tf"), []byte(mainTfNoLabel), 0644))
+		assert.NoError(t, os.WriteFile(filepath.Join(realMod, "metadata.yaml"), []byte(metadata), 0644))
+		assert.NoError(t, os.WriteFile(filepath.Join(realMod, "metadata.display.yaml"), []byte(metadataDisplayWithEnumsSingle), 0644))
+
+		symlinkVar := filepath.Join(base, "var")
+		assert.NoError(t, os.Symlink(filepath.Join(base, "private_var"), symlinkVar))
+		viaSymlinkParent := filepath.Join(symlinkVar, "workspace")
+
+		cfg := &overwriteConfig{
+			ConsumerLabel: "new-consumer-label",
+			NewValues: map[string]string{
+				"value_to_replace": "new-value",
+			},
+		}
+		assert.NoError(t, OverwriteTf(cfg, viaSymlinkParent))
+
+		metaCfg := &overwriteConfig{
+			NewValues: map[string]string{
+				"source_image":  "new-image",
+				"another_image": "newer-image",
+			},
+		}
+		assert.NoError(t, OverwriteMetadata(metaCfg, viaSymlinkParent))
+
+		dispCfg := &overwriteConfig{
+			NewValues: map[string]string{
+				"source_image": "projects/replacement/global/images/wordpress-1-new",
+			},
+		}
+		assert.NoError(t, OverwriteDisplay(dispCfg, viaSymlinkParent))
+	})
+}

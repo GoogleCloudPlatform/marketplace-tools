@@ -17,6 +17,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.0
 	k8s.io/utils v0.0.0-20191114184206-e782cd3c129f
 	sigs.k8s.io/kustomize/cmd/config v0.6.0
+	sigs.k8s.io/kustomize/kyaml v0.6.0
 	sigs.k8s.io/yaml v1.2.0
 )
 
@@ -110,5 +111,4 @@ require (
 	sigs.k8s.io/cli-utils v0.18.1 // indirect
 	sigs.k8s.io/controller-runtime v0.4.0 // indirect
 	sigs.k8s.io/kustomize v2.0.3+incompatible // indirect
-	sigs.k8s.io/kustomize/kyaml v0.6.0 // indirect
 )

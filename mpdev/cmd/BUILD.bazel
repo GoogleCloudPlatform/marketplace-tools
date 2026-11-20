@@ -1,10 +1,11 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "go_default_library",
     srcs = [
         "applycmd.go",
         "commands.go",
+        "kptguard.go",
         "rootcmd.go",
         "testcmd.go",
         "tfcmd.go",
@@ -18,10 +19,23 @@ go_library(
     deps = [
         "//mpdev/cmd/tf:go_default_library",
         "//mpdev/internal/docs:go_default_library",
+        "//mpdev/internal/pkgget:go_default_library",
         "//mpdev/internal/resources:go_default_library",
         "@com_github_googlecontainertools_kpt//commands:go_default_library",
         "@com_github_spf13_cobra//:go_default_library",
         "@io_k8s_sigs_kustomize_cmd_config//ext:go_default_library",
         "@io_k8s_utils//exec:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["kptguard_test.go"],
+    embed = [":go_default_library"],
+    deps = [
+        "//mpdev/internal/fsutil:go_default_library",
+        "@com_github_spf13_cobra//:go_default_library",
+        "@com_github_stretchr_testify//assert:go_default_library",
+        "@com_github_stretchr_testify//require:go_default_library",
     ],
 )

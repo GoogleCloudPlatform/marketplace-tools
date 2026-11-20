@@ -17,19 +17,18 @@ package tf
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 
+	"github.com/GoogleCloudPlatform/marketplace-tools/mpdev/internal/fsutil"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-config-inspect/tfconfig"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
-	"sigs.k8s.io/yaml"
-
 	"github.com/zclconf/go-cty/cty"
-
-	"os"
-	"path"
+	"sigs.k8s.io/yaml"
 )
 
 const mainTfFile = "main.tf"
@@ -56,8 +55,15 @@ type EnumValueLabel struct {
 
 // OverwriteTf replaces default variable values in Terraform modules
 func OverwriteTf(config *overwriteConfig, dir string) error {
+	realDir, err := fsutil.CanonicalDir(dir)
+	if err != nil {
+		return err
+	}
+	if err := fsutil.RejectSymlinksInTree(realDir, true); err != nil {
+		return err
+	}
 
-	upsertErr := upsertConsumerLabel(dir, config.ConsumerLabel)
+	upsertErr := upsertConsumerLabel(realDir, config.ConsumerLabel)
 	if upsertErr != nil {
 		return upsertErr
 	}
@@ -66,7 +72,7 @@ func OverwriteTf(config *overwriteConfig, dir string) error {
 		fmt.Printf("Replacing the default values of the variables: %s\n", config.NewValues)
 
 		for varName, newValue := range config.NewValues {
-			varInfo, err := getVarInfo(varName, dir)
+			varInfo, err := getVarInfo(varName, realDir)
 			if err != nil {
 				return err
 			}
@@ -75,7 +81,7 @@ func OverwriteTf(config *overwriteConfig, dir string) error {
 				return fmt.Errorf("image variable: %s must be type string", varName)
 			}
 
-			err = overwriteFile(varInfo.Pos.Filename, varName, newValue)
+			err = overwriteFile(realDir, varInfo.Pos.Filename, varName, newValue)
 			if err != nil {
 				return err
 			}
@@ -85,7 +91,7 @@ func OverwriteTf(config *overwriteConfig, dir string) error {
 		fmt.Printf("Mapping of values to replace: %s\n", config.Replacements)
 
 		for _, varname := range config.Variables {
-			varInfo, err := getVarInfo(varname, dir)
+			varInfo, err := getVarInfo(varname, realDir)
 			if err != nil {
 				return err
 			}
@@ -105,7 +111,7 @@ func OverwriteTf(config *overwriteConfig, dir string) error {
 					defaultVal, varname)
 			}
 
-			err = overwriteFile(varInfo.Pos.Filename, varname, replaceVal)
+			err = overwriteFile(realDir, varInfo.Pos.Filename, varname, replaceVal)
 			if err != nil {
 				return err
 			}
@@ -127,8 +133,73 @@ func GetOverwriteConfig(b []byte) (*overwriteConfig, error) {
 	return &config, nil
 }
 
-func getVarInfo(varname string, dir string) (*tfconfig.Variable, error) {
-	module, diag := tfconfig.LoadModule(dir)
+type noSymlinkTFConfigFS struct {
+	realRoot string
+}
+
+func (f noSymlinkTFConfigFS) toRel(name string) (string, error) {
+	if name == "" || name == "." || name == f.realRoot {
+		return ".", nil
+	}
+	if filepath.IsAbs(name) {
+		return filepath.Rel(f.realRoot, name)
+	}
+	return name, nil
+}
+
+func (f noSymlinkTFConfigFS) Open(name string) (tfconfig.File, error) {
+	rel, err := f.toRel(name)
+	if err != nil {
+		return nil, err
+	}
+	file, _, err := fsutil.OpenRegularFileNoFollow(f.realRoot, rel, os.O_RDONLY, 0)
+	return file, err
+}
+
+func (f noSymlinkTFConfigFS) ReadFile(name string) ([]byte, error) {
+	rel, err := f.toRel(name)
+	if err != nil {
+		return nil, err
+	}
+	data, _, err := fsutil.ReadRegularFileNoFollow(f.realRoot, rel)
+	return data, err
+}
+
+func (f noSymlinkTFConfigFS) ReadDir(dirname string) ([]os.FileInfo, error) {
+	rel, err := f.toRel(dirname)
+	if err != nil {
+		return nil, err
+	}
+	targetDir, err := fsutil.ValidateContainedRelPath(f.realRoot, rel)
+	if err != nil {
+		return nil, err
+	}
+	entries, err := os.ReadDir(targetDir)
+	if err != nil {
+		return nil, err
+	}
+	infos := make([]os.FileInfo, 0, len(entries))
+	for _, entry := range entries {
+		if entry.Type()&os.ModeSymlink != 0 {
+			return nil, fmt.Errorf("entry %q: %w", entry.Name(), fsutil.ErrSymlink)
+		}
+		if !entry.IsDir() && !entry.Type().IsRegular() {
+			return nil, fmt.Errorf("entry %q (mode %s): %w", entry.Name(), entry.Type(), fsutil.ErrSpecialFile)
+		}
+		info, err := entry.Info()
+		if err != nil {
+			return nil, err
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			return nil, fmt.Errorf("entry %q: %w", entry.Name(), fsutil.ErrSymlink)
+		}
+		infos = append(infos, info)
+	}
+	return infos, nil
+}
+
+func getVarInfo(varname string, realDir string) (*tfconfig.Variable, error) {
+	module, diag := tfconfig.LoadModuleFromFilesystem(noSymlinkTFConfigFS{realRoot: realDir}, ".")
 	if diag.HasErrors() {
 		return nil, fmt.Errorf("failure parsing terraform module: %w", diag)
 	}
@@ -162,8 +233,16 @@ func getAttributeValueTokens(value string) hclwrite.Tokens {
 
 }
 
-func overwriteFile(filename string, varname string, value string) error {
-	b, err := os.ReadFile(filename)
+func overwriteFile(realDir string, filename string, varname string, value string) error {
+	relName := filename
+	if filepath.IsAbs(filename) {
+		var err error
+		relName, err = filepath.Rel(realDir, filename)
+		if err != nil {
+			return err
+		}
+	}
+	b, _, err := fsutil.ReadRegularFileNoFollow(realDir, relName)
 	if err != nil {
 		return err
 	}
@@ -182,23 +261,16 @@ func overwriteFile(filename string, varname string, value string) error {
 	// formatting. See: https://github.com/hashicorp/hcl/issues/316
 	block.Body().SetAttributeRaw("default", getAttributeValueTokens(value))
 
-	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_TRUNC, 0000)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
 	rawBytes := file.BuildTokens(nil).Bytes()
 	formattedBytes := hclwrite.Format(rawBytes)
-	_, err = f.Write(formattedBytes)
-	return err
+	return fsutil.OverwriteRegularFileNoFollow(realDir, relName, formattedBytes, 0644)
 }
 
 // Inserts a consumer label under the `provider "google"` block if it does
 // not exist.
-// The `dir` parameter is the path to the TF main file.
+// The `realDir` parameter is the canonical path to the TF main file directory.
 // The `mpConsumerlabel` parameter is the label value.
-func upsertConsumerLabel(dir string, mpConsumerlabel string) error {
+func upsertConsumerLabel(realDir string, mpConsumerlabel string) error {
 	// If the parameter is not provided, do nothing.
 	// This is for backward-compatibility purpose.
 	if len(mpConsumerlabel) == 0 {
@@ -208,8 +280,8 @@ func upsertConsumerLabel(dir string, mpConsumerlabel string) error {
 
 	fmt.Printf("Inserting the '%s' consumer label.\n", mpConsumerlabel)
 
-	mainTfFullPath := path.Join(dir, mainTfFile)
-	b, err := os.ReadFile(mainTfFullPath)
+	mainTfFullPath := filepath.Join(realDir, mainTfFile)
+	b, _, err := fsutil.ReadRegularFileNoFollow(realDir, mainTfFile)
 	if err != nil {
 		return err
 	}
@@ -234,18 +306,14 @@ func upsertConsumerLabel(dir string, mpConsumerlabel string) error {
 				consumerLabelConst: cty.StringVal(mpConsumerlabel),
 			}))
 
-			f, err := os.OpenFile(mainTfFullPath, os.O_WRONLY|os.O_TRUNC, 0000)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-
 			rawBytes := mainTfParsedFile.BuildTokens(nil).Bytes()
 			formattedBytes := hclwrite.Format(rawBytes)
-			_, err = f.Write(formattedBytes)
+			if err := fsutil.OverwriteRegularFileNoFollow(realDir, mainTfFile, formattedBytes, 0644); err != nil {
+				return err
+			}
 
 			fmt.Printf("Successfully upserted consumber label in %s\n", mainTfFullPath)
-			return err
+			return nil
 		} else {
 			fmt.Printf("'%s' attribute detected in %s. Not overwriting.\n", defaultLabelsConst, mainTfFullPath)
 		}
@@ -264,7 +332,15 @@ func upsertConsumerLabel(dir string, mpConsumerlabel string) error {
 // 1. There are version compatiblilty issues with Kpt and cloud-foundation-toolkit to resolve
 // 2. We will avoid dropping fields if mpdev is using an out-of-date version of cloud-foundation-toolkit
 func OverwriteMetadata(config *overwriteConfig, dir string) error {
-	data, err := os.ReadFile(path.Join(dir, metadataFile))
+	realDir, err := fsutil.CanonicalDir(dir)
+	if err != nil {
+		return err
+	}
+	if err := fsutil.RejectSymlinksInTree(realDir, true); err != nil {
+		return err
+	}
+
+	data, _, err := fsutil.ReadRegularFileNoFollow(realDir, metadataFile)
 	if err != nil {
 		// CLI only modules will not have a metadata file. Ignore file not found errors
 		if os.IsNotExist(err) {
@@ -330,7 +406,7 @@ func OverwriteMetadata(config *overwriteConfig, dir string) error {
 		return err
 	}
 
-	err = os.WriteFile(path.Join(dir, metadataFile), modifiedYaml, 0644)
+	err = fsutil.OverwriteRegularFileNoFollow(realDir, metadataFile, modifiedYaml, 0644)
 	if err != nil {
 		return err
 	}
@@ -344,7 +420,15 @@ func OverwriteDisplay(config *overwriteConfig, dir string) error {
 	fmt.Printf("Replacing the values of the display variables: %s in %s\n",
 		config.Variables, metadataDisplayFile)
 
-	data, err := os.ReadFile(path.Join(dir, metadataDisplayFile))
+	realDir, err := fsutil.CanonicalDir(dir)
+	if err != nil {
+		return err
+	}
+	if err := fsutil.RejectSymlinksInTree(realDir, true); err != nil {
+		return err
+	}
+
+	data, _, err := fsutil.ReadRegularFileNoFollow(realDir, metadataDisplayFile)
 	if err != nil {
 		// CLI only modules will not have a metadata display file. Ignore file not found errors
 		if os.IsNotExist(err) {
@@ -428,7 +512,7 @@ func OverwriteDisplay(config *overwriteConfig, dir string) error {
 		return err
 	}
 
-	err = os.WriteFile(path.Join(dir, metadataDisplayFile), modifiedYaml, 0644)
+	err = fsutil.OverwriteRegularFileNoFollow(realDir, metadataDisplayFile, modifiedYaml, 0644)
 	if err != nil {
 		return err
 	}
