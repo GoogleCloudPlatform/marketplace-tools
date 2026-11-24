@@ -25,7 +25,9 @@ import (
 // GetMpdevCommands returns all command.
 func GetMpdevCommands(name string) (c []*cobra.Command) {
 	pkgCmd := commands.GetPkgCommand(name)
+	hardenPkgCommand(pkgCmd)
 	cfgCmd := commands.GetConfigCommand(name)
+	guardCfgSet(cfgCmd)
 	fixDocs(regexp.MustCompile(`\bkpt\b`), name, pkgCmd, cfgCmd)
 	applyCmd := GetApplyCommand()
 	testCmd := GetTestCommand()
